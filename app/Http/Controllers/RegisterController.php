@@ -1,0 +1,129 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Models\Student;
+use App\Models\Teacher;
+use App\Models\Invitation;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+
+class RegisterController extends Controller
+{
+    // Show admin registration form
+    public function showAdminRegister()
+    {
+        // Check if admin already exists
+        if (User::where('role', 'admin')->exists()) {
+            return redirect()->route('login')->withErrors(['email' => 'Admin account already exists.']);
+        }
+        
+        return view('register-admin');
+    }
+
+    // Handle admin registration
+    public function registerAdmin(Request $request)
+    {
+        // Check if admin already exists
+        if (User::where('role', 'admin')->exists()) {
+            return redirect()->route('login')->withErrors(['email' => 'Admin account already exists.']);
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => 'admin',
+        ]);
+
+        Auth::login($user);
+
+        return redirect()->route('admin.dashboard')->with('success', 'Admin account created successfully!');
+    }
+
+    // Show invitation registration form
+    public function showInvitationRegister($token)
+    {
+        $invitation = Invitation::where('token', $token)->firstOrFail();
+
+        if (!$invitation->isValid()) {
+            return redirect()->route('login')->withErrors(['email' => 'This invitation has expired or been used.']);
+        }
+
+        return view('register-invitation', compact('invitation'));
+    }
+
+    // Handle invitation registration
+    public function registerInvitation(Request $request, $token)
+    {
+        $invitation = Invitation::where('token', $token)->firstOrFail();
+
+        if (!$invitation->isValid()) {
+            return redirect()->route('login')->withErrors(['email' => 'This invitation has expired or been used.']);
+        }
+
+        $rules = [
+            'email' => 'required|email|unique:users,email',
+            'name' => 'required|string|max:255',
+            'password' => 'required|string|min:8|confirmed',
+        ];
+
+        if ($invitation->role === 'student') {
+            $rules['student_id'] = 'required|string|unique:students,student_id';
+            $rules['class'] = 'required|string';
+        } elseif ($invitation->role === 'teacher') {
+            $rules['teacher_id'] = 'required|string|unique:teachers,teacher_id';
+            $rules['subject'] = 'required|string';
+        }
+
+        $validated = $request->validate($rules);
+
+        // Create user
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => $invitation->role,
+        ]);
+
+        // Create role-specific record
+        if ($invitation->role === 'student') {
+            Student::create([
+                'user_id' => $user->id,
+                'student_id' => $validated['student_id'],
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'class' => $validated['class'],
+            ]);
+        } elseif ($invitation->role === 'teacher') {
+            Teacher::create([
+                'user_id' => $user->id,
+                'teacher_id' => $validated['teacher_id'],
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'subject' => $validated['subject'],
+            ]);
+        }
+
+        // Mark invitation as used
+        $invitation->update(['used' => true]);
+
+        Auth::login($user);
+
+        // Redirect based on role
+        if ($user->isTeacher()) {
+            return redirect()->route('teacher.dashboard')->with('success', 'Registration completed successfully!');
+        } else {
+            return redirect()->route('dashboard')->with('success', 'Registration completed successfully!');
+        }
+    }
+}
