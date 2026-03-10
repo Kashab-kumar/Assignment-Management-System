@@ -12,7 +12,17 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $student = auth()->user()->student;
+        $user = auth()->user();
+        
+        // Check if user has student record
+        if (!$user->student) {
+            return view('dashboard-error', [
+                'message' => 'Your student profile is not set up. Please contact the administrator.',
+                'user' => $user
+            ]);
+        }
+        
+        $student = $user->student;
         
         $assignments = Assignment::with(['submissions' => function($q) use ($student) {
             $q->where('student_id', $student->id);

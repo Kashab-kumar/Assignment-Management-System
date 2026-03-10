@@ -6,11 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Student extends Model
 {
-    protected $fillable = ['user_id', 'student_id', 'name', 'email', 'class'];
+    protected $fillable = ['user_id', 'student_id', 'name', 'email', 'course_id'];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class);
     }
 
     public function submissions()

@@ -1,59 +1,63 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assignments</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .header { background: #4CAF50; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-        .nav { margin-bottom: 20px; }
-        .nav a { padding: 10px 20px; background: #4CAF50; color: white; text-decoration: none; border-radius: 4px; margin-right: 10px; }
-        .assignments-grid { display: grid; gap: 20px; }
-        .assignment-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .assignment-card h3 { color: #333; margin-bottom: 10px; }
-        .assignment-card .meta { color: #666; font-size: 14px; margin-bottom: 10px; }
-        .assignment-card .description { color: #555; margin-bottom: 15px; }
-        .btn { padding: 8px 16px; background: #4CAF50; color: white; text-decoration: none; border-radius: 4px; display: inline-block; }
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-left: 10px; }
-        .badge-assignment { background: #2196F3; color: white; }
-        .badge-homework { background: #FF9800; color: white; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Assignments & Homework</h1>
-        </div>
+@extends('layouts.student')
 
-        <div class="nav">
-            <a href="{{ route('dashboard') }}">← Back to Dashboard</a>
-        </div>
+@section('title', 'Assignments')
+@section('page-title', 'Assignments & Homework')
 
-        <div class="assignments-grid">
-            @forelse($assignments as $assignment)
-            <div class="assignment-card">
-                <h3>
-                    {{ $assignment->title }}
-                    <span class="badge badge-{{ $assignment->type }}">{{ ucfirst($assignment->type) }}</span>
-                </h3>
-                <div class="meta">
-                    Due: {{ $assignment->due_date->format('F d, Y') }} | 
-                    Max Score: {{ $assignment->max_score }} points
-                </div>
-                <div class="description">{{ Str::limit($assignment->description, 150) }}</div>
-                <a href="{{ route('assignments.show', $assignment) }}" class="btn">View Details</a>
+@section('content')
+<style>
+    .assignments-grid { display: grid; gap: 20px; }
+    .assignment-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.2s; }
+    .assignment-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+    .assignment-card h3 { color: #333; margin-bottom: 10px; font-size: 20px; }
+    .assignment-card .meta { color: #666; font-size: 14px; margin-bottom: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px; }
+    .assignment-card .description { color: #555; margin-bottom: 15px; line-height: 1.6; }
+    .btn { padding: 10px 20px; background: #27ae60; color: white; text-decoration: none; border-radius: 4px; display: inline-block; font-size: 14px; }
+    .btn:hover { background: #229954; }
+    .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-left: 10px; font-weight: bold; }
+    .badge-assignment { background: #2196F3; color: white; }
+    .badge-homework { background: #FF9800; color: white; }
+    .empty-state { text-align: center; padding: 60px 20px; background: white; border-radius: 8px; }
+    .empty-state svg { width: 100px; height: 100px; fill: #ddd; margin-bottom: 20px; }
+    .empty-state h3 { color: #666; margin-bottom: 10px; }
+    .due-soon { color: #e74c3c; font-weight: bold; }
+    .pagination { margin-top: 20px; display: flex; justify-content: center; }
+</style>
+
+<div class="assignments-grid">
+    @forelse($assignments as $assignment)
+    <div class="assignment-card">
+        <h3>
+            {{ $assignment->title }}
+            <span class="badge badge-{{ $assignment->type }}">{{ ucfirst($assignment->type) }}</span>
+        </h3>
+        <div class="meta">
+            <div style="margin-bottom: 5px;">
+                📅 <strong>Due:</strong> 
+                @if($assignment->due_date->isPast())
+                    <span style="color: #e74c3c;">{{ $assignment->due_date->format('F d, Y') }} (Overdue)</span>
+                @elseif($assignment->due_date->diffInDays() <= 3)
+                    <span class="due-soon">{{ $assignment->due_date->format('F d, Y') }} (Due Soon!)</span>
+                @else
+                    {{ $assignment->due_date->format('F d, Y') }}
+                @endif
             </div>
-            @empty
-            <p>No assignments available yet.</p>
-            @endforelse
+            <div>📊 <strong>Max Score:</strong> {{ $assignment->max_score }} points</div>
         </div>
-
-        <div style="margin-top: 20px;">
-            {{ $assignments->links() }}
-        </div>
+        <div class="description">{{ Str::limit($assignment->description, 150) }}</div>
+        <a href="{{ route('assignments.show', $assignment) }}" class="btn">View Details & Submit</a>
     </div>
-</body>
-</html>
+    @empty
+    <div class="empty-state">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+        <h3>No Assignments Available</h3>
+        <p>Your teacher hasn't posted any assignments yet. Check back later!</p>
+    </div>
+    @endforelse
+</div>
+
+@if($assignments->hasPages())
+<div class="pagination">
+    {{ $assignments->links() }}
+</div>
+@endif
+@endsection

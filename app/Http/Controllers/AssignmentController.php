@@ -17,6 +17,13 @@ class AssignmentController extends Controller
     public function show(Assignment $assignment)
     {
         $student = auth()->user()->student;
+        
+        // Check if student record exists
+        if (!$student) {
+            return redirect()->route('dashboard')
+                ->withErrors(['error' => 'Student profile not found. Please contact administrator.']);
+        }
+        
         $submission = $assignment->submissions()->where('student_id', $student->id)->first();
         return view('assignments.show', compact('assignment', 'submission'));
     }
