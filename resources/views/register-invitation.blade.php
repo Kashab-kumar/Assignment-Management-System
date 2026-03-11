@@ -6,8 +6,8 @@
     <title>Complete Registration</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: Arial, sans-serif; 
+        body {
+            font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -23,8 +23,8 @@
             width: 100%;
             max-width: 450px;
         }
-        h1 { 
-            color: #333; 
+        h1 {
+            color: #333;
             margin-bottom: 10px;
             text-align: center;
         }
@@ -142,7 +142,7 @@
 
         <form method="POST" action="{{ route('register.invitation.post', $invitation->token) }}">
             @csrf
-            
+
             <div class="form-group">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus>
@@ -154,15 +154,25 @@
             </div>
 
             @if($invitation->role === 'student')
+                @if($invitation->course)
+                <div class="info-box">
+                    <strong>Assigned Category:</strong> {{ $invitation->course->category_name ?: 'Uncategorized' }}<br>
+                    <strong>Assigned Class:</strong> {{ $invitation->course->class_name ?: 'Unassigned' }}<br>
+                    <strong>Assigned Course:</strong> {{ $invitation->course->name }}
+                </div>
+                @endif
+
             <div class="form-group">
                 <label for="student_id">Student ID</label>
                 <input type="text" id="student_id" name="student_id" value="{{ old('student_id') }}" required>
             </div>
 
+                @if(!$invitation->course)
             <div class="form-group">
                 <label for="class">Class</label>
                 <input type="text" id="class" name="class" value="{{ old('class') }}" placeholder="e.g., Class A" required>
             </div>
+                @endif
             @endif
 
             @if($invitation->role === 'teacher')
@@ -211,7 +221,7 @@
         function togglePassword(fieldId) {
             const passwordInput = document.getElementById(fieldId);
             const toggle = passwordInput.parentElement.querySelector('.password-toggle svg');
-            
+
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 toggle.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle><line x1="1" y1="1" x2="23" y2="23" stroke-width="2"></line>';

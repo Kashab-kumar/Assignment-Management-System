@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Student extends Model
 {
-    protected $fillable = ['user_id', 'student_id', 'name', 'email', 'course_id'];
+    protected $fillable = ['user_id', 'student_id', 'name', 'email', 'course_id', 'class'];
 
     public function user()
     {
@@ -30,8 +30,9 @@ class Student extends Model
 
     public function getAverageScore()
     {
-        $submissions = $this->submissions()->where('status', 'graded')->avg('score');
-        $exams = $this->examResults()->avg('score');
+        $submissions = (float) ($this->submissions()->where('status', 'graded')->avg('score') ?? 0);
+        $exams = (float) ($this->examResults()->avg('score') ?? 0);
+
         return ($submissions + $exams) / 2;
     }
 }

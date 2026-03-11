@@ -11,7 +11,7 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         padding: 30px;
     }
-    
+
     .course-header {
         display: flex;
         justify-content: space-between;
@@ -20,7 +20,7 @@
         padding-bottom: 20px;
         border-bottom: 1px solid #eee;
     }
-    
+
     .course-code {
         font-family: monospace;
         background: #f0f0f0;
@@ -29,17 +29,17 @@
         font-size: 14px;
         color: #666;
     }
-    
+
     .status-badge {
         padding: 6px 12px;
         border-radius: 4px;
         font-size: 12px;
         font-weight: 600;
     }
-    
+
     .status-active { background: #4CAF50; color: white; }
     .status-inactive { background: #f44336; color: white; }
-    
+
     .course-description {
         color: #666;
         line-height: 1.6;
@@ -48,17 +48,17 @@
         background: #f8f9fa;
         border-radius: 4px;
     }
-    
+
     .students-section {
         margin-top: 30px;
     }
-    
+
     .students-table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 15px;
     }
-    
+
     .students-table th {
         background: #f8f9fa;
         padding: 12px 15px;
@@ -67,16 +67,16 @@
         color: #555;
         border-bottom: 2px solid #dee2e6;
     }
-    
+
     .students-table td {
         padding: 12px 15px;
         border-bottom: 1px solid #eee;
     }
-    
+
     .students-table tr:hover {
         background: #f8f9fa;
     }
-    
+
     .btn {
         padding: 8px 16px;
         border-radius: 4px;
@@ -84,11 +84,11 @@
         font-size: 14px;
         margin-right: 10px;
     }
-    
+
     .btn-edit { background: #2196F3; color: white; }
     .btn-delete { background: #f44336; color: white; }
     .btn-back { background: #666; color: white; }
-    
+
     .empty-state {
         text-align: center;
         padding: 40px;
@@ -102,11 +102,13 @@
         {{ session('success') }}
     </div>
     @endif
-    
+
     <div class="course-header">
         <div>
             <h1 style="margin: 0 0 10px 0; color: #333;">{{ $course->name }}</h1>
             <div class="course-code">{{ $course->code }}</div>
+            <div style="margin-top: 10px; color: #666;">Category: <strong>{{ $course->category_name ?: 'Uncategorized' }}</strong></div>
+            <div style="margin-top: 10px; color: #666;">Class: <strong>{{ $course->class_name ?: 'Unassigned' }}</strong></div>
         </div>
         <div>
             <span class="status-badge status-{{ $course->is_active ? 'active' : 'inactive' }}">
@@ -114,13 +116,13 @@
             </span>
         </div>
     </div>
-    
+
     @if($course->description)
     <div class="course-description">
         {{ $course->description }}
     </div>
     @endif
-    
+
     <div style="margin-top: 20px;">
         <a href="{{ route('admin.courses.edit', $course) }}" class="btn btn-edit">Edit Course</a>
         <form action="{{ route('admin.courses.destroy', $course) }}" method="POST" style="display: inline;">
@@ -130,10 +132,10 @@
         </form>
         <a href="{{ route('admin.courses.index') }}" class="btn btn-back">← Back to Courses</a>
     </div>
-    
+
     <div class="students-section">
         <h3>Enrolled Students ({{ $course->students->count() }})</h3>
-        
+
         @if($course->students->count() > 0)
         <table class="students-table">
             <thead>
@@ -161,5 +163,38 @@
         </div>
         @endif
     </div>
+
+    @if(!empty($course->class_name))
+    <div class="students-section">
+        <h3>Other Subjects/Courses In {{ $course->class_name }} ({{ $relatedCourses->count() }})</h3>
+
+        @if($relatedCourses->count() > 0)
+        <table class="students-table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Course Code</th>
+                    <th>Course Name</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($relatedCourses as $related)
+                <tr>
+                    <td>{{ $related->category_name ?: 'Uncategorized' }}</td>
+                    <td><strong>{{ $related->code }}</strong></td>
+                    <td>{{ $related->name }}</td>
+                    <td><a href="{{ route('admin.courses.show', $related) }}" class="btn btn-edit" style="padding: 6px 10px; font-size: 12px;">View</a></td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+        @else
+        <div class="empty-state">
+            <p>No other subjects/courses found for this class yet.</p>
+        </div>
+        @endif
+    </div>
+    @endif
 </div>
 @endsection

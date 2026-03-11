@@ -25,18 +25,18 @@
 
 <div class="welcome-card">
     <h2>Welcome back, {{ $student->name }}!</h2>
-    <p>Student ID: {{ $student->student_id }} | Class: {{ $student->class }}</p>
+    <p>Student ID: {{ $student->student_id }} | {{ $groupLabel }}: {{ $groupValue }}</p>
 </div>
 
 <div class="stats">
     <div class="stat-card">
         <h3>Your Class Rank</h3>
-        <div class="value">#{{ $myRank }}</div>
+        <div class="value">{{ $myRank ? '#' . $myRank : '-' }}</div>
         <p>out of {{ $rankings->count() }} students</p>
     </div>
     <div class="stat-card">
         <h3>Average Score</h3>
-        <div class="value">{{ number_format($student->getAverageScore(), 1) }}%</div>
+        <div class="value">{{ number_format((float) $student->getAverageScore(), 1) }}%</div>
     </div>
     <div class="stat-card">
         <h3>Pending Submissions</h3>

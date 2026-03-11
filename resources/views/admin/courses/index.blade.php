@@ -11,7 +11,7 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         padding: 20px;
     }
-    
+
     .courses-header {
         display: flex;
         justify-content: space-between;
@@ -19,36 +19,100 @@
         margin-bottom: 20px;
         padding-bottom: 15px;
         border-bottom: 1px solid #eee;
+        gap: 10px;
+        flex-wrap: wrap;
     }
-    
-    .courses-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 20px;
+
+    .filter-form {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
     }
-    
-    .course-card {
+
+    .filter-select {
+        min-width: 220px;
+        padding: 8px 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .tree {
+        border: 1px solid #ececf3;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .tree details {
+        border-bottom: 1px solid #ececf3;
         background: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 20px;
-        transition: all 0.3s ease;
     }
-    
-    .course-card:hover {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        transform: translateY(-2px);
+
+    .tree details:last-child {
+        border-bottom: none;
     }
-    
-    .course-card.active {
-        border-left: 4px solid #4CAF50;
+
+    .tree summary {
+        list-style: none;
+        cursor: pointer;
     }
-    
-    .course-card.inactive {
-        border-left: 4px solid #f44336;
-        opacity: 0.8;
+
+    .tree summary::-webkit-details-marker {
+        display: none;
     }
-    
+
+    .category-summary,
+    .class-summary {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 18px;
+        font-weight: 700;
+        color: #142a68;
+    }
+
+    .category-summary {
+        background: #f6f7fb;
+        font-size: 24px;
+    }
+
+    .class-summary {
+        padding-left: 36px;
+        font-size: 17px;
+        background: #fcfcfe;
+    }
+
+    .tree-caret {
+        width: 0;
+        height: 0;
+        border-left: 6px solid #8d91a7;
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        transition: transform .2s ease;
+    }
+
+    details[open] > summary .tree-caret {
+        transform: rotate(90deg);
+    }
+
+    .course-list {
+        padding: 0 18px 12px 54px;
+    }
+
+    .course-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 14px;
+        align-items: center;
+        padding: 12px 0;
+        border-top: 1px solid #efeff5;
+    }
+
+    .course-row:first-child {
+        border-top: none;
+    }
+
     .course-code {
         font-family: monospace;
         background: #f0f0f0;
@@ -57,30 +121,28 @@
         font-size: 12px;
         color: #666;
     }
-    
+
     .course-name {
         font-size: 18px;
         font-weight: 600;
         color: #333;
-        margin: 10px 0;
+        margin: 4px 0 8px;
     }
-    
+
     .course-description {
         color: #666;
         font-size: 14px;
         line-height: 1.5;
         margin-bottom: 15px;
     }
-    
+
     .course-meta {
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-start;
         align-items: center;
-        margin-top: 15px;
-        padding-top: 15px;
-        border-top: 1px solid #eee;
+        gap: 10px;
     }
-    
+
     .students-count {
         background: #2196F3;
         color: white;
@@ -88,17 +150,17 @@
         border-radius: 4px;
         font-size: 12px;
     }
-    
+
     .status-badge {
         padding: 4px 8px;
         border-radius: 4px;
         font-size: 11px;
         font-weight: 600;
     }
-    
+
     .status-active { background: #4CAF50; color: white; }
     .status-inactive { background: #f44336; color: white; }
-    
+
     .btn {
         padding: 6px 12px;
         border-radius: 4px;
@@ -106,64 +168,109 @@
         font-size: 13px;
         margin-right: 5px;
     }
-    
+
     .btn-view { background: #4CAF50; color: white; }
     .btn-edit { background: #2196F3; color: white; }
     .btn-delete { background: #f44336; color: white; }
     .btn-add { background: #9C27B0; color: white; padding: 8px 16px; }
+
+    .course-actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
 </style>
 
 <div class="courses-container">
     <div class="courses-header">
-        <h2 style="margin: 0; color: #333;">All Courses ({{ $courses->total() }})</h2>
-        <a href="{{ route('admin.courses.create') }}" class="btn btn-add">+ Add New Course</a>
+        <div>
+            <h2 style="margin: 0; color: #333;">Course Categories ({{ $courses->count() }})</h2>
+            <p style="margin-top: 6px; color: #666;">Browse courses as Category → Class → Subject</p>
+            @if($selectedCategory || $selectedClass)
+                <p style="margin-top: 6px; color: #666;">
+                    Filter:
+                    @if($selectedCategory)<strong>Category: {{ $selectedCategory }}</strong>@endif
+                    @if($selectedCategory && $selectedClass) | @endif
+                    @if($selectedClass)<strong>Class: {{ $selectedClass }}</strong>@endif
+                </p>
+            @endif
+        </div>
+
+        <div class="filter-form">
+            <form method="GET" action="{{ route('admin.courses.index') }}" class="filter-form">
+                <select name="category_name" class="filter-select" onchange="this.form.submit()">
+                    <option value="">All Categories</option>
+                    @foreach($categoryOptions as $categoryName)
+                        <option value="{{ $categoryName }}" {{ $selectedCategory === $categoryName ? 'selected' : '' }}>{{ $categoryName }}</option>
+                    @endforeach
+                </select>
+                <select name="class_name" class="filter-select" onchange="this.form.submit()">
+                    <option value="">All Classes</option>
+                    @foreach($classOptions as $className)
+                        <option value="{{ $className }}" {{ $selectedClass === $className ? 'selected' : '' }}>{{ $className }}</option>
+                    @endforeach
+                </select>
+            </form>
+            <a href="{{ route('admin.courses.create') }}" class="btn btn-add">+ Add New Course</a>
+        </div>
     </div>
-    
+
     @if(session('success'))
         <div style="background: #d4edda; color: #155724; padding: 12px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
             {{ session('success') }}
         </div>
     @endif
-    
+
     @if($courses->count() > 0)
-        <div class="courses-grid">
-            @foreach($courses as $course)
-            <div class="course-card {{ $course->is_active ? 'active' : 'inactive' }}">
-                <div class="course-code">{{ $course->code }}</div>
-                <div class="course-name">{{ $course->name }}</div>
-                
-                @if($course->description)
-                <div class="course-description">
-                    {{ Str::limit($course->description, 100) }}
-                </div>
-                @endif
-                
-                <div class="course-meta">
-                    <div>
-                        <span class="students-count">{{ $course->students_count }} student(s)</span>
-                    </div>
-                    <div>
-                        <span class="status-badge status-{{ $course->is_active ? 'active' : 'inactive' }}">
-                            {{ $course->is_active ? 'Active' : 'Inactive' }}
-                        </span>
-                    </div>
-                </div>
-                
-                <div style="margin-top: 15px; display: flex; gap: 5px;">
-                    <a href="{{ route('admin.courses.show', $course) }}" class="btn btn-view">View</a>
-                    <a href="{{ route('admin.courses.edit', $course) }}" class="btn btn-edit">Edit</a>
-                    <form action="{{ route('admin.courses.destroy', $course) }}" method="POST" style="display: inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-delete" onclick="return confirm('Delete this course?')">Delete</button>
-                    </form>
-                </div>
-            </div>
+        <div class="tree">
+            @foreach($courseTree as $categoryName => $classes)
+                <details open>
+                    <summary class="category-summary">
+                        <span class="tree-caret"></span>
+                        <span>{{ $categoryName }}</span>
+                    </summary>
+
+                    @foreach($classes as $className => $classCourses)
+                        <details>
+                            <summary class="class-summary">
+                                <span class="tree-caret"></span>
+                                <span>{{ $className }}</span>
+                            </summary>
+
+                            <div class="course-list">
+                                @foreach($classCourses as $course)
+                                    <div class="course-row">
+                                        <div>
+                                            <div class="course-code">{{ $course->code }}</div>
+                                            <div class="course-name">{{ $course->name }}</div>
+                                            @if($course->description)
+                                                <div class="course-description">{{ Str::limit($course->description, 140) }}</div>
+                                            @endif
+                                            <div class="course-meta">
+                                                <span class="students-count">{{ $course->students_count }} student(s)</span>
+                                                <span class="status-badge status-{{ $course->is_active ? 'active' : 'inactive' }}">
+                                                    {{ $course->is_active ? 'Active' : 'Inactive' }}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="course-actions">
+                                            <a href="{{ route('admin.courses.show', $course) }}" class="btn btn-view">View</a>
+                                            <a href="{{ route('admin.courses.edit', $course) }}" class="btn btn-edit">Edit</a>
+                                            <form action="{{ route('admin.courses.destroy', $course) }}" method="POST" style="display: inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-delete" onclick="return confirm('Delete this course?')">Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </details>
+                    @endforeach
+                </details>
             @endforeach
-        </div>
-        
-        <div style="margin-top: 20px;">
-            {{ $courses->links() }}
         </div>
     @else
         <div style="text-align: center; padding: 40px; color: #666;">
@@ -171,7 +278,7 @@
                 <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
             </svg>
             <h3>No Courses Found</h3>
-            <p>Create your first course to get started.</p>
+            <p>Create your first category/class/course entry to get started.</p>
             <a href="{{ route('admin.courses.create') }}" class="btn btn-add" style="margin-top: 10px;">+ Create First Course</a>
         </div>
     @endif

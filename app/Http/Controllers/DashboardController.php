@@ -7,13 +7,14 @@ use App\Models\Student;
 use App\Models\Assignment;
 use App\Models\Exam;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class DashboardController extends Controller
 {
     public function index()
     {
         $user = auth()->user();
-        
+
         // Check if user has student record
         if (!$user->student) {
             return view('dashboard-error', [
@@ -21,30 +22,42 @@ class DashboardController extends Controller
                 'user' => $user
             ]);
         }
-        
+
         $student = $user->student;
-        
+
         $assignments = Assignment::with(['submissions' => function($q) use ($student) {
             $q->where('student_id', $student->id);
         }])->latest()->get();
-        
+
         $exams = Exam::with(['results' => function($q) use ($student) {
             $q->where('student_id', $student->id);
         }])->latest()->get();
-        
-        // Calculate class ranking
-        $students = Student::where('class', $student->class)->get();
+
+        $hasCourseId = Schema::hasColumn('students', 'course_id');
+
+        if ($hasCourseId) {
+            $students = Student::where('course_id', $student->course_id)->get();
+            $groupLabel = 'Course';
+            $groupValue = optional($student->course)->name ?? 'Not assigned';
+        } else {
+            $students = Student::where('class', $student->class)->get();
+            $groupLabel = 'Class';
+            $groupValue = $student->class ?? 'Not assigned';
+        }
+
         $rankings = $students->map(function($s) {
             return [
                 'student' => $s,
                 'average' => $s->getAverageScore()
             ];
         })->sortByDesc('average')->values();
-        
-        $myRank = $rankings->search(function($item) use ($student) {
+
+        $myRankIndex = $rankings->search(function($item) use ($student) {
             return $item['student']->id === $student->id;
-        }) + 1;
-        
-        return view('dashboard', compact('assignments', 'exams', 'rankings', 'myRank', 'student'));
+        });
+
+        $myRank = $myRankIndex === false ? null : $myRankIndex + 1;
+
+        return view('dashboard', compact('assignments', 'exams', 'rankings', 'myRank', 'student', 'groupLabel', 'groupValue'));
     }
 }

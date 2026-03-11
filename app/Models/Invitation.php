@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Invitation extends Model
 {
-    protected $fillable = ['token', 'role', 'invited_by', 'used', 'expires_at'];
+    protected $fillable = ['token', 'role', 'course_id', 'invited_by', 'used', 'expires_at'];
 
     protected $casts = [
         'expires_at' => 'datetime',
@@ -16,6 +16,11 @@ class Invitation extends Model
     public function inviter()
     {
         return $this->belongsTo(User::class, 'invited_by');
+    }
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class);
     }
 
     public function isExpired()

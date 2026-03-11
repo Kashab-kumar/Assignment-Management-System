@@ -10,6 +10,7 @@ use App\Models\Invitation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class RegisterController extends Controller
 {
@@ -20,7 +21,7 @@ class RegisterController extends Controller
         if (User::where('role', 'admin')->exists()) {
             return redirect()->route('login')->withErrors(['email' => 'Admin account already exists.']);
         }
-        
+
         return view('register-admin');
     }
 
@@ -53,7 +54,7 @@ class RegisterController extends Controller
     // Show invitation registration form
     public function showInvitationRegister($token)
     {
-        $invitation = Invitation::where('token', $token)->firstOrFail();
+        $invitation = Invitation::with('course')->where('token', $token)->firstOrFail();
 
         if (!$invitation->isValid()) {
             return redirect()->route('login')->withErrors(['email' => 'This invitation has expired or been used.']);
@@ -65,7 +66,7 @@ class RegisterController extends Controller
     // Handle invitation registration
     public function registerInvitation(Request $request, $token)
     {
-        $invitation = Invitation::where('token', $token)->firstOrFail();
+        $invitation = Invitation::with('course')->where('token', $token)->firstOrFail();
 
         if (!$invitation->isValid()) {
             return redirect()->route('login')->withErrors(['email' => 'This invitation has expired or been used.']);
@@ -79,7 +80,9 @@ class RegisterController extends Controller
 
         if ($invitation->role === 'student') {
             $rules['student_id'] = 'required|string|unique:students,student_id';
-            $rules['class'] = 'required|string';
+            if (!$invitation->course_id) {
+                $rules['class'] = 'required|string';
+            }
         } elseif ($invitation->role === 'teacher') {
             $rules['teacher_id'] = 'required|string|unique:teachers,teacher_id';
             $rules['subject'] = 'required|string';
@@ -97,13 +100,22 @@ class RegisterController extends Controller
 
         // Create role-specific record
         if ($invitation->role === 'student') {
-            Student::create([
+            $studentData = [
                 'user_id' => $user->id,
                 'student_id' => $validated['student_id'],
                 'name' => $validated['name'],
                 'email' => $validated['email'],
-                'class' => $validated['class'],
-            ]);
+            ];
+
+            if (Schema::hasColumn('students', 'course_id') && $invitation->course_id) {
+                $studentData['course_id'] = $invitation->course_id;
+            }
+
+            if (Schema::hasColumn('students', 'class')) {
+                $studentData['class'] = $invitation->course?->class_name ?? ($validated['class'] ?? null);
+            }
+
+            Student::create($studentData);
         } elseif ($invitation->role === 'teacher') {
             Teacher::create([
                 'user_id' => $user->id,
