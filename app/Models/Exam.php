@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Exam extends Model
 {
-    protected $fillable = ['title', 'description', 'exam_date', 'max_score'];
+    protected $fillable = ['course_id', 'title', 'description', 'exam_date', 'max_score'];
 
     protected $casts = [
         'exam_date' => 'date',
@@ -15,5 +15,10 @@ class Exam extends Model
     public function results()
     {
         return $this->hasMany(ExamResult::class);
+    }
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class);
     }
 }

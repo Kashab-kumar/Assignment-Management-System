@@ -1,7 +1,7 @@
 @extends('layouts.teacher')
 
-@section('title', 'Create Exam')
-@section('page-title', 'Create Exam')
+@section('title', $mode === 'quiz' ? 'Create Quiz' : 'Create Exam')
+@section('page-title', $mode === 'quiz' ? 'Create Quiz' : 'Create Exam')
 
 @section('content')
 <style>
@@ -29,7 +29,19 @@
         @csrf
 
         <div class="form-group">
-            <label for="title">Exam Title *</label>
+            <label for="course_id">Course *</label>
+            <select id="course_id" name="course_id" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">Choose a course</option>
+                @foreach($courses as $course)
+                    <option value="{{ $course->id }}" {{ (string) old('course_id', $selectedCourseId) === (string) $course->id ? 'selected' : '' }}>
+                        {{ $course->category_name ?: 'Uncategorized' }} / {{ $course->class_name ?: 'Unassigned' }} / {{ $course->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="title">{{ $mode === 'quiz' ? 'Quiz Title' : 'Exam Title' }} *</label>
             <input id="title" name="title" value="{{ old('title') }}" required>
         </div>
 
@@ -48,8 +60,8 @@
             <input type="number" id="max_score" name="max_score" min="1" max="1000" value="{{ old('max_score', 100) }}" required>
         </div>
 
-        <button type="submit" class="btn">Create Exam</button>
-        <a class="btn-link" href="{{ route('teacher.exams.index') }}">Cancel</a>
+        <button type="submit" class="btn">{{ $mode === 'quiz' ? 'Create Quiz' : 'Create Exam' }}</button>
+        <a class="btn-link" href="{{ $selectedCourseId ? route('teacher.courses.show', $selectedCourseId) : route('teacher.exams.index') }}">Cancel</a>
     </form>
 </div>
 @endsection

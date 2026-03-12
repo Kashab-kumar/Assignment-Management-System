@@ -46,6 +46,10 @@
                     @endforeach
                 </select>
             </div>
+            <div class="form-group">
+                <label for="max_uses">Max Uses <small style="color:#888;">(leave blank for unlimited)</small></label>
+                <input type="number" id="max_uses" name="max_uses" min="1" value="{{ old('max_uses') }}" placeholder="e.g. 30" style="width:120px;">
+            </div>
             <button type="submit" class="btn">Generate Invitation</button>
         </div>
     </form>

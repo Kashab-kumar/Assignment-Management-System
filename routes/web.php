@@ -6,6 +6,8 @@ use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\ProfileAvatarController;
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\Teacher\TeacherDashboardController;
 use App\Http\Controllers\Teacher\TeacherAssignmentController;
@@ -14,6 +16,7 @@ use App\Http\Controllers\Teacher\TeacherExamController;
 use App\Http\Controllers\Teacher\TeacherStudentController;
 use App\Http\Controllers\Teacher\TeacherGradeController;
 use App\Http\Controllers\Teacher\TeacherReportController;
+use App\Http\Controllers\Teacher\TeacherCourseController;
 use App\Http\Controllers\Student\StudentExamController;
 use App\Http\Controllers\Student\StudentGradeController;
 use App\Http\Controllers\Student\StudentRankingController;
@@ -46,14 +49,18 @@ Route::get('/reset-password/{token}', [PasswordResetController::class, 'showRese
 Route::post('/reset-password', [PasswordResetController::class, 'updatePassword'])->name('password.update');
 
 // Student Routes
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'role:student'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/student/settings/avatar', [ProfileAvatarController::class, 'update'])->name('student.settings.avatar.update');
+    Route::delete('/student/settings/avatar', [ProfileAvatarController::class, 'destroy'])->name('student.settings.avatar.destroy');
     Route::get('/assignments', [AssignmentController::class, 'index'])->name('assignments.index');
     Route::get('/assignments/{assignment}', [AssignmentController::class, 'show'])->name('assignments.show');
     Route::post('/assignments/{assignment}/submit', [SubmissionController::class, 'store'])->name('submissions.store');
 
     // Student pages
     Route::prefix('student')->name('student.')->group(function () {
+        Route::get('/settings', [ProfileAvatarController::class, 'studentSettings'])->name('settings');
+        Route::get('/calendar', [CalendarController::class, 'studentIndex'])->name('calendar');
         Route::get('/exams', [StudentExamController::class, 'index'])->name('exams.index');
         Route::get('/grades', [StudentGradeController::class, 'index'])->name('grades.index');
         Route::get('/rankings', [StudentRankingController::class, 'index'])->name('rankings');
@@ -62,8 +69,14 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Teacher Routes
-Route::middleware(['auth'])->prefix('teacher')->name('teacher.')->group(function () {
+Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/dashboard', [TeacherDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/settings', [ProfileAvatarController::class, 'teacherSettings'])->name('settings');
+    Route::post('/settings/avatar', [ProfileAvatarController::class, 'update'])->name('settings.avatar.update');
+    Route::delete('/settings/avatar', [ProfileAvatarController::class, 'destroy'])->name('settings.avatar.destroy');
+    Route::get('/calendar', [CalendarController::class, 'teacherIndex'])->name('calendar');
+    Route::post('/calendar/events', [CalendarController::class, 'storeTeacherEvent'])->name('calendar.events.store');
+    Route::delete('/calendar/events/{event}', [CalendarController::class, 'destroyTeacherEvent'])->name('calendar.events.destroy');
 
     // Assignments
     Route::get('/assignments', [TeacherAssignmentController::class, 'index'])->name('assignments.index');
@@ -82,6 +95,10 @@ Route::middleware(['auth'])->prefix('teacher')->name('teacher.')->group(function
     Route::get('/exams/{exam}', [TeacherExamController::class, 'show'])->name('exams.show');
     Route::post('/exams/{exam}/results', [TeacherExamController::class, 'upsertResult'])->name('exams.results.upsert');
 
+    // Courses
+    Route::get('/courses', [TeacherCourseController::class, 'index'])->name('courses.index');
+    Route::get('/courses/{course}', [TeacherCourseController::class, 'show'])->name('courses.show');
+
     // Students / Grades / Reports
     Route::get('/students', [TeacherStudentController::class, 'index'])->name('students.index');
     Route::post('/students/invitations', [TeacherStudentController::class, 'storeInvitation'])->name('students.invitations.store');
@@ -91,8 +108,11 @@ Route::middleware(['auth'])->prefix('teacher')->name('teacher.')->group(function
 });
 
 // Admin Routes
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/settings', [ProfileAvatarController::class, 'adminSettings'])->name('settings');
+    Route::post('/settings/avatar', [ProfileAvatarController::class, 'update'])->name('settings.avatar.update');
+    Route::delete('/settings/avatar', [ProfileAvatarController::class, 'destroy'])->name('settings.avatar.destroy');
 
     // Invitations
     Route::get('/invitations', [InvitationController::class, 'index'])->name('invitations.index');

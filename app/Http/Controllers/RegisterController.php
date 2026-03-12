@@ -10,6 +10,7 @@ use App\Models\Invitation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class RegisterController extends Controller
@@ -72,8 +73,17 @@ class RegisterController extends Controller
             return redirect()->route('login')->withErrors(['email' => 'This invitation has expired or been used.']);
         }
 
+        $existingUser = User::where('email', $request->input('email'))->first();
+
+        $canRecoverExistingAccount = $existingUser
+            && $existingUser->role === $invitation->role
+            && (
+                ($invitation->role === 'student' && !$existingUser->student)
+                || ($invitation->role === 'teacher' && !$existingUser->teacher)
+            );
+
         $rules = [
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email' . ($canRecoverExistingAccount ? '' : '|unique:users,email'),
             'name' => 'required|string|max:255',
             'password' => 'required|string|min:8|confirmed',
         ];
@@ -90,44 +100,56 @@ class RegisterController extends Controller
 
         $validated = $request->validate($rules);
 
-        // Create user
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role' => $invitation->role,
-        ]);
-
-        // Create role-specific record
-        if ($invitation->role === 'student') {
-            $studentData = [
-                'user_id' => $user->id,
-                'student_id' => $validated['student_id'],
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-            ];
-
-            if (Schema::hasColumn('students', 'course_id') && $invitation->course_id) {
-                $studentData['course_id'] = $invitation->course_id;
+        $user = DB::transaction(function () use ($canRecoverExistingAccount, $existingUser, $validated, $invitation) {
+            if ($canRecoverExistingAccount) {
+                $user = $existingUser;
+                $user->update([
+                    'name' => $validated['name'],
+                    'password' => Hash::make($validated['password']),
+                ]);
+            } else {
+                $user = User::create([
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'password' => Hash::make($validated['password']),
+                    'role' => $invitation->role,
+                ]);
             }
 
-            if (Schema::hasColumn('students', 'class')) {
-                $studentData['class'] = $invitation->course?->class_name ?? ($validated['class'] ?? null);
+            // Create role-specific record
+            if ($invitation->role === 'student') {
+                $studentData = [
+                    'user_id' => $user->id,
+                    'student_id' => $validated['student_id'],
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                ];
+
+                if (Schema::hasColumn('students', 'course_id') && $invitation->course_id) {
+                    $studentData['course_id'] = $invitation->course_id;
+                }
+
+                if (Schema::hasColumn('students', 'class')) {
+                    $studentData['class'] = ($invitation->course?->class_name ?: null)
+                        ?? ($validated['class'] ?? null);
+                }
+
+                Student::create($studentData);
+            } elseif ($invitation->role === 'teacher') {
+                Teacher::create([
+                    'user_id' => $user->id,
+                    'teacher_id' => $validated['teacher_id'],
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'subject' => $validated['subject'],
+                ]);
             }
 
-            Student::create($studentData);
-        } elseif ($invitation->role === 'teacher') {
-            Teacher::create([
-                'user_id' => $user->id,
-                'teacher_id' => $validated['teacher_id'],
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'subject' => $validated['subject'],
-            ]);
-        }
+            // Track usage count only after the full registration succeeds.
+            $invitation->increment('uses_count');
 
-        // Mark invitation as used
-        $invitation->update(['used' => true]);
+            return $user;
+        });
 
         Auth::login($user);
 

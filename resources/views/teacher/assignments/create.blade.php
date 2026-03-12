@@ -32,6 +32,19 @@
 
     <form action="{{ route('teacher.assignments.store') }}" method="POST">
         @csrf
+
+        <div class="form-group">
+            <label for="course_id">Course *</label>
+            <select id="course_id" name="course_id" required>
+                <option value="">Choose a course</option>
+                @foreach($courses as $course)
+                    <option value="{{ $course->id }}" {{ (string) old('course_id', $selectedCourseId) === (string) $course->id ? 'selected' : '' }}>
+                        {{ $course->category_name ?: 'Uncategorized' }} / {{ $course->class_name ?: 'Unassigned' }} / {{ $course->name }}
+                    </option>
+                @endforeach
+            </select>
+            <small>Assignment will be visible for this course context</small>
+        </div>
         
         <div class="form-group">
             <label for="title">Assignment Title *</label>
@@ -66,7 +79,7 @@
 
         <div style="margin-top: 30px;">
             <button type="submit" class="btn">Create Assignment</button>
-            <a href="{{ route('teacher.assignments.index') }}" class="btn btn-secondary">Cancel</a>
+            <a href="{{ $selectedCourseId ? route('teacher.courses.show', $selectedCourseId) : route('teacher.assignments.index') }}" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
 </div>

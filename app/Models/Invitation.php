@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Invitation extends Model
 {
-    protected $fillable = ['token', 'role', 'course_id', 'invited_by', 'used', 'expires_at'];
+    protected $fillable = ['token', 'role', 'course_id', 'invited_by', 'used', 'expires_at', 'max_uses', 'uses_count'];
 
     protected $casts = [
         'expires_at' => 'datetime',
@@ -30,6 +30,8 @@ class Invitation extends Model
 
     public function isValid()
     {
-        return !$this->used && !$this->isExpired();
+        if ($this->isExpired()) return false;
+        if ($this->max_uses !== null && $this->uses_count >= $this->max_uses) return false;
+        return true;
     }
 }

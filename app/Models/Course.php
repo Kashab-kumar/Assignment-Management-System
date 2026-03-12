@@ -24,4 +24,14 @@ class Course extends Model
 
         return $this->hasMany(Student::class, 'class', 'name');
     }
+
+    public function assignments()
+    {
+        return $this->hasMany(Assignment::class);
+    }
+
+    public function exams()
+    {
+        return $this->hasMany(Exam::class);
+    }
 }

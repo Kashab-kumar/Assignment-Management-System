@@ -25,6 +25,12 @@
         <p><strong>Class:</strong> {{ $invitation->course?->class_name ?: 'Unassigned' }}</p>
         <p><strong>Course:</strong> {{ $invitation->course?->name ?: '-' }}</p>
         <p><strong>Expires:</strong> {{ $invitation->expires_at->format('F d, Y') }}</p>
+        <p><strong>Uses:</strong> {{ $invitation->uses_count }} / {{ $invitation->max_uses ?? '∞' }}</p>
+        @if(!$invitation->isValid())
+            <p style="color:#c0392b;"><strong>Status:</strong> Expired or max uses reached</p>
+        @else
+            <p style="color:#27ae60;"><strong>Status:</strong> Active</p>
+        @endif
     </div>
 
     <div class="link-box">

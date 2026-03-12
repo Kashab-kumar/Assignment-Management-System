@@ -27,8 +27,23 @@
 <div class="section">
     <div class="section-header">
         <h2>All Assignments</h2>
-        <a href="{{ route('teacher.assignments.create') }}" class="btn btn-success">+ Create New Assignment</a>
+        <a href="{{ route('teacher.assignments.create', $selectedCourseId ? ['course_id' => $selectedCourseId] : []) }}" class="btn btn-success">+ Create New Assignment</a>
     </div>
+
+    <form method="GET" style="margin-bottom: 16px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <label for="course_id" style="font-weight:bold;">Filter by Course:</label>
+        <select id="course_id" name="course_id" onchange="this.form.submit()" style="padding:8px 10px; border:1px solid #ddd; border-radius:4px; min-width:260px;">
+            <option value="">All Courses</option>
+            @foreach($courses as $course)
+                <option value="{{ $course->id }}" {{ (string) $selectedCourseId === (string) $course->id ? 'selected' : '' }}>
+                    {{ $course->category_name ?: 'Uncategorized' }} / {{ $course->class_name ?: 'Unassigned' }} / {{ $course->name }}
+                </option>
+            @endforeach
+        </select>
+        @if($selectedCourseId)
+            <a href="{{ route('teacher.assignments.index') }}" class="btn" style="background:#666;">Clear</a>
+        @endif
+    </form>
 
     @if(session('success'))
     <div class="alert-success">
@@ -41,6 +56,7 @@
         <thead>
             <tr>
                 <th>Title</th>
+                <th>Course</th>
                 <th>Type</th>
                 <th>Due Date</th>
                 <th>Max Score</th>
@@ -52,6 +68,7 @@
             @foreach($assignments as $assignment)
             <tr>
                 <td><strong>{{ $assignment->title }}</strong></td>
+                <td>{{ $assignment->course?->name ?? '-' }}</td>
                 <td><span class="badge badge-{{ $assignment->type }}">{{ ucfirst($assignment->type) }}</span></td>
                 <td>{{ $assignment->due_date->format('M d, Y') }}</td>
                 <td>{{ $assignment->max_score }} pts</td>

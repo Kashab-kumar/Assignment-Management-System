@@ -24,16 +24,23 @@
         
         .menu-section { padding: 10px 20px; font-size: 11px; color: #95a5a6; text-transform: uppercase; font-weight: bold; margin-top: 10px; }
         
-        .logout-section { position: absolute; bottom: 0; width: 100%; padding: 20px; border-top: 1px solid #34495e; }
-        .logout-btn { width: 100%; padding: 10px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
-        .logout-btn:hover { background: #c0392b; }
+        .account-section { position: absolute; bottom: 0; width: 100%; padding: 14px; border-top: 1px solid #34495e; background: rgba(0,0,0,0.08); }
+        .account-link { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #ecf0f1; }
+        .account-avatar { width: 42px; height: 42px; border-radius: 50%; background: #9C27B0; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; border: 2px solid rgba(255,255,255,0.2); flex-shrink: 0; }
+        .account-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .account-meta { min-width: 0; }
+        .account-name { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .account-settings { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #cfd9e3; margin-top: 2px; }
+        .account-settings svg { width: 14px; height: 14px; fill: currentColor; }
+        .account-link:hover .account-settings { color: #ffffff; }
         
         /* Main Content */
         .main-content { margin-left: 260px; flex: 1; }
         .top-bar { background: white; padding: 15px 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
         .top-bar h1 { font-size: 24px; color: #2c3e50; }
         .user-info { display: flex; align-items: center; gap: 10px; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: #9C27B0; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: #9C27B0; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; }
+        .user-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
         
         .content { padding: 30px; }
         
@@ -42,7 +49,8 @@
             .sidebar { width: 70px; }
             .sidebar-header h2, .sidebar-header p, .menu-item span, .menu-section { display: none; }
             .main-content { margin-left: 70px; }
-            .logout-section { padding: 10px; }
+            .account-section { padding: 10px; display: flex; justify-content: center; }
+            .account-meta { display: none; }
         }
     </style>
 </head>
@@ -92,11 +100,24 @@
                 </a>
             </nav>
             
-            <div class="logout-section">
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="logout-btn">Logout</button>
-                </form>
+            <div class="account-section">
+                @php($sidebarAvatarUrl = auth()->user()->avatar_path ? url('/storage/' . auth()->user()->avatar_path) : null)
+                <a href="{{ route('admin.settings') }}" class="account-link" title="Settings">
+                    <div class="account-avatar">
+                        @if($sidebarAvatarUrl)
+                            <img src="{{ $sidebarAvatarUrl }}" alt="{{ auth()->user()->name }} Avatar">
+                        @else
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        @endif
+                    </div>
+                    <div class="account-meta">
+                        <div class="account-name">{{ auth()->user()->name }}</div>
+                        <div class="account-settings">
+                            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.58.23-1.12.54-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.31.6.22l2.39-.96c.5.4 1.05.72 1.63.94l.36 2.54c.04.24.25.42.5.42h3.84c.25 0 .46-.18.5-.42l.36-2.54c.58-.23 1.12-.54 1.63-.94l2.39.96c.22.09.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5z"/></svg>
+                            <span>Settings</span>
+                        </div>
+                    </div>
+                </a>
             </div>
         </aside>
         
@@ -105,10 +126,18 @@
             <div class="top-bar">
                 <h1>@yield('page-title', 'Dashboard')</h1>
                 <div class="user-info">
-                    <div class="user-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+                    @php($avatarUrl = auth()->user()->avatar_path ? url('/storage/' . auth()->user()->avatar_path) : null)
+                    <div class="user-avatar">
+                        @if($avatarUrl)
+                            <img src="{{ $avatarUrl }}" alt="{{ auth()->user()->name }} Avatar">
+                        @else
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        @endif
+                    </div>
                     <div>
                         <div style="font-weight: bold; font-size: 14px;">{{ auth()->user()->name }}</div>
                         <div style="font-size: 12px; color: #7f8c8d;">Administrator</div>
+                        <a href="{{ route('admin.settings') }}" style="font-size: 12px; color: #9C27B0; text-decoration: none;">Settings</a>
                     </div>
                 </div>
             </div>

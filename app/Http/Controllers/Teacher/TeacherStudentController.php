@@ -39,6 +39,7 @@ class TeacherStudentController extends Controller
     {
         $validated = $request->validate([
             'course_id' => 'required|exists:courses,id',
+            'max_uses' => 'nullable|integer|min:1',
         ]);
 
         $invitation = Invitation::create([
@@ -47,6 +48,7 @@ class TeacherStudentController extends Controller
             'course_id' => $validated['course_id'],
             'invited_by' => auth()->id(),
             'expires_at' => now()->addDays(30),
+            'max_uses' => $validated['max_uses'] ?? null,
         ]);
 
         return redirect()->route('teacher.students.invitations.show', $invitation)
@@ -61,7 +63,8 @@ class TeacherStudentController extends Controller
         );
 
         $invitation->load('course');
-        $inviteLink = route('register.invitation', $invitation->token);
+        $invitePath = route('register.invitation', ['token' => $invitation->token], false);
+        $inviteLink = request()->getSchemeAndHttpHost() . $invitePath;
 
         return view('teacher.students.invitation-show', compact('invitation', 'inviteLink'));
     }

@@ -41,7 +41,8 @@ class InvitationController extends Controller
 
     public function show(Invitation $invitation)
     {
-        $inviteLink = route('register.invitation', $invitation->token);
+        $invitePath = route('register.invitation', ['token' => $invitation->token], false);
+        $inviteLink = request()->getSchemeAndHttpHost() . $invitePath;
         return view('admin.invitations.show', compact('invitation', 'inviteLink'));
     }
 
