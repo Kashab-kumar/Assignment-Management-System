@@ -94,6 +94,25 @@
         padding: 40px;
         color: #666;
     }
+    .modules-grid { display: grid; gap: 12px; margin-top: 12px; }
+    .module-card { background: rgba(0,0,0,0.14); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; }
+    .module-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+    .module-title { font-size: 15px; font-weight: 700; color: #f1f5f9; }
+    .module-order { font-size: 11px; color: #94a3b8; background: rgba(148,163,184,0.16); padding: 3px 8px; border-radius: 999px; }
+    .module-desc { color: #94a3b8; font-size: 13px; margin-top: 6px; line-height: 1.5; }
+    .module-tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .module-tag { font-size: 11px; color: #cbd5e1; background: rgba(124,58,237,0.18); border: 1px solid rgba(124,58,237,0.3); padding: 3px 8px; border-radius: 999px; }
+    .module-form { margin-top: 12px; display: grid; gap: 10px; background: rgba(0,0,0,0.14); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; }
+    .module-form input, .module-form textarea { width: 100%; }
+    .module-form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .module-items { display: grid; gap: 8px; margin-top: 12px; }
+    .module-item-card { border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); padding: 12px; }
+    .module-item-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+    .module-item-title { font-size: 14px; font-weight: 700; color: #f1f5f9; }
+    .module-item-type { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #cbd5e1; background: rgba(124,58,237,0.18); border: 1px solid rgba(124,58,237,0.3); padding: 3px 8px; border-radius: 999px; }
+    .module-item-content { margin-top: 8px; color: #94a3b8; white-space: pre-line; line-height: 1.55; }
+    .module-item-meta { margin-top: 8px; color: #94a3b8; font-size: 12px; }
+    @media (max-width: 900px) { .module-form-grid { grid-template-columns: 1fr; } }
 </style>
 
 <div class="course-container">
@@ -131,6 +150,83 @@
             <button type="submit" class="btn btn-delete" onclick="return confirm('Delete this course?')">Delete Course</button>
         </form>
         <a href="{{ route('admin.courses.index') }}" class="btn btn-back">← Back to Courses</a>
+    </div>
+
+    <div class="students-section">
+        <h3>Course Modules ({{ $modulesEnabled ? $course->modules->count() : 0 }})</h3>
+
+        @if(!$modulesEnabled)
+            <div class="empty-state">Run `php artisan migrate` to enable course modules.</div>
+        @else
+            @if($course->modules->isEmpty())
+                <div class="empty-state">No modules added for this course yet.</div>
+            @else
+                <div class="modules-grid">
+                    @foreach($course->modules as $module)
+                        @php
+                            $typeLabels = [
+                                'unit_outline' => 'Unit Outline',
+                                'quiz' => 'Quiz',
+                                'test' => 'Test',
+                                'note' => 'Note',
+                            ];
+                        @endphp
+                        <div class="module-card">
+                            <div class="module-head">
+                                <div class="module-title">{{ $module->title }}</div>
+                                <span class="module-order">Module {{ $module->position }}</span>
+                            </div>
+                            @if($module->description)
+                                <div class="module-desc">{{ $module->description }}</div>
+                            @endif
+                            <div class="module-tags">
+                                <span class="module-tag">{{ $module->lesson_count }} lessons</span>
+                                <span class="module-tag">{{ $module->assignment_count }} assignments</span>
+                                <span class="module-tag">{{ $module->quiz_count }} quizzes</span>
+                            </div>
+
+                            @if($moduleItemsEnabled)
+                                @if($module->items->isEmpty())
+                                    <div class="module-desc" style="margin-top: 12px;">No teacher content has been added for this module yet.</div>
+                                @else
+                                    <div class="module-items">
+                                        @foreach($module->items as $item)
+                                            <div class="module-item-card">
+                                                <div class="module-item-head">
+                                                    <div class="module-item-title">{{ $item->title }}</div>
+                                                    <span class="module-item-type">{{ $typeLabels[$item->type] ?? ucfirst(str_replace('_', ' ', $item->type)) }}</span>
+                                                </div>
+                                                @if($item->content)
+                                                    <div class="module-item-content">{{ $item->content }}</div>
+                                                @endif
+                                                <div class="module-item-meta">
+                                                    Added by {{ $item->creator?->name ?? 'Teacher' }} on {{ $item->created_at->format('M d, Y') }}
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('admin.courses.modules.store', $course) }}" class="module-form">
+                @csrf
+                <h4 style="margin:0;">Add Module</h4>
+                <input type="text" name="title" placeholder="Module title" required>
+                <textarea name="description" rows="3" placeholder="Short description (optional)"></textarea>
+                <div class="module-form-grid">
+                    <input type="number" name="lesson_count" min="0" value="0" placeholder="Lessons">
+                    <input type="number" name="assignment_count" min="0" value="0" placeholder="Assignments">
+                    <input type="number" name="quiz_count" min="0" value="0" placeholder="Quizzes">
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-edit">Add Module</button>
+                </div>
+            </form>
+        @endif
     </div>
 
     <div class="students-section">

@@ -53,12 +53,12 @@ Route::middleware(['auth', 'role:student'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/student/settings/avatar', [ProfileAvatarController::class, 'update'])->name('student.settings.avatar.update');
     Route::delete('/student/settings/avatar', [ProfileAvatarController::class, 'destroy'])->name('student.settings.avatar.destroy');
-    Route::get('/assignments', [AssignmentController::class, 'index'])->name('assignments.index');
-    Route::get('/assignments/{assignment}', [AssignmentController::class, 'show'])->name('assignments.show');
-    Route::post('/assignments/{assignment}/submit', [SubmissionController::class, 'store'])->name('submissions.store');
 
     // Student pages
     Route::prefix('student')->name('student.')->group(function () {
+        Route::get('/assignments', [AssignmentController::class, 'index'])->name('assignments.index');
+        Route::get('/assignments/{assignment}', [AssignmentController::class, 'show'])->name('assignments.show');
+        Route::post('/assignments/{assignment}/submit', [SubmissionController::class, 'store'])->name('submissions.store');
         Route::get('/settings', [ProfileAvatarController::class, 'studentSettings'])->name('settings');
         Route::get('/calendar', [CalendarController::class, 'studentIndex'])->name('calendar');
         Route::get('/exams', [StudentExamController::class, 'index'])->name('exams.index');
@@ -98,6 +98,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     // Courses
     Route::get('/courses', [TeacherCourseController::class, 'index'])->name('courses.index');
     Route::get('/courses/{course}', [TeacherCourseController::class, 'show'])->name('courses.show');
+    Route::post('/courses/{course}/modules/{module}/items', [TeacherCourseController::class, 'storeModuleItem'])->name('courses.modules.items.store');
 
     // Students / Grades / Reports
     Route::get('/students', [TeacherStudentController::class, 'index'])->name('students.index');
@@ -154,6 +155,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/courses/{course}/edit', [CourseController::class, 'edit'])->name('courses.edit');
     Route::put('/courses/{course}', [CourseController::class, 'update'])->name('courses.update');
     Route::delete('/courses/{course}', [CourseController::class, 'destroy'])->name('courses.destroy');
+    Route::post('/courses/{course}/modules', [CourseController::class, 'storeModule'])->name('courses.modules.store');
 
     // Reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');

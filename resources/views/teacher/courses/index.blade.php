@@ -5,36 +5,36 @@
 
 @section('content')
 <style>
-    .courses-container { background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 20px; }
-    .courses-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; gap: 10px; flex-wrap: wrap; }
+    .courses-container { background: #1e2235; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); padding: 20px; }
+    .courses-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.08); gap: 10px; flex-wrap: wrap; }
     .filter-form { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-    .filter-select { min-width: 200px; padding: 8px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+    .filter-select { min-width: 200px; padding: 8px 10px; border: 1px solid rgba(255,255,255,0.14); border-radius: 8px; font-size: 14px; background: rgba(0,0,0,0.2); color: #e2e8f0; }
 
-    .tree { border: 1px solid #ececf3; border-radius: 10px; overflow: hidden; }
-    .tree details { border-bottom: 1px solid #ececf3; background: #fff; }
+    .tree { border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; }
+    .tree details { border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.14); }
     .tree details:last-child { border-bottom: none; }
     .tree summary { list-style: none; cursor: pointer; }
     .tree summary::-webkit-details-marker { display: none; }
-    .category-summary { display: flex; align-items: center; gap: 10px; padding: 14px 18px; font-weight: 700; color: #142a68; background: #f6f7fb; font-size: 20px; }
-    .class-summary { display: flex; align-items: center; gap: 10px; padding: 12px 18px 12px 36px; font-weight: 700; color: #142a68; font-size: 16px; background: #fcfcfe; }
-    .tree-caret { width: 0; height: 0; border-left: 6px solid #8d91a7; border-top: 5px solid transparent; border-bottom: 5px solid transparent; transition: transform .2s ease; }
+    .category-summary { display: flex; align-items: center; gap: 10px; padding: 14px 18px; font-weight: 700; color: #f1f5f9; background: rgba(124,58,237,0.18); font-size: 20px; }
+    .class-summary { display: flex; align-items: center; gap: 10px; padding: 12px 18px 12px 36px; font-weight: 700; color: #e2e8f0; font-size: 16px; background: rgba(124,58,237,0.08); }
+    .tree-caret { width: 0; height: 0; border-left: 6px solid #94a3b8; border-top: 5px solid transparent; border-bottom: 5px solid transparent; transition: transform .2s ease; }
     details[open] > summary .tree-caret { transform: rotate(90deg); }
     .course-list { padding: 0 18px 12px 54px; }
-    .course-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid #efeff5; }
+    .course-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.08); }
     .course-row:first-child { border-top: none; }
-    .course-code { font-family: monospace; background: #f0f0f0; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: #666; }
-    .course-name { font-size: 16px; font-weight: 600; color: #333; margin: 4px 0 6px; }
+    .course-code { font-family: monospace; background: rgba(148,163,184,0.16); padding: 4px 8px; border-radius: 6px; font-size: 12px; color: #cbd5e1; }
+    .course-name { font-size: 16px; font-weight: 600; color: #f1f5f9; margin: 4px 0 6px; }
     .course-meta { display: flex; align-items: center; gap: 10px; }
-    .students-count { background: #2196F3; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
-    .btn { padding: 6px 14px; border-radius: 4px; text-decoration: none; font-size: 13px; }
-    .btn-view { background: #4CAF50; color: white; }
-    .btn-clear { background: #666; color: white; padding: 8px 14px; font-size: 13px; border-radius: 4px; text-decoration: none; }
-    .btn-filter { padding: 8px 14px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; }
+    .students-count { background: rgba(59,130,246,0.18); border: 1px solid rgba(59,130,246,0.3); color: #60a5fa; padding: 4px 10px; border-radius: 999px; font-size: 12px; }
+    .btn { padding: 6px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; }
+    .btn-view { background: #7c3aed; color: white; }
+    .btn-view:hover { background: #6d28d9; }
+    .btn-clear { background: rgba(255,255,255,0.1); color: #e2e8f0; padding: 8px 14px; font-size: 13px; border-radius: 8px; text-decoration: none; }
 </style>
 
 <div class="courses-container">
     <div class="courses-header">
-        <h2 style="font-size:20px; color:#2c3e50;">All Courses ({{ $courses->count() }})</h2>
+        <h2 style="font-size:20px; color:#f1f5f9;">All Courses ({{ $courses->count() }})</h2>
 
         <form method="GET" class="filter-form">
             <select name="category_name" class="filter-select" onchange="this.form.submit()">
@@ -56,7 +56,7 @@
     </div>
 
     @if($courseTree->isEmpty())
-        <div style="text-align:center; padding:40px; color:#666;">No courses found.</div>
+        <div style="text-align:center; padding:40px; color:#94a3b8;">No courses found.</div>
     @else
     <div class="tree">
         @foreach($courseTree as $category => $classes)

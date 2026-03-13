@@ -1,63 +1,143 @@
 @extends('layouts.student')
 
 @section('title', 'Assignments')
-@section('page-title', 'Assignments & Homework')
+@section('page-title', 'Assignments')
 
 @section('content')
 <style>
-    .assignments-grid { display: grid; gap: 20px; }
-    .assignment-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.2s; }
-    .assignment-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
-    .assignment-card h3 { color: #333; margin-bottom: 10px; font-size: 20px; }
-    .assignment-card .meta { color: #666; font-size: 14px; margin-bottom: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px; }
-    .assignment-card .description { color: #555; margin-bottom: 15px; line-height: 1.6; }
-    .btn { padding: 10px 20px; background: #27ae60; color: white; text-decoration: none; border-radius: 4px; display: inline-block; font-size: 14px; }
-    .btn:hover { background: #229954; }
-    .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-left: 10px; font-weight: bold; }
-    .badge-assignment { background: #2196F3; color: white; }
-    .badge-homework { background: #FF9800; color: white; }
-    .empty-state { text-align: center; padding: 60px 20px; background: white; border-radius: 8px; }
-    .empty-state svg { width: 100px; height: 100px; fill: #ddd; margin-bottom: 20px; }
-    .empty-state h3 { color: #666; margin-bottom: 10px; }
-    .due-soon { color: #e74c3c; font-weight: bold; }
-    .pagination { margin-top: 20px; display: flex; justify-content: center; }
+    .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .tab-link {
+        padding: 10px 18px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #94a3b8;
+        text-decoration: none;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+        transition: color 0.2s;
+    }
+    .tab-link:hover { color: #e2e8f0; }
+    .tab-link.active { color: #a78bfa; border-bottom-color: #7c3aed; }
+
+    .assignments-list { display: flex; flex-direction: column; gap: 16px; }
+
+    .assignment-card {
+        background: #1e2235;
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 12px;
+        padding: 22px 24px;
+        transition: border-color 0.2s;
+    }
+    .assignment-card:hover { border-color: rgba(124,58,237,0.3); }
+
+    .assignment-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .assignment-title { font-size: 18px; font-weight: 600; color: #f1f5f9; }
+
+    .assignment-meta { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 14px; }
+    .meta-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #94a3b8; }
+    .meta-item svg { width: 15px; height: 15px; fill: currentColor; flex-shrink: 0; }
+
+    .badge { padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; display: inline-block; }
+    .badge-not-submitted { background: rgba(245,158,11,0.18); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+    .badge-submitted    { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
+    .badge-graded       { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
+    .badge-overdue      { background: rgba(239,68,68,0.15);  color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
+
+    .btn {
+        padding: 8px 18px;
+        background: #7c3aed;
+        color: white;
+        text-decoration: none;
+        border-radius: 7px;
+        font-size: 13px;
+        font-weight: 500;
+        display: inline-block;
+        transition: background 0.2s;
+    }
+    .btn:hover { background: #6d28d9; }
+
+    .empty-state { text-align: center; padding: 60px 20px; }
+    .empty-state svg { width: 64px; height: 64px; fill: #334155; margin-bottom: 16px; }
+    .empty-state h3 { color: #64748b; font-size: 16px; margin-bottom: 6px; }
+    .empty-state p  { color: #475569; font-size: 14px; }
 </style>
 
-<div class="assignments-grid">
-    @forelse($assignments as $assignment)
+<div class="tabs">
+    <a href="{{ route('student.assignments.index', ['tab' => 'pending']) }}" class="tab-link {{ $activeTab === 'pending' ? 'active' : '' }}">
+        Pending ({{ $pending->count() }})
+    </a>
+    <a href="{{ route('student.assignments.index', ['tab' => 'submitted']) }}" class="tab-link {{ $activeTab === 'submitted' ? 'active' : '' }}">
+        Submitted ({{ $submitted->count() }})
+    </a>
+    <a href="{{ route('student.assignments.index', ['tab' => 'graded']) }}" class="tab-link {{ $activeTab === 'graded' ? 'active' : '' }}">
+        Graded ({{ $graded->count() }})
+    </a>
+</div>
+
+@php
+    $list = $activeTab === 'graded' ? $graded : ($activeTab === 'submitted' ? $submitted : $pending);
+@endphp
+
+<div class="assignments-list">
+    @forelse($list as $assignment)
+    @php($sub = $assignment->submissions->first())
     <div class="assignment-card">
-        <h3>
-            {{ $assignment->title }}
-            <span class="badge badge-{{ $assignment->type }}">{{ ucfirst($assignment->type) }}</span>
-        </h3>
-        <div class="meta">
-            <div style="margin-bottom: 5px;">
-                📅 <strong>Due:</strong> 
-                @if($assignment->due_date->isPast())
-                    <span style="color: #e74c3c;">{{ $assignment->due_date->format('F d, Y') }} (Overdue)</span>
-                @elseif($assignment->due_date->diffInDays() <= 3)
-                    <span class="due-soon">{{ $assignment->due_date->format('F d, Y') }} (Due Soon!)</span>
+        <div class="assignment-card-header">
+            <div class="assignment-title">{{ $assignment->title }}</div>
+            @if($sub)
+                @if($sub->status === 'graded')
+                    <span class="badge badge-graded">Graded</span>
                 @else
-                    {{ $assignment->due_date->format('F d, Y') }}
+                    <span class="badge badge-submitted">Submitted</span>
                 @endif
-            </div>
-            <div>📊 <strong>Max Score:</strong> {{ $assignment->max_score }} points</div>
+            @elseif($assignment->due_date->isPast())
+                <span class="badge badge-overdue">Overdue</span>
+            @else
+                <span class="badge badge-not-submitted">Not Submitted</span>
+            @endif
         </div>
-        <div class="description">{{ Str::limit($assignment->description, 150) }}</div>
-        <a href="{{ route('assignments.show', $assignment) }}" class="btn">View Details & Submit</a>
+
+        <div class="assignment-meta">
+            @if($assignment->course)
+            <span class="meta-item">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+                {{ $assignment->course->name }}
+            </span>
+            @endif
+            <span class="meta-item">
+                <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5C3.89 4 3 4.9 3 6v14c0 1.1.89 2 2 2h14a2 2 0 0 0 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
+                Due: {{ $assignment->due_date->format('M d, Y') }}
+                @if($assignment->due_date->isPast() && !$sub)
+                    <span style="color:#ef4444;"> (Overdue)</span>
+                @elseif(!$sub && $assignment->due_date->diffInDays() <= 3)
+                    <span style="color:#f59e0b;"> (Due Soon)</span>
+                @endif
+            </span>
+            <span class="meta-item">
+                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+                {{ $assignment->max_score }} Points
+            </span>
+            @if($sub && $sub->status === 'graded' && $sub->score !== null)
+            <span class="meta-item" style="color:#10b981;">
+                Score: {{ $sub->score }}/{{ $assignment->max_score }}
+            </span>
+            @endif
+        </div>
+
+        <a href="{{ route('student.assignments.show', $assignment) }}" class="btn">
+            {{ $sub ? 'View Submission' : 'View & Submit' }}
+        </a>
     </div>
     @empty
     <div class="empty-state">
         <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-        <h3>No Assignments Available</h3>
-        <p>Your teacher hasn't posted any assignments yet. Check back later!</p>
+        <h3>No {{ ucfirst($activeTab) }} Assignments</h3>
+        <p>
+            @if($activeTab === 'pending') You're all caught up! No pending assignments. @endif
+            @if($activeTab === 'submitted') No assignments submitted yet. @endif
+            @if($activeTab === 'graded') No graded assignments yet. @endif
+        </p>
     </div>
     @endforelse
 </div>
-
-@if($assignments->hasPages())
-<div class="pagination">
-    {{ $assignments->links() }}
-</div>
-@endif
 @endsection

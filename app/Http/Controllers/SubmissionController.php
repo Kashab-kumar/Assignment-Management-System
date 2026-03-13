@@ -51,7 +51,7 @@ class SubmissionController extends Controller
             'submitted_at' => now()
         ]);
 
-        return redirect()->route('assignments.show', $assignment)
+        return redirect()->route('student.assignments.show', $assignment)
             ->with('success', 'Assignment submitted successfully!');
     }
 }

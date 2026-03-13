@@ -5,23 +5,60 @@
 
 @section('content')
 <style>
-    .section { background: white; border-radius: 8px; padding: 20px; margin-bottom: 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .section {
+        background: #1e2235;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 18px;
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+    .section h2 { color: #f1f5f9; }
     .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
-    .stat { border: 1px solid #eee; border-radius: 8px; padding: 14px; background: #fafafa; }
-    .stat h4 { margin: 0 0 6px 0; color: #666; font-size: 12px; text-transform: uppercase; }
+    .stat { border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; background: rgba(0,0,0,0.14); }
+    .stat h4 { margin: 0 0 6px 0; color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
     .stat p { margin: 0; font-size: 24px; font-weight: bold; }
     .filters { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-    .filters input { padding: 8px 10px; border: 1px solid #ddd; border-radius: 4px; }
+    .filters label { color: #94a3b8; }
+    .filters input {
+        padding: 8px 10px;
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 8px;
+        background: rgba(0,0,0,0.2);
+        color: #e2e8f0;
+    }
+    .filters button {
+        padding: 8px 12px;
+        border: 0;
+        border-radius: 8px;
+        background: #7c3aed;
+        color: #fff;
+        cursor: pointer;
+        font-weight: 600;
+    }
+    .filters button:hover { background: #6d28d9; }
+
     table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-    th { background: #f8f8f8; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    th {
+        background: rgba(0,0,0,0.12);
+        color: #94a3b8;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+    td { color: #cbd5e1; }
+    tr:last-child td { border-bottom: none; }
+
     .badge { padding: 4px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-    .badge-assignment { background: #eaf2ff; color: #1e5fd6; }
-    .badge-quiz { background: #fff3e0; color: #f57c00; }
-    .badge-exam { background: #ede7f6; color: #5e35b1; }
-    .status-done { color: #2e7d32; font-weight: 700; }
-    .status-upcoming { color: #1565c0; font-weight: 700; }
-    .status-overdue { color: #c62828; font-weight: 700; }
+    .badge-assignment { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
+    .badge-quiz { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.25); }
+    .badge-exam { background: rgba(124,58,237,0.18); color: #a78bfa; border: 1px solid rgba(124,58,237,0.32); }
+
+    .status-done { color: #10b981; font-weight: 700; }
+    .status-upcoming { color: #60a5fa; font-weight: 700; }
+    .status-overdue { color: #ef4444; font-weight: 700; }
+
+    .empty { color: #64748b; }
 
     @media (max-width: 900px) {
         .stats { grid-template-columns: 1fr; }
@@ -33,22 +70,22 @@
     <div class="stats">
         <div class="stat">
             <h4>Completed</h4>
-            <p style="color:#2e7d32;">{{ $counts['done'] }}</p>
+            <p style="color:#10b981;">{{ $counts['done'] }}</p>
         </div>
         <div class="stat">
             <h4>Upcoming</h4>
-            <p style="color:#1565c0;">{{ $counts['upcoming'] }}</p>
+            <p style="color:#60a5fa;">{{ $counts['upcoming'] }}</p>
         </div>
         <div class="stat">
             <h4>Overdue</h4>
-            <p style="color:#c62828;">{{ $counts['overdue'] }}</p>
+            <p style="color:#ef4444;">{{ $counts['overdue'] }}</p>
         </div>
     </div>
 
     <form method="GET" class="filters">
         <label for="month" style="font-weight:bold;">Month:</label>
         <input type="month" id="month" name="month" value="{{ $selectedMonth }}">
-        <button type="submit" style="padding:8px 12px; border:0; border-radius:4px; background:#27ae60; color:#fff; cursor:pointer;">Apply</button>
+        <button type="submit">Apply</button>
     </form>
 </div>
 
@@ -56,7 +93,7 @@
     <h2 style="margin-bottom: 12px;">Assignments & Quiz Timeline</h2>
 
     @if($events->isEmpty())
-        <p style="color:#666;">No assignment or quiz events found for this month.</p>
+        <p class="empty">No assignment or quiz events found for this month.</p>
     @else
         <table>
             <thead>

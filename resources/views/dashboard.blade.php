@@ -5,22 +5,75 @@
 
 @section('content')
 <style>
-    .welcome-card { background: linear-gradient(135deg, #27ae60 0%, #229954 100%); color: white; padding: 30px; border-radius: 8px; margin-bottom: 30px; }
-    .welcome-card h2 { font-size: 28px; margin-bottom: 10px; }
-    .welcome-card p { opacity: 0.9; }
-    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
-    .stat-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .stat-card h3 { color: #666; font-size: 14px; margin-bottom: 10px; }
-    .stat-card .value { font-size: 32px; font-weight: bold; color: #27ae60; }
-    .section { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .section h2 { margin-bottom: 15px; color: #333; }
+    .welcome-card {
+        background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+        color: white;
+        padding: 28px 32px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+    }
+    .welcome-card h2 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+    .welcome-card p { font-size: 14px; opacity: 0.85; }
+
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card {
+        background: #1e2235;
+        padding: 22px 24px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+    .stat-card h3 { color: #94a3b8; font-size: 13px; font-weight: 500; margin-bottom: 12px; }
+    .stat-card .value { font-size: 34px; font-weight: 700; color: #7c3aed; line-height: 1; }
+    .stat-card .value.white { color: #f1f5f9; }
+    .stat-card p { font-size: 12px; color: #64748b; margin-top: 6px; }
+
+    .section {
+        background: #1e2235;
+        padding: 22px 24px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+    .section h2 { margin-bottom: 18px; color: #f1f5f9; font-size: 17px; font-weight: 600; }
+
     table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-    th { background: #f8f8f8; font-weight: bold; }
-    .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; }
-    .badge-pending { background: #FFC107; color: white; }
-    .badge-graded { background: #4CAF50; color: white; }
-    .btn { padding: 8px 16px; background: #27ae60; color: white; text-decoration: none; border-radius: 4px; display: inline-block; }
+    th {
+        padding: 10px 14px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    td {
+        padding: 13px 14px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        font-size: 14px;
+        color: #cbd5e1;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr.highlight-row td { color: #a78bfa; }
+
+    .badge { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; display: inline-block; }
+    .badge-pending, .badge-not-submitted { background: rgba(245,158,11,0.18); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+    .badge-graded, .badge-submitted { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
+    .badge-late { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
+
+    .btn {
+        padding: 7px 16px;
+        background: #7c3aed;
+        color: white;
+        text-decoration: none;
+        border-radius: 7px;
+        font-size: 13px;
+        font-weight: 500;
+        display: inline-block;
+        transition: background 0.2s;
+    }
+    .btn:hover { background: #6d28d9; }
 </style>
 
 <div class="welcome-card">
@@ -40,7 +93,7 @@
     </div>
     <div class="stat-card">
         <h3>Pending Submissions</h3>
-        <div class="value">{{ $assignments->filter(fn($a) => $a->submissions->isEmpty())->count() }}</div>
+        <div class="value white">{{ $assignments->filter(fn($a) => $a->submissions->isEmpty())->count() }}</div>
     </div>
 </div>
 
@@ -80,11 +133,11 @@
                     @endif
                 </td>
                 <td>
-                    <a href="{{ route('assignments.show', $assignment) }}" class="btn">View</a>
+                    <a href="{{ route('student.assignments.show', $assignment) }}" class="btn">View</a>
                 </td>
             </tr>
             @empty
-            <tr><td colspan="6">No assignments yet</td></tr>
+            <tr><td colspan="6" style="color:#64748b; text-align:center; padding:20px;">No assignments yet</td></tr>
             @endforelse
         </tbody>
     </table>
@@ -103,7 +156,7 @@
         </thead>
         <tbody>
             @foreach($rankings->take(10) as $index => $ranking)
-            <tr style="{{ $ranking['student']->id === $student->id ? 'background: #e8f5e9;' : '' }}">
+            <tr class="{{ $ranking['student']->id === $student->id ? 'highlight-row' : '' }}">
                 <td><strong>#{{ $index + 1 }}</strong></td>
                 <td>{{ $ranking['student']->name }}</td>
                 <td>{{ $ranking['student']->student_id }}</td>

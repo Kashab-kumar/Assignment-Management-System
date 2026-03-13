@@ -20,15 +20,18 @@ class RoleMiddleware
         if ($user->role !== $role) {
             // Prevent 403 dead-ends: keep isolation but send user to their own area.
             if ($user->isAdmin()) {
-                return redirect()->route('admin.dashboard');
+                return redirect()->route('admin.dashboard')
+                    ->with('role_notice', 'You are logged in as Admin.');
             }
 
             if ($user->isTeacher()) {
-                return redirect()->route('teacher.dashboard');
+                return redirect()->route('teacher.dashboard')
+                    ->with('role_notice', 'You are logged in as Teacher.');
             }
 
             if ($user->isStudent()) {
-                return redirect()->route('dashboard');
+                return redirect()->route('dashboard')
+                    ->with('role_notice', 'You are logged in as Student.');
             }
 
             Auth::logout();

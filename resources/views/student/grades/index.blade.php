@@ -6,13 +6,34 @@
 @section('content')
 <style>
     .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px; }
-    .card { background: #fff; padding: 16px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .card h3 { font-size: 13px; color: #666; margin-bottom: 6px; }
-    .value { font-size: 24px; color: #27ae60; font-weight: bold; }
-    .section { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 16px; }
+    .card {
+        background: #1e2235;
+        padding: 18px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+    .card h3 { font-size: 13px; color: #94a3b8; margin-bottom: 8px; }
+    .value { font-size: 28px; color: #7c3aed; font-weight: 700; }
+    .section {
+        background: #1e2235;
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.06);
+        margin-bottom: 16px;
+    }
+    .section h2 { color: #f1f5f9; }
     table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
-    th { background: #f8f8f8; }
+    th, td { padding: 11px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    th {
+        color: #94a3b8;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        background: rgba(0,0,0,0.12);
+    }
+    td { color: #cbd5e1; }
+    tr:last-child td { border-bottom: none; }
+    .empty { color: #64748b; text-align: center; }
 </style>
 
 <div class="stats">
@@ -41,7 +62,7 @@
                     <td>{{ $submission->submitted_at->format('M d, Y h:i A') }}</td>
                 </tr>
             @empty
-                <tr><td colspan="4">No graded assignment submissions yet.</td></tr>
+                <tr><td colspan="4" class="empty">No graded assignment submissions yet.</td></tr>
             @endforelse
         </tbody>
     </table>
@@ -67,7 +88,7 @@
                     <td>{{ $result->remarks ?: '-' }}</td>
                 </tr>
             @empty
-                <tr><td colspan="4">No exam results available yet.</td></tr>
+                <tr><td colspan="4" class="empty">No exam results available yet.</td></tr>
             @endforelse
         </tbody>
     </table>

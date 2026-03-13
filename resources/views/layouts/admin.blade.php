@@ -6,51 +6,263 @@
     <title>@yield('title', 'Admin Dashboard') - Assignment Management</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #f5f5f5; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f1117; color: #e2e8f0; }
         
         .layout { display: flex; min-height: 100vh; }
         
         /* Sidebar */
-        .sidebar { width: 260px; background: #2c3e50; color: white; position: fixed; height: 100vh; overflow-y: auto; }
-        .sidebar-header { padding: 20px; background: #1a252f; border-bottom: 1px solid #34495e; }
-        .sidebar-header h2 { font-size: 18px; margin-bottom: 5px; }
-        .sidebar-header p { font-size: 12px; color: #95a5a6; }
+        .sidebar { width: 260px; background: #161b2e; color: #e2e8f0; position: fixed; height: 100vh; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; }
+        .sidebar-header { padding: 22px 20px 18px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+        .sidebar-header h2 { font-size: 17px; font-weight: 700; color: #ffffff; margin-bottom: 4px; }
+        .sidebar-header p { font-size: 12px; color: #94a3b8; }
         
-        .sidebar-menu { padding: 20px 0; }
-        .menu-item { display: flex; align-items: center; padding: 12px 20px; color: #ecf0f1; text-decoration: none; transition: all 0.3s; }
-        .menu-item:hover { background: #34495e; }
-        .menu-item.active { background: #9C27B0; border-left: 4px solid #fff; }
-        .menu-item svg { width: 20px; height: 20px; margin-right: 12px; fill: currentColor; }
+        .sidebar-menu { padding: 12px 0; flex: 1; }
+        .menu-item { display: flex; align-items: center; padding: 11px 20px; color: #94a3b8; text-decoration: none; transition: all 0.2s; border-radius: 6px; margin: 2px 10px; font-size: 14px; }
+        .menu-item:hover { background: rgba(124,58,237,0.12); color: #e2e8f0; }
+        .menu-item.active { background: rgba(124,58,237,0.18); color: #ffffff; border-left: 3px solid #7c3aed; padding-left: 17px; }
+        .menu-item svg { width: 18px; height: 18px; margin-right: 12px; fill: currentColor; flex-shrink: 0; }
         
-        .menu-section { padding: 10px 20px; font-size: 11px; color: #95a5a6; text-transform: uppercase; font-weight: bold; margin-top: 10px; }
+        .menu-section { padding: 14px 20px 6px; font-size: 10px; color: #475569; text-transform: uppercase; font-weight: 700; letter-spacing: 0.08em; }
         
-        .account-section { position: absolute; bottom: 0; width: 100%; padding: 14px; border-top: 1px solid #34495e; background: rgba(0,0,0,0.08); }
-        .account-link { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #ecf0f1; }
-        .account-avatar { width: 42px; height: 42px; border-radius: 50%; background: #9C27B0; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; border: 2px solid rgba(255,255,255,0.2); flex-shrink: 0; }
+        .account-section { padding: 14px; border-top: 1px solid rgba(255,255,255,0.07); }
+        .account-link { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #e2e8f0; padding: 8px; border-radius: 8px; transition: background 0.2s; }
+        .account-link:hover { background: rgba(255,255,255,0.06); }
+        .account-avatar { width: 40px; height: 40px; border-radius: 50%; background: #7c3aed; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; overflow: hidden; border: 2px solid rgba(124,58,237,0.5); flex-shrink: 0; }
         .account-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .account-meta { min-width: 0; }
-        .account-name { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .account-settings { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #cfd9e3; margin-top: 2px; }
-        .account-settings svg { width: 14px; height: 14px; fill: currentColor; }
-        .account-link:hover .account-settings { color: #ffffff; }
+        .account-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e2e8f0; }
+        .account-role { font-size: 11px; color: #64748b; margin-top: 1px; }
+        .account-settings-link { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #7c3aed; margin-top: 1px; }
+        .account-settings-link svg { width: 12px; height: 12px; fill: currentColor; }
         
         /* Main Content */
-        .main-content { margin-left: 260px; flex: 1; }
-        .top-bar { background: white; padding: 15px 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-        .top-bar h1 { font-size: 24px; color: #2c3e50; }
-        .user-info { display: flex; align-items: center; gap: 10px; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: #9C27B0; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; }
+        .main-content { margin-left: 260px; flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+        .top-bar { background: #161b2e; padding: 14px 30px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; }
+        .top-bar h1 { font-size: 22px; font-weight: 700; color: #f1f5f9; }
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: #7c3aed; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; overflow: hidden; border: 2px solid rgba(124,58,237,0.5); }
         .user-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .user-text { text-align: right; }
+        .user-text .user-name { font-size: 13px; font-weight: 600; color: #f1f5f9; }
+        .user-text .user-role { font-size: 11px; color: #64748b; }
+        .user-text a { font-size: 11px; color: #7c3aed; text-decoration: none; }
+        .user-text a:hover { text-decoration: underline; }
         
-        .content { padding: 30px; }
+        .content { padding: 28px 30px; flex: 1; }
         
         /* Responsive */
         @media (max-width: 768px) {
-            .sidebar { width: 70px; }
-            .sidebar-header h2, .sidebar-header p, .menu-item span, .menu-section { display: none; }
-            .main-content { margin-left: 70px; }
-            .account-section { padding: 10px; display: flex; justify-content: center; }
-            .account-meta { display: none; }
+            .sidebar { width: 68px; }
+            .sidebar-header h2, .sidebar-header p, .menu-item span, .menu-section, .account-meta { display: none; }
+            .menu-item { margin: 2px 6px; padding: 11px; justify-content: center; }
+            .menu-item svg { margin-right: 0; }
+            .menu-item.active { padding-left: 11px; border-left-width: 2px; }
+            .main-content { margin-left: 68px; }
+            .account-link { justify-content: center; padding: 8px 4px; }
+        }
+
+        /* Global Admin Content Theme Overrides */
+        .content h2,
+        .content h3,
+        .content h4,
+        .content strong,
+        .content label {
+            color: #f1f5f9 !important;
+        }
+
+        .content p,
+        .content span,
+        .content li,
+        .content td,
+        .content summary,
+        .content details,
+        .content small {
+            color: #cbd5e1;
+        }
+
+        .content [class$='-container'],
+        .content .section,
+        .content .card,
+        .content [class$='-card'],
+        .content .stat-card,
+        .content .report-card,
+        .content .overview-card,
+        .content .filter-card,
+        .content .form-card,
+        .content .table-card {
+            background: #1e2235 !important;
+            border: 1px solid rgba(255,255,255,0.06) !important;
+            border-radius: 12px !important;
+            box-shadow: none !important;
+        }
+
+        .content [class$='-header'],
+        .content .section-header,
+        .content .users-header,
+        .content .teachers-header,
+        .content .students-header,
+        .content .courses-header {
+            border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+        }
+
+        .content .filters,
+        .content .filter-form,
+        .content .filter-group,
+        .content .export-options,
+        .content .info-box,
+        .content .link-box,
+        .content .role-option,
+        .content .tree,
+        .content .tree details,
+        .content .course-list,
+        .content .info-card {
+            background: rgba(0,0,0,0.14) !important;
+            border-color: rgba(255,255,255,0.1) !important;
+            color: #cbd5e1 !important;
+        }
+
+        .content .category-summary,
+        .content .class-summary {
+            background: rgba(124,58,237,0.1) !important;
+            color: #e2e8f0 !important;
+        }
+
+        .content .course-code,
+        .content .student-id,
+        .content .teacher-id {
+            background: rgba(148,163,184,0.16) !important;
+            color: #cbd5e1 !important;
+        }
+
+        .content .role-badge,
+        .content .badge,
+        .content .status-badge,
+        .content .course-badge,
+        .content .subject-badge,
+        .content .students-count {
+            border-radius: 999px !important;
+        }
+
+        .content table,
+        .content .users-table,
+        .content .teachers-table,
+        .content .students-table,
+        .content .report-table,
+        .content .reports-table {
+            background: transparent !important;
+            color: #cbd5e1 !important;
+        }
+
+        .content th {
+            background: rgba(0,0,0,0.12) !important;
+            color: #94a3b8 !important;
+            border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .content td {
+            border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+            color: #cbd5e1 !important;
+        }
+
+        .content tr:hover {
+            background: rgba(124,58,237,0.08) !important;
+        }
+
+        .content input,
+        .content select,
+        .content textarea {
+            background: rgba(0,0,0,0.2) !important;
+            border: 1px solid rgba(255,255,255,0.12) !important;
+            color: #e2e8f0 !important;
+            border-radius: 8px !important;
+        }
+
+        .content input::placeholder,
+        .content textarea::placeholder {
+            color: #64748b !important;
+        }
+
+        .content input:focus,
+        .content select:focus,
+        .content textarea:focus {
+            outline: none;
+            border-color: #7c3aed !important;
+            box-shadow: 0 0 0 2px rgba(124,58,237,0.2) !important;
+        }
+
+        .content .btn,
+        .content button {
+            border-radius: 8px !important;
+            border: none;
+        }
+
+        .content .btn-add,
+        .content .btn-primary,
+        .content .btn-create,
+        .content .btn-submit,
+        .content button[type='submit'] {
+            background: #7c3aed !important;
+            color: #ffffff !important;
+        }
+
+        .content .btn-add:hover,
+        .content .btn-primary:hover,
+        .content .btn-create:hover,
+        .content .btn-submit:hover,
+        .content button[type='submit']:hover {
+            background: #6d28d9 !important;
+        }
+
+        .content .btn-view { background: #10b981 !important; color: #ffffff !important; }
+        .content .btn-edit { background: #3b82f6 !important; color: #ffffff !important; }
+        .content .btn-delete { background: #ef4444 !important; color: #ffffff !important; }
+
+        .content .status-active { color: #10b981 !important; }
+        .content .status-inactive { color: #ef4444 !important; }
+
+        .content [style*='background: white'],
+        .content [style*='background:#fff'],
+        .content [style*='background: #fff'],
+        .content [style*='background: #f8'],
+        .content [style*='background:#f8'],
+        .content [style*='background: #f0'],
+        .content [style*='background:#f0'] {
+            background: #1e2235 !important;
+        }
+
+        .content [style*='color: #333'],
+        .content [style*='color:#333'] {
+            color: #f1f5f9 !important;
+        }
+
+        .content [style*='color: #666'],
+        .content [style*='color:#666'],
+        .content [style*='color: #555'],
+        .content [style*='color:#555'],
+        .content [style*='color: #999'],
+        .content [style*='color:#999'] {
+            color: #94a3b8 !important;
+        }
+
+        .content [style*='fill: #ddd'],
+        .content [style*='fill:#ddd'] {
+            fill: #334155 !important;
+        }
+
+        .content [style*='border: 1px solid #ddd'],
+        .content [style*='border:1px solid #ddd'],
+        .content [style*='border: 2px solid #ddd'],
+        .content [style*='border:1px solid #eee'],
+        .content [style*='border: 1px solid #eee'] {
+            border-color: rgba(255,255,255,0.14) !important;
+        }
+
+        .content .pagination,
+        .content nav[role='navigation'] {
+            color: #cbd5e1;
         }
     </style>
 </head>
@@ -112,7 +324,8 @@
                     </div>
                     <div class="account-meta">
                         <div class="account-name">{{ auth()->user()->name }}</div>
-                        <div class="account-settings">
+                        <div class="account-role">Administrator</div>
+                        <div class="account-settings-link">
                             <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.58.23-1.12.54-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.31.6.22l2.39-.96c.5.4 1.05.72 1.63.94l.36 2.54c.04.24.25.42.5.42h3.84c.25 0 .46-.18.5-.42l.36-2.54c.58-.23 1.12-.54 1.63-.94l2.39.96c.22.09.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5z"/></svg>
                             <span>Settings</span>
                         </div>
@@ -126,6 +339,11 @@
             <div class="top-bar">
                 <h1>@yield('page-title', 'Dashboard')</h1>
                 <div class="user-info">
+                    <div class="user-text">
+                        <div class="user-name">{{ auth()->user()->name }}</div>
+                        <div class="user-role">Administrator</div>
+                        <a href="{{ route('admin.settings') }}">Settings</a>
+                    </div>
                     @php($avatarUrl = auth()->user()->avatar_path ? url('/storage/' . auth()->user()->avatar_path) : null)
                     <div class="user-avatar">
                         @if($avatarUrl)
@@ -134,15 +352,15 @@
                             {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                         @endif
                     </div>
-                    <div>
-                        <div style="font-weight: bold; font-size: 14px;">{{ auth()->user()->name }}</div>
-                        <div style="font-size: 12px; color: #7f8c8d;">Administrator</div>
-                        <a href="{{ route('admin.settings') }}" style="font-size: 12px; color: #9C27B0; text-decoration: none;">Settings</a>
-                    </div>
                 </div>
             </div>
             
             <div class="content">
+                @if(session('role_notice'))
+                    <div style="margin-bottom: 14px; padding: 10px 12px; border: 1px solid rgba(245,158,11,0.35); background: rgba(245,158,11,0.12); color: #fbbf24; border-radius: 8px; font-size: 13px;">
+                        {{ session('role_notice') }}
+                    </div>
+                @endif
                 @yield('content')
             </div>
         </main>

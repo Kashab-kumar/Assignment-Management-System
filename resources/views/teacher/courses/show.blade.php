@@ -5,41 +5,60 @@
 
 @section('content')
 <style>
-    .course-container { background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 30px; }
-    .course-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
-    .course-code { font-family: monospace; background: #f0f0f0; padding: 4px 8px; border-radius: 4px; font-size: 14px; color: #666; }
+    .course-container { background: #1e2235; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); padding: 30px; }
+    .course-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .course-code { font-family: monospace; background: rgba(148,163,184,0.16); padding: 4px 8px; border-radius: 6px; font-size: 14px; color: #cbd5e1; }
     .status-badge { padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; }
-    .status-active { background: #4CAF50; color: white; }
-    .status-inactive { background: #f44336; color: white; }
-    .course-description { color: #666; line-height: 1.6; margin-bottom: 30px; padding: 20px; background: #f8f9fa; border-radius: 4px; }
+    .status-active { background: rgba(16,185,129,0.18); border: 1px solid rgba(16,185,129,0.3); color: #10b981; }
+    .status-inactive { background: rgba(239,68,68,0.18); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; }
+    .course-description { color: #cbd5e1; line-height: 1.6; margin-bottom: 30px; padding: 20px; background: rgba(0,0,0,0.14); border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); }
     .students-section { margin-top: 30px; }
+    .students-section h3 { color: #f1f5f9; }
     .students-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    .students-table th { background: #f8f9fa; padding: 12px 15px; text-align: left; font-weight: 600; color: #555; border-bottom: 2px solid #dee2e6; }
-    .students-table td { padding: 12px 15px; border-bottom: 1px solid #eee; }
-    .students-table tr:hover { background: #f8f9fa; }
-    .btn { padding: 8px 16px; border-radius: 4px; text-decoration: none; font-size: 14px; margin-right: 10px; }
-    .btn-back { background: #666; color: white; }
-    .btn-invite { background: #2196F3; color: white; }
-    .btn-assign { background: #4CAF50; color: white; }
-    .btn-quiz { background: #FF9800; color: white; }
-    .btn-exam { background: #8E44AD; color: white; }
+    .students-table th { background: rgba(0,0,0,0.12); padding: 12px 15px; text-align: left; font-weight: 600; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .students-table td { padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.06); color: #cbd5e1; }
+    .students-table tr:hover { background: rgba(124,58,237,0.08); }
+    .btn { padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 14px; margin-right: 10px; }
+    .btn-back { background: rgba(255,255,255,0.1); color: #e2e8f0; }
+    .btn-invite { background: #3b82f6; color: white; }
+    .btn-assign { background: #10b981; color: white; }
+    .btn-quiz { background: #f59e0b; color: white; }
+    .btn-exam { background: #7c3aed; color: white; }
     .stats-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 16px 0 22px; }
-    .stat-card { background: #f8f9fa; border: 1px solid #eee; border-radius: 8px; padding: 14px; }
-    .stat-card h4 { margin: 0 0 6px 0; color: #666; font-size: 12px; text-transform: uppercase; }
-    .stat-card p { margin: 0; font-size: 24px; font-weight: 700; color: #2c3e50; }
-    .empty-state { text-align: center; padding: 40px; color: #666; }
-    .related-list { list-style: none; margin-top: 10px; padding: 0; }
-    .related-list li { padding: 8px 0; border-bottom: 1px solid #eee; }
+    .stat-card { background: rgba(0,0,0,0.14); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; }
+    .stat-card h4 { margin: 0 0 6px 0; color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .stat-card p { margin: 0; font-size: 24px; font-weight: 700; color: #7c3aed; }
+    .empty-state { text-align: center; padding: 40px; color: #94a3b8; }
+    .related-list { list-style: none; margin-top: 10px; padding: 0; background: rgba(0,0,0,0.14); border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); }
+    .related-list li { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
     .related-list li:last-child { border-bottom: none; }
+    .modules-grid { display: grid; gap: 12px; margin-top: 12px; }
+    .module-card { background: rgba(0,0,0,0.14); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; }
+    .module-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+    .module-title { font-size: 15px; font-weight: 700; color: #f1f5f9; }
+    .module-order { font-size: 11px; color: #94a3b8; background: rgba(148,163,184,0.16); padding: 3px 8px; border-radius: 999px; }
+    .module-desc { color: #94a3b8; font-size: 13px; margin-top: 6px; line-height: 1.5; }
+    .module-tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .module-tag { font-size: 11px; color: #cbd5e1; background: rgba(124,58,237,0.18); border: 1px solid rgba(124,58,237,0.3); padding: 3px 8px; border-radius: 999px; }
+    .module-form { margin-top: 12px; display: grid; gap: 10px; background: rgba(0,0,0,0.14); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; }
+    .module-form input, .module-form textarea { width: 100%; }
+    .module-form select { width: 100%; }
+    .module-items { display: grid; gap: 8px; margin-top: 12px; }
+    .module-item-card { border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.03); padding: 12px; }
+    .module-item-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+    .module-item-title { color: #f8fafc; font-weight: 600; }
+    .module-item-type { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #cbd5e1; background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.32); padding: 3px 8px; border-radius: 999px; }
+    .module-item-content { margin-top: 8px; color: #94a3b8; line-height: 1.55; white-space: pre-line; }
+    .module-item-meta { margin-top: 8px; color: #64748b; font-size: 12px; }
 </style>
 
 <div class="course-container">
     <div class="course-header">
         <div>
-            <h1 style="margin: 0 0 10px 0; color: #333;">{{ $course->name }}</h1>
+            <h1 style="margin: 0 0 10px 0; color: #f1f5f9;">{{ $course->name }}</h1>
             <span class="course-code">{{ $course->code }}</span>
-            <div style="margin-top: 10px; color: #666;">Category: <strong>{{ $course->category_name ?: 'Uncategorized' }}</strong></div>
-            <div style="margin-top: 5px; color: #666;">Class: <strong>{{ $course->class_name ?: 'Unassigned' }}</strong></div>
+            <div style="margin-top: 10px; color: #94a3b8;">Category: <strong>{{ $course->category_name ?: 'Uncategorized' }}</strong></div>
+            <div style="margin-top: 5px; color: #94a3b8;">Class: <strong>{{ $course->class_name ?: 'Unassigned' }}</strong></div>
         </div>
         <span class="status-badge status-{{ $course->is_active ? 'active' : 'inactive' }}">
             {{ $course->is_active ? 'Active' : 'Inactive' }}
@@ -101,16 +120,95 @@
         @endif
     </div>
 
+    <div class="students-section">
+        <h3>Course Modules ({{ $modulesEnabled ? $course->modules->count() : 0 }})</h3>
+
+        @if(!$modulesEnabled)
+            <div class="empty-state">Run `php artisan migrate` to enable course modules.</div>
+        @else
+            @if($course->modules->isEmpty())
+                <div class="empty-state">No modules added for this course yet. Admin needs to create the module structure first.</div>
+            @else
+                <div class="modules-grid">
+                    @foreach($course->modules as $module)
+                        @php
+                            $typeLabels = [
+                                'unit_outline' => 'Unit Outline',
+                                'quiz' => 'Quiz',
+                                'test' => 'Test',
+                                'note' => 'Note',
+                            ];
+                        @endphp
+                        <div class="module-card">
+                            <div class="module-head">
+                                <div class="module-title">{{ $module->title }}</div>
+                                <span class="module-order">Module {{ $module->position }}</span>
+                            </div>
+                            @if($module->description)
+                                <div class="module-desc">{{ $module->description }}</div>
+                            @endif
+                            <div class="module-tags">
+                                <span class="module-tag">{{ $module->lesson_count }} lessons</span>
+                                <span class="module-tag">{{ $module->assignment_count }} assignments</span>
+                                <span class="module-tag">{{ $module->quiz_count }} quizzes</span>
+                            </div>
+
+                            @if($moduleItemsEnabled)
+                                @if($module->items->isEmpty())
+                                    <div class="module-desc" style="margin-top: 12px;">No teacher content has been added for this module yet.</div>
+                                @else
+                                    <div class="module-items">
+                                        @foreach($module->items as $item)
+                                            <div class="module-item-card">
+                                                <div class="module-item-head">
+                                                    <div class="module-item-title">{{ $item->title }}</div>
+                                                    <span class="module-item-type">{{ $typeLabels[$item->type] ?? ucfirst(str_replace('_', ' ', $item->type)) }}</span>
+                                                </div>
+                                                @if($item->content)
+                                                    <div class="module-item-content">{{ $item->content }}</div>
+                                                @endif
+                                                <div class="module-item-meta">
+                                                    Added by {{ $item->creator?->name ?? 'Teacher' }} on {{ $item->created_at->format('M d, Y') }}
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                <form method="POST" action="{{ route('teacher.courses.modules.items.store', [$course, $module]) }}" class="module-form">
+                                    @csrf
+                                    <h4 style="margin:0;">Add Module Content</h4>
+                                    <select name="type" required>
+                                        <option value="">Select content type</option>
+                                        <option value="unit_outline">Unit Outline</option>
+                                        <option value="quiz">Quiz</option>
+                                        <option value="test">Test</option>
+                                        <option value="note">Note</option>
+                                    </select>
+                                    <input type="text" name="title" placeholder="Title" required>
+                                    <textarea name="description" rows="4" placeholder="Details, instructions, or note text"></textarea>
+                                    <div>
+                                        <button type="submit" class="btn btn-exam">Add Content</button>
+                                    </div>
+                                </form>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        @endif
+    </div>
+
     @if($relatedCourses->count() > 0)
     <div class="students-section">
         <h3>Other Courses in {{ $course->class_name }} ({{ $relatedCourses->count() }})</h3>
         <ul class="related-list">
             @foreach($relatedCourses as $related)
             <li>
-                <a href="{{ route('teacher.courses.show', $related) }}" style="color:#2196F3; text-decoration:none;">
+                <a href="{{ route('teacher.courses.show', $related) }}" style="color:#a78bfa; text-decoration:none;">
                     {{ $related->name }}
                 </a>
-                <span style="color:#999; font-size:13px; margin-left:8px;">{{ $related->category_name }}</span>
+                <span style="color:#94a3b8; font-size:13px; margin-left:8px;">{{ $related->category_name }}</span>
             </li>
             @endforeach
         </ul>

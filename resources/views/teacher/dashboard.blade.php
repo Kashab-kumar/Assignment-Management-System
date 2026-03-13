@@ -6,17 +6,20 @@
 @section('content')
 <style>
     .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
-    .stat-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .stat-card h3 { color: #666; font-size: 14px; margin-bottom: 10px; }
-    .stat-card .value { font-size: 32px; font-weight: bold; color: #2196F3; }
-    .section { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .section h2 { margin-bottom: 15px; color: #333; }
+    .stat-card { background: #1e2235; padding: 22px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); }
+    .stat-card h3 { color: #94a3b8; font-size: 13px; margin-bottom: 10px; }
+    .stat-card .value { font-size: 34px; font-weight: 700; color: #7c3aed; }
+    .section { background: #1e2235; padding: 22px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.06); }
+    .section h2 { margin-bottom: 15px; color: #f1f5f9; }
     table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-    th { background: #f8f8f8; font-weight: bold; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    th { background: rgba(0,0,0,0.12); font-weight: 600; color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: #cbd5e1; }
+    tr:last-child td { border-bottom: none; }
     .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; }
-    .badge-pending { background: #FFC107; color: white; }
-    .badge-graded { background: #4CAF50; color: white; }
+    .badge-pending { background: rgba(245,158,11,0.16); color: #f59e0b; border: 1px solid rgba(245,158,11,0.28); }
+    .badge-graded { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
+    .empty { color: #64748b; text-align: center; }
 </style>
 
 <div class="stats">
@@ -60,7 +63,7 @@
                 <td>{{ $submission->score ?? '-' }}/{{ $submission->assignment->max_score }}</td>
             </tr>
             @empty
-            <tr><td colspan="5">No submissions yet</td></tr>
+            <tr><td colspan="5" class="empty">No submissions yet</td></tr>
             @endforelse
         </tbody>
     </table>

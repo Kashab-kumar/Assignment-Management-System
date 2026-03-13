@@ -34,4 +34,9 @@ class Course extends Model
     {
         return $this->hasMany(Exam::class);
     }
+
+    public function modules()
+    {
+        return $this->hasMany(CourseModule::class)->orderBy('position')->orderBy('id');
+    }
 }

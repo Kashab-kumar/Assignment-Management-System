@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class CourseController extends Controller
 {
@@ -50,7 +51,20 @@ class CourseController extends Controller
 
     public function show(Course $course)
     {
+        $modulesEnabled = Schema::hasTable('course_modules');
+        $moduleItemsEnabled = Schema::hasTable('course_module_items');
+
         $course->load(['students.user']);
+
+        if ($modulesEnabled) {
+            $course->load([
+                'modules' => function ($query) use ($moduleItemsEnabled) {
+                    if ($moduleItemsEnabled) {
+                        $query->with('items.creator');
+                    }
+                },
+            ]);
+        }
 
         $relatedCourses = collect();
         if (!empty($course->class_name)) {
@@ -61,7 +75,36 @@ class CourseController extends Controller
                 ->get(['id', 'name', 'code', 'category_name']);
         }
 
-        return view('admin.courses.show', compact('course', 'relatedCourses'));
+        return view('admin.courses.show', compact('course', 'relatedCourses', 'modulesEnabled', 'moduleItemsEnabled'));
+    }
+
+    public function storeModule(Request $request, Course $course)
+    {
+        if (!Schema::hasTable('course_modules')) {
+            return back()->withErrors(['error' => 'Course modules table not found. Please run migrations first.']);
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string|max:2000',
+            'lesson_count' => 'nullable|integer|min:0',
+            'assignment_count' => 'nullable|integer|min:0',
+            'quiz_count' => 'nullable|integer|min:0',
+        ]);
+
+        $nextPosition = ($course->modules()->max('position') ?? 0) + 1;
+
+        $course->modules()->create([
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'position' => $nextPosition,
+            'lesson_count' => (int) ($validated['lesson_count'] ?? 0),
+            'assignment_count' => (int) ($validated['assignment_count'] ?? 0),
+            'quiz_count' => (int) ($validated['quiz_count'] ?? 0),
+            'is_active' => true,
+        ]);
+
+        return back()->with('success', 'Module added successfully.');
     }
 
     public function create()
