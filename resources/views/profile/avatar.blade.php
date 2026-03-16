@@ -82,7 +82,7 @@
     <h3 style="margin-bottom: 10px; font-size: 18px;">Account</h3>
     <p class="muted" style="margin-bottom: 12px;">Use logout from Settings.</p>
 
-    <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+    <form action="{{ route('logout', ['guard' => $user->role]) }}" method="POST" style="display:inline;">
         @csrf
         <button type="submit" class="btn btn-logout">Logout</button>
     </form>

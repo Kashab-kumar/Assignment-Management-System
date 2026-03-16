@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -20,11 +21,21 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (Auth::attempt($credentials)) {
+        $user = User::where('email', $credentials['email'])->first();
+
+        if (!$user) {
+            return back()->withErrors([
+                'email' => 'Invalid credentials.',
+            ])->onlyInput('email');
+        }
+
+        $guard = $this->guardForRole($user->role);
+
+        if (Auth::guard($guard)->attempt($credentials)) {
             $request->session()->regenerate();
-            
-            $user = Auth::user();
-            
+
+            $user = Auth::guard($guard)->user();
+
             // Redirect based on role
             if ($user->isAdmin()) {
                 return redirect('/admin/dashboard');
@@ -40,11 +51,24 @@ class AuthController extends Controller
         ])->onlyInput('email');
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request, string $guard)
     {
-        Auth::logout();
-        $request->session()->invalidate();
+        if (!in_array($guard, ['admin', 'teacher', 'student'], true)) {
+            abort(404);
+        }
+
+        Auth::guard($guard)->logout();
         $request->session()->regenerateToken();
+
         return redirect('/');
+    }
+
+    private function guardForRole(string $role): string
+    {
+        return match ($role) {
+            'admin' => 'admin',
+            'teacher' => 'teacher',
+            default => 'student',
+        };
     }
 }

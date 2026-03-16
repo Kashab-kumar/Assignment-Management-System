@@ -32,7 +32,9 @@ use App\Http\Controllers\Admin\ReportController;
 // Authentication Routes
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::post('/logout/{guard}', [AuthController::class, 'logout'])
+    ->whereIn('guard', ['admin', 'teacher', 'student'])
+    ->name('logout');
 
 // Admin Registration (First time setup)
 Route::get('/register/admin', [RegisterController::class, 'showAdminRegister'])->name('register.admin');
@@ -49,7 +51,7 @@ Route::get('/reset-password/{token}', [PasswordResetController::class, 'showRese
 Route::post('/reset-password', [PasswordResetController::class, 'updatePassword'])->name('password.update');
 
 // Student Routes
-Route::middleware(['auth', 'role:student'])->group(function () {
+Route::middleware(['auth:student'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/student/settings/avatar', [ProfileAvatarController::class, 'update'])->name('student.settings.avatar.update');
     Route::delete('/student/settings/avatar', [ProfileAvatarController::class, 'destroy'])->name('student.settings.avatar.destroy');
@@ -69,7 +71,7 @@ Route::middleware(['auth', 'role:student'])->group(function () {
 });
 
 // Teacher Routes
-Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')->group(function () {
+Route::middleware(['auth:teacher'])->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/dashboard', [TeacherDashboardController::class, 'index'])->name('dashboard');
     Route::get('/settings', [ProfileAvatarController::class, 'teacherSettings'])->name('settings');
     Route::post('/settings/avatar', [ProfileAvatarController::class, 'update'])->name('settings.avatar.update');
@@ -109,7 +111,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
 });
 
 // Admin Routes
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/settings', [ProfileAvatarController::class, 'adminSettings'])->name('settings');
     Route::post('/settings/avatar', [ProfileAvatarController::class, 'update'])->name('settings.avatar.update');

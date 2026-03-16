@@ -1,0 +1,55 @@
+flowchart TD
+    A([Start]) --> B[Open Login Page]
+    B --> C[Enter Email and Password]
+    C --> D{Credentials Valid?}
+    D -->|No| E[Show Invalid Credentials Error]
+    E --> B
+
+    D -->|Yes| F{Role?}
+
+    F -->|Admin| A1[Admin Dashboard]
+    A1 --> A2[Manage Users]
+    A1 --> A3[Manage Teachers]
+    A1 --> A4[Manage Students]
+    A1 --> A5[Manage Courses]
+    A1 --> A6[Create and Manage Invitations]
+    A1 --> A7[View and Export Reports]
+    A2 --> A8([Admin End])
+    A3 --> A8
+    A4 --> A8
+    A5 --> A8
+    A6 --> A8
+    A7 --> A8
+
+    F -->|Teacher| T1[Teacher Dashboard]
+    T1 --> T2[Create Assignment]
+    T1 --> T3[View Submissions]
+    T1 --> T4[Grade Submissions]
+    T1 --> T5[Create Exam]
+    T1 --> T6[Enter or Update Exam Results]
+    T1 --> T7[Manage Course Module Items]
+    T1 --> T8[View Students, Grades, Reports]
+    T2 --> T9([Teacher End])
+    T3 --> T9
+    T4 --> T9
+    T5 --> T9
+    T6 --> T9
+    T7 --> T9
+    T8 --> T9
+
+    F -->|Student| S1[Student Dashboard]
+    S1 --> S2[View Assignments]
+    S2 --> S3[Open Assignment Detail]
+    S3 --> S4[Submit Content and or File]
+    S4 --> S5{Submission Valid?}
+    S5 -->|No| S6[Show Validation Error]
+    S6 --> S4
+    S5 -->|Yes| S7[Save Submission]
+    S7 --> S8[View Grades and Rankings]
+    S1 --> S10[View Exams]
+    S1 --> S11[View Calendar]
+    S1 --> S12[View Profile]
+    S8 --> S9([Student End])
+    S10 --> S9
+    S11 --> S9
+    S12 --> S9

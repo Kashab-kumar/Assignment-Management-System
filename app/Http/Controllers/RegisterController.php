@@ -15,6 +15,15 @@ use Illuminate\Support\Facades\Schema;
 
 class RegisterController extends Controller
 {
+    private function guardForRole(string $role): string
+    {
+        return match ($role) {
+            'admin' => 'admin',
+            'teacher' => 'teacher',
+            default => 'student',
+        };
+    }
+
     // Show admin registration form
     public function showAdminRegister()
     {
@@ -47,7 +56,7 @@ class RegisterController extends Controller
             'role' => 'admin',
         ]);
 
-        Auth::login($user);
+        Auth::guard($this->guardForRole($user->role))->login($user);
 
         return redirect()->route('admin.dashboard')->with('success', 'Admin account created successfully!');
     }
@@ -151,7 +160,7 @@ class RegisterController extends Controller
             return $user;
         });
 
-        Auth::login($user);
+        Auth::guard($this->guardForRole($user->role))->login($user);
 
         // Redirect based on role
         if ($user->isTeacher()) {

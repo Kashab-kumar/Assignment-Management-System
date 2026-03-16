@@ -1,0 +1,173 @@
+Table users {
+  id bigint [pk, increment]
+  name varchar
+  email varchar [unique]
+  email_verified_at timestamp [null]
+  password varchar
+  remember_token varchar [null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table students {
+  id bigint [pk, increment]
+  user_id bigint [not null, unique]
+  course_id bigint [null]
+  student_id varchar [unique]
+  name varchar
+  email varchar [unique]
+  class varchar [null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table teachers {
+  id bigint [pk, increment]
+  user_id bigint [not null, unique]
+  teacher_id varchar [unique]
+  name varchar
+  email varchar [unique]
+  subject varchar [null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table courses {
+  id bigint [pk, increment]
+  name varchar
+  code varchar [unique]
+  description text [null]
+  is_active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table assignments {
+  id bigint [pk, increment]
+  course_id bigint [null]
+  title varchar
+  description text
+  type varchar
+  due_date date
+  max_score int [default: 100]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table exams {
+  id bigint [pk, increment]
+  course_id bigint [null]
+  title varchar
+  description text [null]
+  exam_date date
+  max_score int [default: 100]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table submissions {
+  id bigint [pk, increment]
+  student_id bigint [not null]
+  assignment_id bigint [not null]
+  content text [null]
+  file_path varchar [null]
+  score int [null]
+  status varchar [default: 'pending']
+  submitted_at timestamp
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table exam_results {
+  id bigint [pk, increment]
+  student_id bigint [not null]
+  exam_id bigint [not null]
+  score int
+  remarks text [null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table invitations {
+  id bigint [pk, increment]
+  token varchar [unique]
+  role varchar
+  course_id bigint [null]
+  invited_by bigint [not null]
+  used boolean [default: false]
+  expires_at timestamp
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table calendar_events {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  course_id bigint [null]
+  title varchar
+  event_type varchar [default: 'other']
+  event_date date
+  description text [null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table course_modules {
+  id bigint [pk, increment]
+  course_id bigint [not null]
+  title varchar
+  description text [null]
+  position int [default: 0]
+  lesson_count int [default: 0]
+  assignment_count int [default: 0]
+  quiz_count int [default: 0]
+  is_active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (course_id, position)
+  }
+}
+
+Table course_module_items {
+  id bigint [pk, increment]
+  course_module_id bigint [not null]
+  type varchar
+  title varchar
+  content text [null]
+  position int [default: 0]
+  created_by bigint [null]
+  is_active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (course_module_id, type)
+    (course_module_id, position)
+  }
+}
+
+Ref: students.user_id > users.id [delete: cascade]
+Ref: students.course_id > courses.id [delete: set null]
+
+Ref: teachers.user_id > users.id [delete: cascade]
+
+Ref: assignments.course_id > courses.id [delete: set null]
+Ref: exams.course_id > courses.id [delete: set null]
+
+Ref: submissions.student_id > students.id [delete: cascade]
+Ref: submissions.assignment_id > assignments.id [delete: cascade]
+
+Ref: exam_results.student_id > students.id [delete: cascade]
+Ref: exam_results.exam_id > exams.id [delete: cascade]
+
+Ref: invitations.invited_by > users.id [delete: cascade]
+Ref: invitations.course_id > courses.id [delete: set null]
+
+Ref: calendar_events.user_id > users.id [delete: cascade]
+Ref: calendar_events.course_id > courses.id [delete: set null]
+
+Ref: course_modules.course_id > courses.id [delete: cascade]
+Ref: course_module_items.course_module_id > course_modules.id [delete: cascade]
+Ref: course_module_items.created_by > users.id [delete: set null]

@@ -39,7 +39,7 @@
             This usually happens when your account was created manually. Please contact your administrator to complete your profile setup.
         </p>
         
-        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+        <form action="{{ route('logout', ['guard' => $user->role]) }}" method="POST" style="display: inline;">
             @csrf
             <button type="submit" class="btn">Logout</button>
         </form>
