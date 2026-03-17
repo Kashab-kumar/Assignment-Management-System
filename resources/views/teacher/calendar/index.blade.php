@@ -19,6 +19,7 @@
     .badge-assignment { background: #eaf2ff; color: #1e5fd6; }
     .badge-quiz { background: #fff3e0; color: #f57c00; }
     .badge-exam { background: #ede7f6; color: #5e35b1; }
+    .badge-test { background: #fee2e2; color: #b91c1c; }
     .badge-other { background: #eceff1; color: #455a64; }
     .source-custom { color: #2e7d32; font-weight: 700; }
     .source-assignment, .source-exam { color: #546e7a; }

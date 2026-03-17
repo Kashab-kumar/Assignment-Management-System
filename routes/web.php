@@ -64,6 +64,8 @@ Route::middleware(['auth:student'])->group(function () {
         Route::get('/settings', [ProfileAvatarController::class, 'studentSettings'])->name('settings');
         Route::get('/calendar', [CalendarController::class, 'studentIndex'])->name('calendar');
         Route::get('/exams', [StudentExamController::class, 'index'])->name('exams.index');
+        Route::get('/exams/{exam}', [StudentExamController::class, 'show'])->name('exams.show');
+        Route::post('/exams/{exam}/submit', [StudentExamController::class, 'submit'])->name('exams.submit');
         Route::get('/grades', [StudentGradeController::class, 'index'])->name('grades.index');
         Route::get('/rankings', [StudentRankingController::class, 'index'])->name('rankings');
         Route::get('/profile', [StudentProfileController::class, 'index'])->name('profile');
@@ -94,6 +96,8 @@ Route::middleware(['auth:teacher'])->prefix('teacher')->name('teacher.')->group(
     Route::get('/exams', [TeacherExamController::class, 'index'])->name('exams.index');
     Route::get('/exams/create', [TeacherExamController::class, 'create'])->name('exams.create');
     Route::post('/exams', [TeacherExamController::class, 'store'])->name('exams.store');
+    Route::get('/exams/{exam}/edit', [TeacherExamController::class, 'edit'])->name('exams.edit');
+    Route::put('/exams/{exam}', [TeacherExamController::class, 'update'])->name('exams.update');
     Route::get('/exams/{exam}', [TeacherExamController::class, 'show'])->name('exams.show');
     Route::post('/exams/{exam}/results', [TeacherExamController::class, 'upsertResult'])->name('exams.results.upsert');
 

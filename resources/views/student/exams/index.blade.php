@@ -1,7 +1,7 @@
 @extends('layouts.student')
 
-@section('title', 'Exams')
-@section('page-title', 'Exams & Quizzes')
+@section('title', 'Assessments')
+@section('page-title', 'Assessments')
 
 @section('content')
 <style>
@@ -66,6 +66,7 @@
     .exam-item-title { font-size: 19px; font-weight: 700; color: #f1f5f9; margin-bottom: 2px; }
     .exam-item-course { font-size: 13px; color: #94a3b8; }
     .exam-meta { display: flex; gap: 14px; margin-top: 10px; font-size: 12px; color: #64748b; }
+    .exam-submeta { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
 
     .pill {
         padding: 4px 10px;
@@ -78,6 +79,7 @@
     .pill-live { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
     .pill-soon { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
     .pill-date { background: rgba(148,163,184,0.12); color: #94a3b8; border: 1px solid rgba(148,163,184,0.25); }
+    .pill-type { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
 
     .detail { display: flex; flex-direction: column; min-height: 72vh; }
     .detail-head { padding: 28px 30px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
@@ -150,6 +152,7 @@
 
 @php
     $activeList = $activeTab === 'completed' ? $completedExams : $upcomingExams;
+    $typeLabels = ['exam' => 'Exam', 'quiz' => 'Quiz', 'test' => 'Test'];
 @endphp
 
 <div class="exam-layout">
@@ -165,12 +168,17 @@
                     $isSelected = $selectedExam && $selectedExam->id === $exam->id;
                     $daysAway = now()->startOfDay()->diffInDays($exam->exam_date, false);
                     $durationMinutes = data_get($exam, 'duration_minutes', 90);
+                    $typeLabel = $typeLabels[$exam->type] ?? ucfirst($exam->type);
                 @endphp
                 <a href="{{ route('student.exams.index', ['tab' => $activeTab, 'exam' => $exam->id]) }}" class="exam-item {{ $isSelected ? 'active' : '' }}">
                     <div class="exam-item-top">
                         <div>
                             <div class="exam-item-title">{{ $exam->title }}</div>
                             <div class="exam-item-course">{{ $exam->course?->name ?? 'General Course' }}</div>
+                            <div class="exam-submeta">
+                                <span class="pill pill-type">{{ $typeLabel }}</span>
+                                <span class="pill pill-date">{{ $exam->questions_count }} Question{{ $exam->questions_count === 1 ? '' : 's' }}</span>
+                            </div>
                         </div>
                         @if($daysAway === 0)
                             <span class="pill pill-live">LIVE</span>
@@ -196,12 +204,30 @@
             @php
                 $selectedResult = $selectedExam->results->first();
                 $durationMinutes = data_get($selectedExam, 'duration_minutes', 90);
+                $selectedTypeLabel = $typeLabels[$selectedExam->type] ?? ucfirst($selectedExam->type);
+                $hasSubmittedAnswers = $selectedExam->answers->isNotEmpty();
+                $startTimeText = $selectedExam->exam_time ? \Illuminate\Support\Carbon::createFromFormat('H:i:s', strlen($selectedExam->exam_time) === 5 ? $selectedExam->exam_time . ':00' : $selectedExam->exam_time)->format('h:i A') : '12:00 AM';
+                $examStartsAt = $selectedExam->exam_date->copy()->startOfDay();
+
+                if ($selectedExam->exam_time) {
+                    [$hours, $minutes] = array_pad(explode(':', $selectedExam->exam_time), 2, 0);
+                    $examStartsAt = $selectedExam->exam_date->copy()->setTime((int) $hours, (int) $minutes, 0);
+                }
+
+                $hasStarted = now()->greaterThanOrEqualTo($examStartsAt);
             @endphp
             <div class="detail-head">
                 <div class="detail-head-top">
                     <div>
                         <div class="detail-title">{{ $selectedExam->title }}</div>
                         <div class="detail-course">{{ $selectedExam->course?->name ?? 'General Course' }}</div>
+                        <div class="exam-submeta" style="margin-top:14px;">
+                            <span class="pill pill-type">{{ $selectedTypeLabel }}</span>
+                            <span class="pill pill-date">{{ $selectedExam->questions_count }} Question{{ $selectedExam->questions_count === 1 ? '' : 's' }}</span>
+                            @if($hasSubmittedAnswers)
+                                <span class="pill pill-live">Answers Saved</span>
+                            @endif
+                        </div>
                     </div>
                     @if(now()->startOfDay()->equalTo($selectedExam->exam_date))
                         <span class="pill pill-live">LIVE NOW</span>
@@ -218,6 +244,10 @@
                         <div class="stat-value">{{ $selectedExam->exam_date->format('M d, Y') }}</div>
                     </div>
                     <div>
+                        <div class="stat-label">Start Time</div>
+                        <div class="stat-value">{{ $startTimeText }}</div>
+                    </div>
+                    <div>
                         <div class="stat-label">Duration</div>
                         <div class="stat-value">{{ $durationMinutes }} Minutes</div>
                     </div>
@@ -232,26 +262,27 @@
                 <h3>Description</h3>
                 <p>{{ $selectedExam->description ?: 'No description has been provided for this exam yet.' }}</p>
 
-                <h3>Exam Rules & Requirements</h3>
+                <h3>Assessment Rules & Requirements</h3>
                 <ul class="rule-list">
                     <li>Keep your exam session active from start to finish.</li>
                     <li>No external resources unless your teacher explicitly allows them.</li>
                     <li>Submit before the deadline shown in your exam instructions.</li>
+                    <li>Every question requires an answer before submission.</li>
                     @if($selectedResult)
                         <li>Your recorded score: {{ $selectedResult->score }}/{{ $selectedExam->max_score }}.</li>
                     @else
-                        <li>You have no graded result for this exam yet.</li>
+                        <li>You have no graded result for this assessment yet.</li>
                     @endif
                 </ul>
             </div>
 
             <div class="detail-footer">
-                @if($selectedExam->exam_date->isFuture())
-                    <a href="javascript:void(0)" class="btn-begin" aria-disabled="true">Exam Not Started</a>
-                @elseif($selectedExam->exam_date->isPast())
-                    <a href="javascript:void(0)" class="btn-begin" aria-disabled="true">Exam Closed</a>
+                @if(!$hasStarted)
+                    <a href="javascript:void(0)" class="btn-begin" aria-disabled="true">Assessment Not Started</a>
+                @elseif($selectedExam->questions_count === 0)
+                    <a href="javascript:void(0)" class="btn-begin" aria-disabled="true">No Questions Added</a>
                 @else
-                    <a href="javascript:void(0)" class="btn-begin">Begin Examination</a>
+                    <a href="{{ route('student.exams.show', $selectedExam) }}" class="btn-begin">{{ $hasSubmittedAnswers ? 'View Submitted Answers' : 'Begin ' . $selectedTypeLabel }}</a>
                 @endif
             </div>
         @else

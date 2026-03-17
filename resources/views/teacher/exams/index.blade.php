@@ -1,7 +1,7 @@
 @extends('layouts.teacher')
 
-@section('title', 'Exams')
-@section('page-title', 'Exams')
+@section('title', 'Assessments')
+@section('page-title', 'Assessments')
 
 @section('content')
 <style>
@@ -11,12 +11,20 @@
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
     th { background: #f8f8f8; }
+    .type-pill { display: inline-block; padding: 4px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .type-exam { background: #ede7f6; color: #5e35b1; }
+    .type-quiz { background: #fff3e0; color: #f57c00; }
+    .type-test { background: #fee2e2; color: #b91c1c; }
 </style>
+
+@php
+    $typeLabels = ['exam' => 'Exam', 'quiz' => 'Quiz', 'test' => 'Test'];
+@endphp
 
 <div class="section">
     <div class="header">
-        <h2>Exam List</h2>
-        <a href="{{ route('teacher.exams.create', $selectedCourseId ? ['course_id' => $selectedCourseId] : []) }}" class="btn">+ Create Exam / Quiz</a>
+        <h2>Assessment List</h2>
+        <a href="{{ route('teacher.exams.create', $selectedCourseId ? ['course_id' => $selectedCourseId] : []) }}" class="btn">+ Create Assessment</a>
     </div>
 
     <form method="GET" style="margin-bottom: 16px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
@@ -42,8 +50,10 @@
         <thead>
             <tr>
                 <th>Title</th>
+                <th>Type</th>
                 <th>Course</th>
                 <th>Date</th>
+                <th>Questions</th>
                 <th>Max Score</th>
                 <th>Results</th>
                 <th>Average</th>
@@ -54,16 +64,21 @@
             @forelse($exams as $exam)
                 <tr>
                     <td>{{ $exam->title }}</td>
+                    <td><span class="type-pill type-{{ $exam->type }}">{{ $typeLabels[$exam->type] ?? ucfirst($exam->type) }}</span></td>
                     <td>{{ $exam->course?->name ?? '-' }}</td>
                     <td>{{ $exam->exam_date->format('M d, Y') }}</td>
+                    <td>{{ $exam->questions_count }}</td>
                     <td>{{ $exam->max_score }}</td>
                     <td>{{ $exam->results_count }}</td>
                     <td>{{ $exam->results_avg_score ? number_format($exam->results_avg_score, 2) : '-' }}</td>
-                    <td><a href="{{ route('teacher.exams.show', $exam) }}" style="color: #2196F3; text-decoration: none;">View</a></td>
+                    <td>
+                        <a href="{{ route('teacher.exams.show', $exam) }}" style="color: #2196F3; text-decoration: none; margin-right: 8px;">View</a>
+                        <a href="{{ route('teacher.exams.edit', $exam) }}" style="color: #4CAF50; text-decoration: none;">Edit</a>
+                    </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7">No exams created yet.</td>
+                    <td colspan="9">No assessments created yet.</td>
                 </tr>
             @endforelse
         </tbody>

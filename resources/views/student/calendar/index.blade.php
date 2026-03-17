@@ -53,6 +53,7 @@
     .badge-assignment { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
     .badge-quiz { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.25); }
     .badge-exam { background: rgba(124,58,237,0.18); color: #a78bfa; border: 1px solid rgba(124,58,237,0.32); }
+    .badge-test { background: rgba(239,68,68,0.16); color: #f87171; border: 1px solid rgba(239,68,68,0.28); }
 
     .status-done { color: #10b981; font-weight: 700; }
     .status-upcoming { color: #60a5fa; font-weight: 700; }
@@ -90,10 +91,10 @@
 </div>
 
 <div class="section">
-    <h2 style="margin-bottom: 12px;">Assignments & Quiz Timeline</h2>
+    <h2 style="margin-bottom: 12px;">Assignments & Assessment Timeline</h2>
 
     @if($events->isEmpty())
-        <p class="empty">No assignment or quiz events found for this month.</p>
+        <p class="empty">No assignment or assessment events found for this month.</p>
     @else
         <table>
             <thead>

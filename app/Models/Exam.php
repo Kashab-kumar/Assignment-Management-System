@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Exam extends Model
 {
-    protected $fillable = ['course_id', 'title', 'description', 'exam_date', 'max_score'];
+    protected $fillable = ['course_id', 'type', 'title', 'description', 'exam_date', 'exam_time', 'duration_minutes', 'max_score'];
 
     protected $casts = [
         'exam_date' => 'date',
@@ -15,6 +15,16 @@ class Exam extends Model
     public function results()
     {
         return $this->hasMany(ExamResult::class);
+    }
+
+    public function questions()
+    {
+        return $this->hasMany(ExamQuestion::class)->orderBy('position')->orderBy('id');
+    }
+
+    public function answers()
+    {
+        return $this->hasMany(ExamAnswer::class);
     }
 
     public function course()

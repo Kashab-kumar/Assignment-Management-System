@@ -72,12 +72,12 @@ class CalendarController extends Controller
         $examEvents = $exams->map(function ($exam) use ($today) {
             $isDone = $exam->results->isNotEmpty();
             $eventDate = Carbon::parse($exam->exam_date)->startOfDay();
-            $isQuiz = stripos($exam->title, 'quiz') !== false;
+            $examType = in_array($exam->type ?? 'exam', ['quiz', 'test'], true) ? $exam->type : 'exam';
 
             return [
                 'date' => $eventDate,
                 'title' => $exam->title,
-                'type' => $isQuiz ? 'quiz' : 'exam',
+                'type' => $examType,
                 'source' => 'exam',
                 'course' => $exam->course?->name,
                 'status' => $isDone ? 'done' : ($eventDate->lt($today) ? 'overdue' : 'upcoming'),
@@ -138,7 +138,7 @@ class CalendarController extends Controller
                     'id' => null,
                     'date' => Carbon::parse($exam->exam_date),
                     'title' => $exam->title,
-                    'type' => stripos($exam->title, 'quiz') !== false ? 'quiz' : 'exam',
+                    'type' => in_array($exam->type ?? 'exam', ['quiz', 'test'], true) ? $exam->type : 'exam',
                     'source' => 'exam',
                     'course' => $exam->course?->name,
                     'description' => $exam->description,

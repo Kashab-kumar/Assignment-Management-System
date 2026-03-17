@@ -23,6 +23,7 @@
     .btn-invite { background: #3b82f6; color: white; }
     .btn-assign { background: #10b981; color: white; }
     .btn-quiz { background: #f59e0b; color: white; }
+    .btn-test { background: #ef4444; color: white; }
     .btn-exam { background: #7c3aed; color: white; }
     .stats-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 16px 0 22px; }
     .stat-card { background: rgba(0,0,0,0.14); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; }
@@ -75,7 +76,7 @@
             <p>{{ $course->assignments_count }}</p>
         </div>
         <div class="stat-card">
-            <h4>Exams / Quizzes</h4>
+            <h4>Exams / Quizzes / Tests</h4>
             <p>{{ $course->exams_count }}</p>
         </div>
     </div>
@@ -84,6 +85,7 @@
         <a href="{{ route('teacher.courses.index') }}" class="btn btn-back">← Back to Courses</a>
         <a href="{{ route('teacher.assignments.create', ['course_id' => $course->id]) }}" class="btn btn-assign">Give Assignment</a>
         <a href="{{ route('teacher.exams.create', ['course_id' => $course->id, 'mode' => 'quiz']) }}" class="btn btn-quiz">Create Quiz</a>
+        <a href="{{ route('teacher.exams.create', ['course_id' => $course->id, 'mode' => 'test']) }}" class="btn btn-test">Create Test</a>
         <a href="{{ route('teacher.exams.create', ['course_id' => $course->id]) }}" class="btn btn-exam">Create Exam</a>
         <a href="{{ route('teacher.students.index') }}" class="btn btn-invite">Invite Students</a>
     </div>
