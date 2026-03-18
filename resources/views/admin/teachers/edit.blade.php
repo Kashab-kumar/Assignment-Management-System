@@ -31,6 +31,27 @@
         border-radius: 4px;
         font-size: 14px;
     }
+
+    .course-list {
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        max-height: 220px;
+        overflow-y: auto;
+        padding: 8px;
+        background: #fafafa;
+    }
+
+    .course-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 4px;
+        font-size: 14px;
+    }
+
+    .course-item input[type="checkbox"] {
+        width: auto;
+    }
     
     .form-group small {
         color: #666;
@@ -101,6 +122,22 @@
             <label for="subject">Subject *</label>
             <input type="text" id="subject" name="subject" value="{{ old('subject', $teacher->subject) }}" required>
             <small>e.g., Mathematics, Science, English</small>
+        </div>
+
+        <div class="form-group">
+            <label>Assigned Modules / Courses</label>
+            <div class="course-list">
+                @php($checkedCourses = old('course_ids', $selectedCourseIds ?? []))
+                @forelse($courses as $course)
+                    <label class="course-item">
+                        <input type="checkbox" name="course_ids[]" value="{{ $course->id }}" {{ in_array($course->id, $checkedCourses) ? 'checked' : '' }}>
+                        <span>{{ $course->category_name ?: 'Uncategorized' }} / {{ $course->class_name ?: 'Unassigned' }} / {{ $course->name }}</span>
+                    </label>
+                @empty
+                    <p style="padding: 6px; color: #666;">No courses available.</p>
+                @endforelse
+            </div>
+            <small>Only selected modules/courses will be visible to this teacher.</small>
         </div>
         
         <div style="margin-top: 30px;">

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Course;
 use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -20,13 +21,19 @@ class TeacherController extends Controller
 
     public function show(Teacher $teacher)
     {
-        $teacher->load('user');
+        $teacher->load(['user', 'courses']);
         return view('admin.teachers.show', compact('teacher'));
     }
 
     public function create()
     {
-        return view('admin.teachers.create');
+        $courses = Course::query()
+            ->orderBy('category_name')
+            ->orderBy('class_name')
+            ->orderBy('name')
+            ->get();
+
+        return view('admin.teachers.create', compact('courses'));
     }
 
     public function store(Request $request)
@@ -37,6 +44,8 @@ class TeacherController extends Controller
             'password' => 'required|min:8|confirmed',
             'teacher_id' => 'required|string|unique:teachers,teacher_id',
             'subject' => 'required|string|max:255',
+            'course_ids' => 'nullable|array',
+            'course_ids.*' => 'exists:courses,id',
         ]);
 
         // Create user
@@ -48,7 +57,7 @@ class TeacherController extends Controller
         ]);
 
         // Create teacher record
-        Teacher::create([
+        $teacher = Teacher::create([
             'user_id' => $user->id,
             'teacher_id' => $validated['teacher_id'],
             'name' => $validated['name'],
@@ -56,14 +65,25 @@ class TeacherController extends Controller
             'subject' => $validated['subject'],
         ]);
 
+        $teacher->courses()->sync($validated['course_ids'] ?? []);
+
         return redirect()->route('admin.teachers.index')
             ->with('success', 'Teacher created successfully!');
     }
 
     public function edit(Teacher $teacher)
     {
-        $teacher->load('user');
-        return view('admin.teachers.edit', compact('teacher'));
+        $teacher->load(['user', 'courses']);
+
+        $courses = Course::query()
+            ->orderBy('category_name')
+            ->orderBy('class_name')
+            ->orderBy('name')
+            ->get();
+
+        $selectedCourseIds = $teacher->courses->pluck('id')->all();
+
+        return view('admin.teachers.edit', compact('teacher', 'courses', 'selectedCourseIds'));
     }
 
     public function update(Request $request, Teacher $teacher)
@@ -72,6 +92,8 @@ class TeacherController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $teacher->user->id,
             'subject' => 'required|string|max:255',
+            'course_ids' => 'nullable|array',
+            'course_ids.*' => 'exists:courses,id',
         ]);
 
         // Update user
@@ -86,6 +108,8 @@ class TeacherController extends Controller
             'email' => $validated['email'],
             'subject' => $validated['subject'],
         ]);
+
+        $teacher->courses()->sync($validated['course_ids'] ?? []);
 
         return redirect()->route('admin.teachers.show', $teacher)
             ->with('success', 'Teacher updated successfully!');

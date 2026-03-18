@@ -35,6 +35,11 @@ class Course extends Model
         return $this->hasMany(Exam::class);
     }
 
+    public function teachers()
+    {
+        return $this->belongsToMany(Teacher::class)->withTimestamps();
+    }
+
     public function modules()
     {
         return $this->hasMany(CourseModule::class)->orderBy('position')->orderBy('id');

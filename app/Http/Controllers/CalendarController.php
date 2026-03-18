@@ -9,6 +9,7 @@ use App\Models\Exam;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rule;
 
 class CalendarController extends Controller
 {
@@ -104,14 +105,21 @@ class CalendarController extends Controller
         $monthStart = Carbon::createFromFormat('Y-m', $selectedMonth)->startOfMonth();
         $monthEnd = Carbon::createFromFormat('Y-m', $selectedMonth)->endOfMonth();
         $selectedCourseId = $request->integer('course_id') ?: null;
+        $assignedCourseIds = $this->assignedCourseIds();
+
+        if ($selectedCourseId && !in_array($selectedCourseId, $assignedCourseIds, true)) {
+            $selectedCourseId = null;
+        }
 
         $courses = Course::query()
+            ->whereIn('id', $assignedCourseIds)
             ->orderBy('category_name')
             ->orderBy('class_name')
             ->orderBy('name')
             ->get();
 
         $assignmentEvents = Assignment::with('course')
+            ->whereIn('course_id', $assignedCourseIds)
             ->whereBetween('due_date', [$monthStart->toDateString(), $monthEnd->toDateString()])
             ->when($selectedCourseId, fn ($q) => $q->where('course_id', $selectedCourseId))
             ->orderBy('due_date')
@@ -129,6 +137,7 @@ class CalendarController extends Controller
             });
 
         $examEvents = Exam::with('course')
+            ->whereIn('course_id', $assignedCourseIds)
             ->whereBetween('exam_date', [$monthStart->toDateString(), $monthEnd->toDateString()])
             ->when($selectedCourseId, fn ($q) => $q->where('course_id', $selectedCourseId))
             ->orderBy('exam_date')
@@ -147,6 +156,7 @@ class CalendarController extends Controller
 
         $customEvents = CalendarEvent::with('course')
             ->where('user_id', auth()->id())
+            ->whereIn('course_id', $assignedCourseIds)
             ->whereBetween('event_date', [$monthStart->toDateString(), $monthEnd->toDateString()])
             ->when($selectedCourseId, fn ($q) => $q->where('course_id', $selectedCourseId))
             ->orderBy('event_date')
@@ -174,8 +184,10 @@ class CalendarController extends Controller
 
     public function storeTeacherEvent(Request $request)
     {
+        $assignedCourseIds = $this->assignedCourseIds();
+
         $validated = $request->validate([
-            'course_id' => 'required|exists:courses,id',
+            'course_id' => ['required', Rule::in($assignedCourseIds)],
             'title' => 'required|string|max:255',
             'event_type' => 'required|in:assignment,quiz,exam,other',
             'event_date' => 'required|date',
@@ -197,6 +209,7 @@ class CalendarController extends Controller
     public function destroyTeacherEvent(CalendarEvent $event)
     {
         abort_unless($event->user_id === auth()->id(), 403);
+        abort_unless(in_array($event->course_id, $this->assignedCourseIds(), true), 403);
 
         $event->delete();
 
@@ -210,5 +223,16 @@ class CalendarController extends Controller
         }
 
         return now()->format('Y-m');
+    }
+
+    private function assignedCourseIds(): array
+    {
+        $teacher = auth()->user()->teacher;
+
+        if (!$teacher) {
+            return [];
+        }
+
+        return $teacher->courses()->pluck('courses.id')->all();
     }
 }

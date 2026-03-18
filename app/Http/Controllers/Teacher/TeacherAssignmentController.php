@@ -7,20 +7,28 @@ use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\Submission;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class TeacherAssignmentController extends Controller
 {
     public function index(Request $request)
     {
         $selectedCourseId = $request->integer('course_id') ?: null;
+        $assignedCourseIds = $this->assignedCourseIds();
+
+        if ($selectedCourseId && !in_array($selectedCourseId, $assignedCourseIds, true)) {
+            $selectedCourseId = null;
+        }
 
         $assignments = Assignment::with(['course'])
             ->withCount('submissions')
+            ->whereIn('course_id', $assignedCourseIds)
             ->when($selectedCourseId, fn ($q) => $q->where('course_id', $selectedCourseId))
             ->latest()
             ->get();
 
         $courses = Course::query()
+            ->whereIn('id', $assignedCourseIds)
             ->orderBy('category_name')
             ->orderBy('class_name')
             ->orderBy('name')
@@ -32,8 +40,14 @@ class TeacherAssignmentController extends Controller
     public function create(Request $request)
     {
         $selectedCourseId = $request->integer('course_id') ?: null;
+        $assignedCourseIds = $this->assignedCourseIds();
+
+        if ($selectedCourseId && !in_array($selectedCourseId, $assignedCourseIds, true)) {
+            $selectedCourseId = null;
+        }
 
         $courses = Course::query()
+            ->whereIn('id', $assignedCourseIds)
             ->orderBy('category_name')
             ->orderBy('class_name')
             ->orderBy('name')
@@ -44,8 +58,10 @@ class TeacherAssignmentController extends Controller
 
     public function store(Request $request)
     {
+        $assignedCourseIds = $this->assignedCourseIds();
+
         $validated = $request->validate([
-            'course_id' => 'required|exists:courses,id',
+            'course_id' => ['required', Rule::in($assignedCourseIds)],
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'type' => 'required|in:assignment,homework',
@@ -61,12 +77,16 @@ class TeacherAssignmentController extends Controller
 
     public function show(Assignment $assignment)
     {
+        abort_unless(in_array($assignment->course_id, $this->assignedCourseIds(), true), 403);
+
         $submissions = $assignment->submissions()->with('student')->get();
         return view('teacher.assignments.show', compact('assignment', 'submissions'));
     }
 
     public function gradeSubmission(Request $request, Submission $submission)
     {
+        abort_unless(in_array($submission->assignment?->course_id, $this->assignedCourseIds(), true), 403);
+
         $validated = $request->validate([
             'score' => 'required|integer|min:0'
         ]);
@@ -77,5 +97,16 @@ class TeacherAssignmentController extends Controller
         ]);
 
         return back()->with('success', 'Submission graded successfully!');
+    }
+
+    private function assignedCourseIds(): array
+    {
+        $teacher = auth()->user()->teacher;
+
+        if (!$teacher) {
+            return [];
+        }
+
+        return $teacher->courses()->pluck('courses.id')->all();
     }
 }

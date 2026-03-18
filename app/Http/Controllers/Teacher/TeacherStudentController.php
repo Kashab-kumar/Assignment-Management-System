@@ -7,19 +7,24 @@ use App\Models\Course;
 use App\Models\Invitation;
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 
 class TeacherStudentController extends Controller
 {
     public function index()
     {
+        $assignedCourseIds = $this->assignedCourseIds();
+
         $students = Student::with(['user', 'course'])
             ->withCount('submissions')
             ->withCount('examResults')
+            ->whereIn('course_id', $assignedCourseIds)
             ->orderBy('name')
             ->get();
 
         $courses = Course::query()
+            ->whereIn('id', $assignedCourseIds)
             ->orderBy('category_name')
             ->orderBy('class_name')
             ->orderBy('name')
@@ -37,8 +42,10 @@ class TeacherStudentController extends Controller
 
     public function storeInvitation(Request $request)
     {
+        $assignedCourseIds = $this->assignedCourseIds();
+
         $validated = $request->validate([
-            'course_id' => 'required|exists:courses,id',
+            'course_id' => ['required', Rule::in($assignedCourseIds)],
             'max_uses' => 'nullable|integer|min:1',
         ]);
 
@@ -67,5 +74,16 @@ class TeacherStudentController extends Controller
         $inviteLink = request()->getSchemeAndHttpHost() . $invitePath;
 
         return view('teacher.students.invitation-show', compact('invitation', 'inviteLink'));
+    }
+
+    private function assignedCourseIds(): array
+    {
+        $teacher = auth()->user()->teacher;
+
+        if (!$teacher) {
+            return [];
+        }
+
+        return $teacher->courses()->pluck('courses.id')->all();
     }
 }

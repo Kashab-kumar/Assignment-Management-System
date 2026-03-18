@@ -78,6 +78,22 @@
     .btn-edit { background: #2196F3; color: white; }
     .btn-delete { background: #f44336; color: white; }
     .btn-back { background: #666; color: white; }
+
+    .course-list {
+        margin-top: 12px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 8px;
+    }
+
+    .course-pill {
+        background: #f1f7ff;
+        border: 1px solid #d6e8ff;
+        color: #1c4f9f;
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-size: 13px;
+    }
 </style>
 
 <div class="teacher-container">
@@ -117,6 +133,21 @@
             <h4>Last Updated</h4>
             <p>{{ $teacher->updated_at->format('F d, Y') }}</p>
         </div>
+    </div>
+
+    <div style="margin-bottom: 24px;">
+        <h3 style="margin: 0 0 10px 0; color: #333;">Assigned Modules / Courses ({{ $teacher->courses->count() }})</h3>
+        @if($teacher->courses->count() > 0)
+            <div class="course-list">
+                @foreach($teacher->courses as $course)
+                    <div class="course-pill">
+                        {{ $course->category_name ?: 'Uncategorized' }} / {{ $course->class_name ?: 'Unassigned' }} / {{ $course->name }}
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <p style="color: #666;">No modules/courses assigned yet.</p>
+        @endif
     </div>
     
     <div style="margin-top: 20px;">

@@ -11,22 +11,30 @@ use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rule;
 
 class TeacherExamController extends Controller
 {
     public function index(Request $request)
     {
         $selectedCourseId = $request->integer('course_id') ?: null;
+        $assignedCourseIds = $this->assignedCourseIds();
+
+        if ($selectedCourseId && !in_array($selectedCourseId, $assignedCourseIds, true)) {
+            $selectedCourseId = null;
+        }
 
         $exams = Exam::withCount('results')
             ->withCount('questions')
             ->with('course')
             ->withAvg('results', 'score')
+            ->whereIn('course_id', $assignedCourseIds)
             ->when($selectedCourseId, fn ($q) => $q->where('course_id', $selectedCourseId))
             ->orderByDesc('exam_date')
             ->get();
 
         $courses = Course::query()
+            ->whereIn('id', $assignedCourseIds)
             ->orderBy('category_name')
             ->orderBy('class_name')
             ->orderBy('name')
@@ -39,8 +47,14 @@ class TeacherExamController extends Controller
     {
         $selectedCourseId = $request->integer('course_id') ?: null;
         $mode = in_array($request->input('mode'), ['quiz', 'test'], true) ? $request->input('mode') : 'exam';
+        $assignedCourseIds = $this->assignedCourseIds();
+
+        if ($selectedCourseId && !in_array($selectedCourseId, $assignedCourseIds, true)) {
+            $selectedCourseId = null;
+        }
 
         $courses = Course::query()
+            ->whereIn('id', $assignedCourseIds)
             ->orderBy('category_name')
             ->orderBy('class_name')
             ->orderBy('name')
@@ -51,8 +65,10 @@ class TeacherExamController extends Controller
 
     public function store(Request $request)
     {
+        $assignedCourseIds = $this->assignedCourseIds();
+
         $validated = $request->validate([
-            'course_id' => 'required|exists:courses,id',
+            'course_id' => ['required', Rule::in($assignedCourseIds)],
             'type' => 'required|in:exam,quiz,test',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -94,6 +110,8 @@ class TeacherExamController extends Controller
 
     public function show(Exam $exam)
     {
+        abort_unless(in_array($exam->course_id, $this->assignedCourseIds(), true), 403);
+
         $exam->load(['course', 'questions']);
 
         $results = $exam->results()->with('student.user')->orderByDesc('score')->get();
@@ -116,7 +134,10 @@ class TeacherExamController extends Controller
 
     public function edit(Exam $exam)
     {
+        abort_unless(in_array($exam->course_id, $this->assignedCourseIds(), true), 403);
+
         $courses = Course::query()
+            ->whereIn('id', $this->assignedCourseIds())
             ->orderBy('category_name')
             ->orderBy('class_name')
             ->orderBy('name')
@@ -127,8 +148,11 @@ class TeacherExamController extends Controller
 
     public function update(Request $request, Exam $exam)
     {
+        $assignedCourseIds = $this->assignedCourseIds();
+        abort_unless(in_array($exam->course_id, $assignedCourseIds, true), 403);
+
         $validated = $request->validate([
-            'course_id' => 'required|exists:courses,id',
+            'course_id' => ['required', Rule::in($assignedCourseIds)],
             'type' => 'required|in:exam,quiz,test',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -155,6 +179,8 @@ class TeacherExamController extends Controller
 
     public function upsertResult(Request $request, Exam $exam)
     {
+        abort_unless(in_array($exam->course_id, $this->assignedCourseIds(), true), 403);
+
         $validated = $request->validate([
             'student_id' => 'required|exists:students,id',
             'score' => 'required|integer|min:0|max:' . $exam->max_score,
@@ -186,5 +212,16 @@ class TeacherExamController extends Controller
         );
 
         return back()->with('success', 'Exam result saved successfully.');
+    }
+
+    private function assignedCourseIds(): array
+    {
+        $teacher = auth()->user()->teacher;
+
+        if (!$teacher) {
+            return [];
+        }
+
+        return $teacher->courses()->pluck('courses.id')->all();
     }
 }

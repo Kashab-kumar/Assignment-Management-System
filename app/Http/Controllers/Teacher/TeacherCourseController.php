@@ -14,8 +14,10 @@ class TeacherCourseController extends Controller
     {
         $selectedCategory = request('category_name');
         $selectedClass = request('class_name');
+        $assignedCourseIds = $this->assignedCourseIds();
 
         $courses = Course::withCount('students')
+            ->whereIn('id', $assignedCourseIds)
             ->when($selectedCategory, fn ($q) => $q->where('category_name', $selectedCategory))
             ->when($selectedClass, fn ($q) => $q->where('class_name', $selectedClass))
             ->orderBy('category_name')
@@ -40,6 +42,8 @@ class TeacherCourseController extends Controller
 
     public function show(Course $course)
     {
+        abort_unless(in_array($course->id, $this->assignedCourseIds(), true), 403);
+
         $modulesEnabled = Schema::hasTable('course_modules');
         $moduleItemsEnabled = Schema::hasTable('course_module_items');
 
@@ -69,6 +73,8 @@ class TeacherCourseController extends Controller
 
     public function storeModuleItem(Request $request, Course $course, CourseModule $module)
     {
+        abort_unless(in_array($course->id, $this->assignedCourseIds(), true), 403);
+
         if (!Schema::hasTable('course_module_items')) {
             return back()->withErrors(['error' => 'Course module items table not found. Please run migrations first.']);
         }
@@ -95,5 +101,16 @@ class TeacherCourseController extends Controller
         ]);
 
         return back()->with('success', 'Module content added successfully.');
+    }
+
+    private function assignedCourseIds(): array
+    {
+        $teacher = auth()->user()->teacher;
+
+        if (!$teacher) {
+            return [];
+        }
+
+        return $teacher->courses()->pluck('courses.id')->all();
     }
 }
