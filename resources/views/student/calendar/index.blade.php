@@ -6,25 +6,25 @@
 @section('content')
 <style>
     .section {
-        background: #1e2235;
+        background: #ffffff;
         border-radius: 12px;
         padding: 20px;
         margin-bottom: 18px;
-        border: 1px solid rgba(255,255,255,0.06);
+        border: 1px solid rgba(0,0,0,0.06);
     }
-    .section h2 { color: #f1f5f9; }
+    .section h2 { color: #1f2937; }
     .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
-    .stat { border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; background: rgba(0,0,0,0.14); }
-    .stat h4 { margin: 0 0 6px 0; color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .stat { border: 1px solid rgba(0,0,0,0.08); border-radius: 10px; padding: 14px; background: rgba(0,0,0,0.02); }
+    .stat h4 { margin: 0 0 6px 0; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
     .stat p { margin: 0; font-size: 24px; font-weight: bold; }
     .filters { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-    .filters label { color: #94a3b8; }
+    .filters label { color: #000000; }
     .filters input {
         padding: 8px 10px;
         border: 1px solid rgba(255,255,255,0.12);
         border-radius: 8px;
         background: rgba(0,0,0,0.2);
-        color: #e2e8f0;
+        color: #1f2937;
     }
     .filters button {
         padding: 8px 12px;
@@ -41,12 +41,12 @@
     th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); }
     th {
         background: rgba(0,0,0,0.12);
-        color: #94a3b8;
+        color: #000000;
         font-size: 12px;
         text-transform: uppercase;
         letter-spacing: 0.04em;
     }
-    td { color: #cbd5e1; }
+    td { color: #000000; }
     tr:last-child td { border-bottom: none; }
 
     .badge { padding: 4px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; }

@@ -6,7 +6,7 @@
     <title>Profile Error</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #f5f5f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        body { font-family: Arial, sans-serif; background: #ffffff; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
         .error-container { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 500px; text-align: center; }
         .error-icon { width: 80px; height: 80px; margin: 0 auto 20px; fill: #e74c3c; }
         h1 { color: #e74c3c; margin-bottom: 15px; font-size: 24px; }

@@ -55,7 +55,7 @@
             border-color: #667eea;
         }
         input:disabled {
-            background: #f5f5f5;
+            background: #f3f4f6;
             cursor: not-allowed;
         }
         .password-wrapper {

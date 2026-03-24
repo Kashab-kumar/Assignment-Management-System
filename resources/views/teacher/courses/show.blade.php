@@ -5,21 +5,21 @@
 
 @section('content')
 <style>
-    .course-container { background: #1e2235; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); padding: 30px; }
-    .course-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .course-code { font-family: monospace; background: rgba(148,163,184,0.16); padding: 4px 8px; border-radius: 6px; font-size: 14px; color: #cbd5e1; }
+    .course-container { background: #ffffff; border-radius: 12px; border: 1px solid rgba(0,0,0,0.06); padding: 30px; }
+    .course-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(0,0,0,0.08); }
+    .course-code { font-family: monospace; background: rgba(148,163,184,0.08); padding: 4px 8px; border-radius: 6px; font-size: 14px; color: #64748b; }
     .status-badge { padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; }
     .status-active { background: rgba(16,185,129,0.18); border: 1px solid rgba(16,185,129,0.3); color: #10b981; }
     .status-inactive { background: rgba(239,68,68,0.18); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; }
-    .course-description { color: #cbd5e1; line-height: 1.6; margin-bottom: 30px; padding: 20px; background: rgba(0,0,0,0.14); border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); }
+    .course-description { color: #475569; line-height: 1.6; margin-bottom: 30px; padding: 20px; background: rgba(0,0,0,0.02); border-radius: 8px; border: 1px solid rgba(0,0,0,0.08); }
     .students-section { margin-top: 30px; }
-    .students-section h3 { color: #f1f5f9; }
+    .students-section h3 { color: #1f2937; }
     .students-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    .students-table th { background: rgba(0,0,0,0.12); padding: 12px 15px; text-align: left; font-weight: 600; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
-    .students-table td { padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.06); color: #cbd5e1; }
-    .students-table tr:hover { background: rgba(124,58,237,0.08); }
+    .students-table th { background: rgba(0,0,0,0.05); padding: 12px 15px; text-align: left; font-weight: 600; color: #64748b; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .students-table td { padding: 12px 15px; border-bottom: 1px solid rgba(0,0,0,0.06); color: #475569; }
+    .students-table tr:hover { background: rgba(124,58,237,0.03); }
     .btn { padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 14px; margin-right: 10px; }
-    .btn-back { background: rgba(255,255,255,0.1); color: #e2e8f0; }
+    .btn-back { background: rgba(0,0,0,0.05); color: #1f2937; }
     .btn-invite { background: #3b82f6; color: white; }
     .btn-assign { background: #10b981; color: white; }
     .btn-quiz { background: #f59e0b; color: white; }
@@ -27,20 +27,20 @@
     .btn-exam { background: #7c3aed; color: white; }
     .stats-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 16px 0 22px; }
     .stat-card { background: rgba(0,0,0,0.14); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; }
-    .stat-card h4 { margin: 0 0 6px 0; color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .stat-card h4 { margin: 0 0 6px 0; color: #000000; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
     .stat-card p { margin: 0; font-size: 24px; font-weight: 700; color: #7c3aed; }
-    .empty-state { text-align: center; padding: 40px; color: #94a3b8; }
+    .empty-state { text-align: center; padding: 40px; color: #000000; }
     .related-list { list-style: none; margin-top: 10px; padding: 0; background: rgba(0,0,0,0.14); border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); }
     .related-list li { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
     .related-list li:last-child { border-bottom: none; }
     .modules-grid { display: grid; gap: 12px; margin-top: 12px; }
     .module-card { background: rgba(0,0,0,0.14); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; }
     .module-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
-    .module-title { font-size: 15px; font-weight: 700; color: #f1f5f9; }
-    .module-order { font-size: 11px; color: #94a3b8; background: rgba(148,163,184,0.16); padding: 3px 8px; border-radius: 999px; }
-    .module-desc { color: #94a3b8; font-size: 13px; margin-top: 6px; line-height: 1.5; }
+    .module-title { font-size: 15px; font-weight: 700; color: #000000; }
+    .module-order { font-size: 11px; color: #000000; background: rgba(148,163,184,0.16); padding: 3px 8px; border-radius: 999px; }
+    .module-desc { color: #000000; font-size: 13px; margin-top: 6px; line-height: 1.5; }
     .module-tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-    .module-tag { font-size: 11px; color: #cbd5e1; background: rgba(124,58,237,0.18); border: 1px solid rgba(124,58,237,0.3); padding: 3px 8px; border-radius: 999px; }
+    .module-tag { font-size: 11px; color: #000000; background: rgba(124,58,237,0.18); border: 1px solid rgba(124,58,237,0.3); padding: 3px 8px; border-radius: 999px; }
     .module-form { margin-top: 12px; display: grid; gap: 10px; background: rgba(0,0,0,0.14); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; }
     .module-form input, .module-form textarea { width: 100%; }
     .module-form select { width: 100%; }
@@ -48,18 +48,18 @@
     .module-item-card { border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.03); padding: 12px; }
     .module-item-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
     .module-item-title { color: #f8fafc; font-weight: 600; }
-    .module-item-type { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #cbd5e1; background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.32); padding: 3px 8px; border-radius: 999px; }
-    .module-item-content { margin-top: 8px; color: #94a3b8; line-height: 1.55; white-space: pre-line; }
+    .module-item-type { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #000000; background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.32); padding: 3px 8px; border-radius: 999px; }
+    .module-item-content { margin-top: 8px; color: #000000; line-height: 1.55; white-space: pre-line; }
     .module-item-meta { margin-top: 8px; color: #64748b; font-size: 12px; }
 </style>
 
 <div class="course-container">
     <div class="course-header">
         <div>
-            <h1 style="margin: 0 0 10px 0; color: #f1f5f9;">{{ $course->name }}</h1>
+            <h1 style="margin: 0 0 10px 0; color: #000000;">{{ $course->name }}</h1>
             <span class="course-code">{{ $course->code }}</span>
-            <div style="margin-top: 10px; color: #94a3b8;">Category: <strong>{{ $course->category_name ?: 'Uncategorized' }}</strong></div>
-            <div style="margin-top: 5px; color: #94a3b8;">Class: <strong>{{ $course->class_name ?: 'Unassigned' }}</strong></div>
+            <div style="margin-top: 10px; color: #000000;">Category: <strong>{{ $course->category_name ?: 'Uncategorized' }}</strong></div>
+            <div style="margin-top: 5px; color: #000000;">Class: <strong>{{ $course->class_name ?: 'Unassigned' }}</strong></div>
         </div>
         <span class="status-badge status-{{ $course->is_active ? 'active' : 'inactive' }}">
             {{ $course->is_active ? 'Active' : 'Inactive' }}
@@ -210,7 +210,7 @@
                 <a href="{{ route('teacher.courses.show', $related) }}" style="color:#a78bfa; text-decoration:none;">
                     {{ $related->name }}
                 </a>
-                <span style="color:#94a3b8; font-size:13px; margin-left:8px;">{{ $related->category_name }}</span>
+                <span style="color: #000000; font-size:13px; margin-left:8px;">{{ $related->category_name }}</span>
             </li>
             @endforeach
         </ul>

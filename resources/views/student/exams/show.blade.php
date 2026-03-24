@@ -6,31 +6,31 @@
 @section('content')
 <style>
     .assessment-shell { max-width: 980px; margin: 0 auto; }
-    .card { background: #1e2235; border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 22px; margin-bottom: 18px; }
+    .card { background: #ffffff; border: 1px solid rgba(0,0,0,0.06); border-radius: 14px; padding: 22px; margin-bottom: 18px; }
     .meta-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
-    .meta-item { border-radius: 10px; padding: 14px; background: rgba(0,0,0,0.18); border: 1px solid rgba(255,255,255,0.06); }
+    .meta-item { border-radius: 10px; padding: 14px; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); }
     .meta-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 5px; }
-    .meta-value { color: #f8fafc; font-weight: 600; }
+    .meta-value { color: #1f2937; font-weight: 600; }
     .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
     .badge-exam { background: rgba(124,58,237,0.18); color: #a78bfa; border: 1px solid rgba(124,58,237,0.32); }
     .badge-quiz { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.25); }
     .badge-test { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.28); }
     .question-list { display: grid; gap: 14px; }
-    .question-card { border-radius: 12px; padding: 18px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+    .question-card { border-radius: 12px; padding: 18px; background: rgba(0,0,0,0.01); border: 1px solid rgba(0,0,0,0.06); }
     .question-head { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 10px; }
     .question-number { color: #f8fafc; font-weight: 700; }
-    .question-points { color: #94a3b8; font-size: 13px; }
-    .question-text { color: #cbd5e1; line-height: 1.7; margin-bottom: 14px; white-space: pre-wrap; }
+    .question-points { color: #000000; font-size: 13px; }
+    .question-text { color: #000000; line-height: 1.7; margin-bottom: 14px; white-space: pre-wrap; }
     .answer-input, .answer-textarea { width: 100%; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; background: rgba(0,0,0,0.2); color: #f8fafc; padding: 12px; }
     .answer-textarea { min-height: 180px; resize: vertical; }
     .actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
     .btn { display: inline-block; padding: 11px 18px; border-radius: 10px; text-decoration: none; border: 0; cursor: pointer; }
     .btn-primary { background: #7c3aed; color: #fff; }
-    .btn-secondary { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+    .btn-secondary { background: rgba(255,255,255,0.08); color: #1f2937; }
     .notice { padding: 12px 14px; border-radius: 10px; margin-bottom: 16px; }
     .notice-success { background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.25); }
     .notice-error { background: rgba(239,68,68,0.16); color: #fca5a5; border: 1px solid rgba(239,68,68,0.25); }
-    .readonly-note { color: #94a3b8; margin-top: 14px; }
+    .readonly-note { color: #000000; margin-top: 14px; }
 
     @media (max-width: 900px) {
         .meta-grid { grid-template-columns: 1fr 1fr; }
@@ -78,7 +78,7 @@
             <div>
                 <a href="{{ route('student.exams.index') }}" class="btn btn-secondary" style="margin-bottom:12px;">← Back to Assessments</a>
                 <h2 style="margin:0 0 8px 0; color:#f8fafc;">{{ $exam->title }}</h2>
-                <div style="color:#94a3b8; font-size:18px;">{{ $exam->course?->name ?? 'General Course' }}</div>
+                <div style="color: #000000; font-size:18px;">{{ $exam->course?->name ?? 'General Course' }}</div>
             </div>
             <span class="badge badge-{{ $exam->type }}">{{ $typeLabel }}</span>
         </div>
@@ -106,14 +106,14 @@
             </div>
         </div>
 
-        <p style="margin:16px 0 0 0; color:#cbd5e1; line-height:1.7;">{{ $exam->description ?: 'No description has been provided for this assessment yet.' }}</p>
+        <p style="margin:16px 0 0 0; color: #000000; line-height:1.7;">{{ $exam->description ?: 'No description has been provided for this assessment yet.' }}</p>
     </div>
 
     <div class="card">
         <h3 style="margin:0 0 14px 0; color:#f8fafc;">Answer Sheet</h3>
 
         @if($exam->questions->isEmpty())
-            <p style="margin:0; color:#94a3b8;">Your teacher has not added any questions yet.</p>
+            <p style="margin:0; color: #000000;">Your teacher has not added any questions yet.</p>
         @else
             <form method="POST" action="{{ route('student.exams.submit', $exam) }}">
                 @csrf

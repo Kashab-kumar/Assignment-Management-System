@@ -10,28 +10,28 @@
         padding: 10px 18px;
         font-size: 14px;
         font-weight: 500;
-        color: #94a3b8;
+        color: #000000;
         text-decoration: none;
         border-bottom: 2px solid transparent;
         margin-bottom: -1px;
         transition: color 0.2s;
     }
-    .tab-link:hover { color: #e2e8f0; }
+    .tab-link:hover { color: #1f2937; }
     .tab-link.active { color: #a78bfa; border-bottom-color: #7c3aed; }
 
     .card {
-        background: #1e2235;
-        border: 1px solid rgba(255,255,255,0.06);
+        background: #ffffff;
+        border: 1px solid rgba(0,0,0,0.06);
         border-radius: 12px;
         padding: 28px;
         margin-bottom: 4px;
     }
 
     .assignment-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-    .assignment-title { font-size: 20px; font-weight: 700; color: #f1f5f9; }
+    .assignment-title { font-size: 20px; font-weight: 700; color: #000000; }
 
     .assignment-meta { display: flex; gap: 20px; flex-wrap: wrap; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.07); margin-bottom: 0; }
-    .meta-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #94a3b8; }
+    .meta-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #000000; }
     .meta-item svg { width: 15px; height: 15px; fill: currentColor; flex-shrink: 0; }
 
     .badge { padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; display: inline-block; }
@@ -47,11 +47,11 @@
         border: 1px solid rgba(255,255,255,0.07);
         border-radius: 8px;
     }
-    .instructions-box .label { font-size: 13px; font-weight: 600; color: #94a3b8; margin-bottom: 10px; }
-    .instructions-box p { font-size: 14px; color: #cbd5e1; line-height: 1.7; }
+    .instructions-box .label { font-size: 13px; font-weight: 600; color: #000000; margin-bottom: 10px; }
+    .instructions-box p { font-size: 14px; color: #000000; line-height: 1.7; }
 
     .submit-section { padding: 0 28px 28px; }
-    .submit-section h3 { font-size: 16px; font-weight: 600; color: #f1f5f9; margin: 0 0 16px; padding-top: 20px; }
+    .submit-section h3 { font-size: 16px; font-weight: 600; color: #000000; margin: 0 0 16px; padding-top: 20px; }
 
     .drop-zone {
         border: 2px dashed rgba(124,58,237,0.4);
@@ -65,20 +65,20 @@
     }
     .drop-zone:hover, .drop-zone.dragover { border-color: #7c3aed; background: rgba(124,58,237,0.08); }
     .drop-zone svg { width: 40px; height: 40px; fill: #7c3aed; margin-bottom: 12px; }
-    .drop-zone p { color: #94a3b8; font-size: 14px; margin-bottom: 4px; }
+    .drop-zone p { color: #000000; font-size: 14px; margin-bottom: 4px; }
     .drop-zone small { color: #64748b; font-size: 12px; }
     .drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
     .file-selected { font-size: 13px; color: #a78bfa; margin-top: 8px; display: none; }
 
     .comments-section { margin-top: 20px; }
-    .comments-section label { font-size: 13px; font-weight: 600; color: #94a3b8; display: block; margin-bottom: 10px; }
+    .comments-section label { font-size: 13px; font-weight: 600; color: #000000; display: block; margin-bottom: 10px; }
     .comments-section textarea {
         width: 100%;
         padding: 14px 16px;
         background: rgba(0,0,0,0.2);
         border: 1px solid rgba(255,255,255,0.1);
         border-radius: 8px;
-        color: #cbd5e1;
+        color: #000000;
         font-size: 14px;
         font-family: inherit;
         resize: vertical;
@@ -100,7 +100,7 @@
     .btn-cancel {
         padding: 10px 22px;
         background: transparent;
-        color: #94a3b8;
+        color: #000000;
         border: 1px solid rgba(255,255,255,0.12);
         border-radius: 8px;
         font-size: 14px;
@@ -109,7 +109,7 @@
         text-decoration: none;
         transition: background 0.2s;
     }
-    .btn-cancel:hover { background: rgba(255,255,255,0.06); color: #e2e8f0; }
+    .btn-cancel:hover { background: rgba(0,0,0,0.05); color: #1f2937; }
     .btn-submit {
         padding: 10px 22px;
         background: #7c3aed;
@@ -138,7 +138,7 @@
         padding: 22px 24px;
         margin-top: 20px;
     }
-    .submission-box p { font-size: 14px; color: #cbd5e1; margin-bottom: 10px; }
+    .submission-box p { font-size: 14px; color: #000000; margin-bottom: 10px; }
     .submission-box p:last-child { margin-bottom: 0; }
     .score-display { font-size: 28px; font-weight: 700; color: #10b981; }
     .file-link { color: #7c3aed; text-decoration: none; }
@@ -149,7 +149,7 @@
         background: rgba(0,0,0,0.2);
         border-radius: 6px;
         font-size: 13px;
-        color: #94a3b8;
+        color: #000000;
         white-space: pre-wrap;
     }
 </style>
@@ -219,31 +219,31 @@
     @if($submission)
     {{-- Submitted / Graded state --}}
     <div class="submission-box">
-        <p><strong style="color:#94a3b8;">Status:</strong>
+        <p><strong style="color: #000000;">Status:</strong>
             @if($submission->status === 'graded')
                 <span style="color:#10b981;">Graded</span>
             @else
                 <span style="color:#60a5fa;">Submitted – Pending Review</span>
             @endif
         </p>
-        <p><strong style="color:#94a3b8;">Submitted On:</strong> {{ $submission->submitted_at->format('M d, Y h:i A') }}</p>
+        <p><strong style="color: #000000;">Submitted On:</strong> {{ $submission->submitted_at->format('M d, Y h:i A') }}</p>
 
         @if($submission->status === 'graded' && $submission->score !== null)
         <p>
-            <strong style="color:#94a3b8;">Your Score:</strong>
+            <strong style="color: #000000;">Your Score:</strong>
             <span class="score-display">{{ $submission->score }}/{{ $assignment->max_score }}</span>
             <span style="color:#64748b; font-size:14px;"> ({{ round(($submission->score / $assignment->max_score) * 100, 1) }}%)</span>
         </p>
         @endif
 
         @if($submission->content)
-        <p><strong style="color:#94a3b8;">Your Answer:</strong></p>
+        <p><strong style="color: #000000;">Your Answer:</strong></p>
         <div class="content-preview">{{ $submission->content }}</div>
         @endif
 
         @if($submission->file_path)
         <p style="margin-top:14px;">
-            <strong style="color:#94a3b8;">Attached File:</strong>
+            <strong style="color: #000000;">Attached File:</strong>
             <a href="{{ asset('storage/' . $submission->file_path) }}" target="_blank" class="file-link">
                 &#128206; Download Your Submission
             </a>
@@ -276,7 +276,7 @@
         </div>
     </div>
 
-    <div class="form-actions" style="background:#1e2235; border-radius: 0 0 12px 12px; border: 1px solid rgba(255,255,255,0.06); border-top: none;">
+    <div class="form-actions" style="background:#ffffff; border-radius: 0 0 12px 12px; border: 1px solid rgba(0,0,0,0.06); border-top: none;">
         <a href="{{ route('student.assignments.index') }}" class="btn-cancel">Cancel</a>
         <button type="submit" class="btn-submit">
             <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>

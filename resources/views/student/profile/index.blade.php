@@ -7,35 +7,35 @@
 <style>
     .grid { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
     .card {
-        background: #1e2235;
+        background: #ffffff;
         padding: 22px;
         border-radius: 12px;
-        border: 1px solid rgba(255,255,255,0.06);
+        border: 1px solid rgba(0,0,0,0.06);
     }
-    .card h2 { color: #f1f5f9; }
+    .card h2 { color: #1f2937; }
     .row {
         margin-bottom: 12px;
         padding: 10px 12px;
-        background: rgba(0,0,0,0.14);
+        background: rgba(0,0,0,0.02);
         border-radius: 8px;
         border: 1px solid rgba(255,255,255,0.04);
     }
     .row:last-child { margin-bottom: 0; }
-    .label { color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
-    .value { font-size: 16px; font-weight: 700; color: #e2e8f0; margin-top: 2px; }
+    .label { color: #000000; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .value { font-size: 16px; font-weight: 700; color: #1f2937; margin-top: 2px; }
     .full-width { grid-column: 1 / -1; }
     .modules-list { display: grid; gap: 10px; }
     .module-item { padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.14); }
-    .module-title { font-size: 14px; font-weight: 700; color: #f1f5f9; }
-    .module-desc { color: #94a3b8; font-size: 13px; margin-top: 4px; }
+    .module-title { font-size: 14px; font-weight: 700; color: #000000; }
+    .module-desc { color: #000000; font-size: 13px; margin-top: 4px; }
     .module-meta { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-    .module-chip { font-size: 11px; color: #cbd5e1; background: rgba(124,58,237,0.18); border: 1px solid rgba(124,58,237,0.3); padding: 3px 8px; border-radius: 999px; }
+    .module-chip { font-size: 11px; color: #000000; background: rgba(124,58,237,0.18); border: 1px solid rgba(124,58,237,0.3); padding: 3px 8px; border-radius: 999px; }
     .module-content-list { display: grid; gap: 8px; margin-top: 10px; }
     .module-content-item { padding: 10px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
     .module-content-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
     .module-content-title { color: #f8fafc; font-size: 13px; font-weight: 700; }
-    .module-content-type { font-size: 11px; color: #cbd5e1; background: rgba(124,58,237,0.18); border: 1px solid rgba(124,58,237,0.3); padding: 3px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; }
-    .module-content-body { margin-top: 6px; color: #94a3b8; font-size: 13px; line-height: 1.5; white-space: pre-line; }
+    .module-content-type { font-size: 11px; color: #000000; background: rgba(124,58,237,0.18); border: 1px solid rgba(124,58,237,0.3); padding: 3px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .module-content-body { margin-top: 6px; color: #000000; font-size: 13px; line-height: 1.5; white-space: pre-line; }
     @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
 </style>
 

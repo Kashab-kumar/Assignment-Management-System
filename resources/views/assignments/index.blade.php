@@ -10,20 +10,20 @@
         padding: 10px 18px;
         font-size: 14px;
         font-weight: 500;
-        color: #94a3b8;
+        color: #000000;
         text-decoration: none;
         border-bottom: 2px solid transparent;
         margin-bottom: -1px;
         transition: color 0.2s;
     }
-    .tab-link:hover { color: #e2e8f0; }
+    .tab-link:hover { color: #1f2937; }
     .tab-link.active { color: #a78bfa; border-bottom-color: #7c3aed; }
 
     .assignments-list { display: flex; flex-direction: column; gap: 16px; }
 
     .assignment-card {
-        background: #1e2235;
-        border: 1px solid rgba(255,255,255,0.06);
+        background: #ffffff;
+        border: 1px solid rgba(0,0,0,0.06);
         border-radius: 12px;
         padding: 22px 24px;
         transition: border-color 0.2s;
@@ -31,10 +31,10 @@
     .assignment-card:hover { border-color: rgba(124,58,237,0.3); }
 
     .assignment-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-    .assignment-title { font-size: 18px; font-weight: 600; color: #f1f5f9; }
+    .assignment-title { font-size: 18px; font-weight: 600; color: #1f2937; }
 
     .assignment-meta { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 14px; }
-    .meta-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #94a3b8; }
+    .meta-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #000000; }
     .meta-item svg { width: 15px; height: 15px; fill: currentColor; flex-shrink: 0; }
 
     .badge { padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; display: inline-block; }

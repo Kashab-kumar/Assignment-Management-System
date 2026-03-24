@@ -7,31 +7,31 @@
 <style>
     .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px; }
     .card {
-        background: #1e2235;
+        background: #ffffff;
         padding: 18px;
         border-radius: 12px;
-        border: 1px solid rgba(255,255,255,0.06);
+        border: 1px solid rgba(0,0,0,0.06);
     }
-    .card h3 { font-size: 13px; color: #94a3b8; margin-bottom: 8px; }
+    .card h3 { font-size: 13px; color: #475569; margin-bottom: 8px; }
     .value { font-size: 28px; color: #7c3aed; font-weight: 700; }
     .section {
-        background: #1e2235;
+        background: #ffffff;
         padding: 20px;
         border-radius: 12px;
         border: 1px solid rgba(255,255,255,0.06);
         margin-bottom: 16px;
     }
-    .section h2 { color: #f1f5f9; }
+    .section h2 { color: #000000; }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 11px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); }
     th {
-        color: #94a3b8;
+        color: #000000;
         font-size: 12px;
         text-transform: uppercase;
         letter-spacing: 0.04em;
         background: rgba(0,0,0,0.12);
     }
-    td { color: #cbd5e1; }
+    td { color: #000000; }
     tr:last-child td { border-bottom: none; }
     .empty { color: #64748b; text-align: center; }
 </style>

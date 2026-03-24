@@ -6,15 +6,15 @@
 @section('content')
 <style>
     .card {
-        background: #1e2235;
+        background: #ffffff;
         padding: 20px;
         border-radius: 12px;
-        border: 1px solid rgba(255,255,255,0.06);
+        border: 1px solid rgba(0,0,0,0.06);
         margin-bottom: 16px;
     }
-    .card h2 { color: #f1f5f9; }
-    .card p { color: #cbd5e1; margin-bottom: 6px; }
-    .card p strong { color: #94a3b8; }
+    .card h2 { color: #1f2937; }
+    .card p { color: #475569; margin-bottom: 6px; }
+    .card p strong { color: #64748b; }
 
     table { width: 100%; border-collapse: collapse; }
     th, td {
@@ -24,12 +24,12 @@
     }
     th {
         background: rgba(0,0,0,0.12);
-        color: #94a3b8;
+        color: #000000;
         font-size: 12px;
         text-transform: uppercase;
         letter-spacing: 0.04em;
     }
-    td { color: #cbd5e1; }
+    td { color: #000000; }
     tr:last-child td { border-bottom: none; }
     .highlight-row { background: rgba(124,58,237,0.14); }
     .empty { color: #64748b; text-align: center; }

@@ -17,24 +17,24 @@
 
     .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
     .stat-card {
-        background: #1e2235;
+        background: #ffffff;
         padding: 22px 24px;
         border-radius: 12px;
-        border: 1px solid rgba(255,255,255,0.06);
+        border: 1px solid rgba(0,0,0,0.06);
     }
-    .stat-card h3 { color: #94a3b8; font-size: 13px; font-weight: 500; margin-bottom: 12px; }
+    .stat-card h3 { color: #475569; font-size: 13px; font-weight: 500; margin-bottom: 12px; }
     .stat-card .value { font-size: 34px; font-weight: 700; color: #7c3aed; line-height: 1; }
-    .stat-card .value.white { color: #f1f5f9; }
+    .stat-card .value.white { color: #1f2937; }
     .stat-card p { font-size: 12px; color: #64748b; margin-top: 6px; }
 
     .section {
-        background: #1e2235;
+        background: #ffffff;
         padding: 22px 24px;
         border-radius: 12px;
         margin-bottom: 20px;
-        border: 1px solid rgba(255,255,255,0.06);
+        border: 1px solid rgba(0,0,0,0.06);
     }
-    .section h2 { margin-bottom: 18px; color: #f1f5f9; font-size: 17px; font-weight: 600; }
+    .section h2 { margin-bottom: 18px; color: #1f2937; font-size: 17px; font-weight: 600; }
 
     table { width: 100%; border-collapse: collapse; }
     th {
@@ -52,7 +52,7 @@
         text-align: left;
         border-bottom: 1px solid rgba(255,255,255,0.05);
         font-size: 14px;
-        color: #cbd5e1;
+        color: #000000;
     }
     tr:last-child td { border-bottom: none; }
     tr.highlight-row td { color: #a78bfa; }

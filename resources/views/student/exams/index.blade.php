@@ -13,8 +13,8 @@
     }
 
     .panel {
-        background: #1e2235;
-        border: 1px solid rgba(255,255,255,0.06);
+        background: #ffffff;
+        border: 1px solid rgba(0,0,0,0.06);
         border-radius: 12px;
         overflow: hidden;
     }
@@ -26,7 +26,7 @@
         border-bottom: 1px solid rgba(255,255,255,0.06);
     }
     .tab-link {
-        color: #94a3b8;
+        color: #000000;
         text-decoration: none;
         padding: 10px 2px;
         font-size: 14px;
@@ -63,8 +63,8 @@
         gap: 10px;
         margin-bottom: 6px;
     }
-    .exam-item-title { font-size: 19px; font-weight: 700; color: #f1f5f9; margin-bottom: 2px; }
-    .exam-item-course { font-size: 13px; color: #94a3b8; }
+    .exam-item-title { font-size: 19px; font-weight: 700; color: #000000; margin-bottom: 2px; }
+    .exam-item-course { font-size: 13px; color: #000000; }
     .exam-meta { display: flex; gap: 14px; margin-top: 10px; font-size: 12px; color: #64748b; }
     .exam-submeta { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
 
@@ -78,7 +78,7 @@
     }
     .pill-live { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
     .pill-soon { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
-    .pill-date { background: rgba(148,163,184,0.12); color: #94a3b8; border: 1px solid rgba(148,163,184,0.25); }
+    .pill-date { background: rgba(148,163,184,0.12); color: #000000; border: 1px solid rgba(148,163,184,0.25); }
     .pill-type { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
 
     .detail { display: flex; flex-direction: column; min-height: 72vh; }
@@ -90,8 +90,8 @@
         gap: 14px;
         margin-bottom: 8px;
     }
-    .detail-title { font-size: 40px; line-height: 1.1; font-weight: 700; color: #f1f5f9; }
-    .detail-course { font-size: 23px; color: #94a3b8; }
+    .detail-title { font-size: 40px; line-height: 1.1; font-weight: 700; color: #000000; }
+    .detail-course { font-size: 23px; color: #000000; }
 
     .stats {
         display: grid;
@@ -104,14 +104,14 @@
         padding: 14px;
     }
     .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 3px; }
-    .stat-value { color: #e2e8f0; font-weight: 600; }
+    .stat-value { color: #1f2937; font-weight: 600; }
 
-    .detail-body { padding: 22px 30px; color: #cbd5e1; flex: 1; }
-    .detail-body h3 { font-size: 22px; color: #f1f5f9; margin-bottom: 10px; }
+    .detail-body { padding: 22px 30px; color: #000000; flex: 1; }
+    .detail-body h3 { font-size: 22px; color: #000000; margin-bottom: 10px; }
     .detail-body p { line-height: 1.7; margin-bottom: 18px; }
 
     .rule-list { list-style: none; margin: 0; padding: 0; }
-    .rule-list li { margin-bottom: 10px; color: #94a3b8; }
+    .rule-list li { margin-bottom: 10px; color: #000000; }
     .rule-list li:before {
         content: "✓";
         color: #7c3aed;

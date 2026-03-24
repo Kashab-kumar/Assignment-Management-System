@@ -6,7 +6,7 @@
     <title>Share Invitation</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #f5f5f5; }
+        body { font-family: Arial, sans-serif; background: #ffffff; }
         .header { background: #9C27B0; color: white; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .header-content { max-width: 800px; margin: 0 auto; }
         .container { max-width: 800px; margin: 20px auto; padding: 0 20px; }

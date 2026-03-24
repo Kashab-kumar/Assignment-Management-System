@@ -26,17 +26,17 @@
             background: radial-gradient(circle at 10% 20%, #ffffff 0%, var(--surface) 60%);
             min-height: 100vh;
             color: var(--ink);
-            padding: 18px;
+            padding: 0;
         }
 
         .shell {
-            width: min(1120px, 100%);
-            min-height: calc(100vh - 36px);
-            margin: 0 auto;
-            border-radius: 14px;
+            width: 100%;
+            min-height: 100vh;
+            margin: 0;
+            border-radius: 0;
             overflow: hidden;
             background: var(--card);
-            box-shadow: 0 22px 40px rgba(19, 24, 60, 0.15);
+            box-shadow: none;
             display: grid;
             grid-template-columns: 1.05fr 1fr;
         }
@@ -329,13 +329,12 @@
         }
 
         @media (max-width: 900px) {
-            body { padding: 10px; }
             .shell {
                 grid-template-columns: 1fr;
                 min-height: auto;
             }
             .panel-right { display: none; }
-            .panel-left { min-height: calc(100vh - 20px); }
+            .panel-left { min-height: 100vh; }
         }
     </style>
 </head>

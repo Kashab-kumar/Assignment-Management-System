@@ -6,57 +6,57 @@
     <title>@yield('title', 'Admin Dashboard') - Assignment Management</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f1117; color: #e2e8f0; }
-        
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #ffffff; color: #1f2937; }
+
         .layout { display: flex; min-height: 100vh; }
-        
+
         /* Sidebar */
-        .sidebar { width: 260px; background: #161b2e; color: #e2e8f0; position: fixed; height: 100vh; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; }
+        .sidebar { width: 260px; background: #ffffff; color: #1f2937; position: fixed; height: 100vh; overflow-y: auto; border-right: 1px solid rgba(0,0,0,0.06); display: flex; flex-direction: column; }
         .sidebar-header { padding: 22px 20px 18px; border-bottom: 1px solid rgba(255,255,255,0.07); }
         .sidebar-header h2 { font-size: 17px; font-weight: 700; color: #ffffff; margin-bottom: 4px; }
-        .sidebar-header p { font-size: 12px; color: #94a3b8; }
-        
+        .sidebar-header p { font-size: 12px; color: #000000; }
+
         .sidebar-menu { padding: 12px 0; flex: 1; }
-        .menu-item { display: flex; align-items: center; padding: 11px 20px; color: #94a3b8; text-decoration: none; transition: all 0.2s; border-radius: 6px; margin: 2px 10px; font-size: 14px; }
-        .menu-item:hover { background: rgba(124,58,237,0.12); color: #e2e8f0; }
-        .menu-item.active { background: rgba(124,58,237,0.18); color: #ffffff; border-left: 3px solid #7c3aed; padding-left: 17px; }
+        .menu-item { display: flex; align-items: center; padding: 11px 20px; color: #64748b; text-decoration: none; transition: all 0.2s; border-radius: 6px; margin: 2px 10px; font-size: 14px; }
+        .menu-item:hover { background: rgba(124,58,237,0.12); color: #1f2937; }
+        .menu-item.active { background: #0f172a; color: #ffffff; border-left: none; padding-left: 20px; }
         .menu-item svg { width: 18px; height: 18px; margin-right: 12px; fill: currentColor; flex-shrink: 0; }
-        
+
         .menu-section { padding: 14px 20px 6px; font-size: 10px; color: #475569; text-transform: uppercase; font-weight: 700; letter-spacing: 0.08em; }
-        
+
         .account-section { padding: 14px; border-top: 1px solid rgba(255,255,255,0.07); }
-        .account-link { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #e2e8f0; padding: 8px; border-radius: 8px; transition: background 0.2s; }
+        .account-link { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #1f2937; padding: 8px; border-radius: 8px; transition: background 0.2s; }
         .account-link:hover { background: rgba(255,255,255,0.06); }
         .account-avatar { width: 40px; height: 40px; border-radius: 50%; background: #7c3aed; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; overflow: hidden; border: 2px solid rgba(124,58,237,0.5); flex-shrink: 0; }
         .account-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .account-meta { min-width: 0; }
-        .account-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e2e8f0; }
+        .account-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #1f2937; }
         .account-role { font-size: 11px; color: #64748b; margin-top: 1px; }
         .account-settings-link { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #7c3aed; margin-top: 1px; }
         .account-settings-link svg { width: 12px; height: 12px; fill: currentColor; }
-        
+
         /* Main Content */
         .main-content { margin-left: 260px; flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
         .top-bar { background: #161b2e; padding: 14px 30px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; }
-        .top-bar h1 { font-size: 22px; font-weight: 700; color: #f1f5f9; }
+        .top-bar h1 { font-size: 22px; font-weight: 700; color: #1f2937; }
         .user-info { display: flex; align-items: center; gap: 12px; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: #7c3aed; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; overflow: hidden; border: 2px solid rgba(124,58,237,0.5); }
         .user-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .user-text { text-align: right; }
-        .user-text .user-name { font-size: 13px; font-weight: 600; color: #f1f5f9; }
+        .user-text .user-name { font-size: 13px; font-weight: 600; color: #1f2937; }
         .user-text .user-role { font-size: 11px; color: #64748b; }
         .user-text a { font-size: 11px; color: #7c3aed; text-decoration: none; }
         .user-text a:hover { text-decoration: underline; }
-        
+
         .content { padding: 28px 30px; flex: 1; }
-        
+
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar { width: 68px; }
             .sidebar-header h2, .sidebar-header p, .menu-item span, .menu-section, .account-meta { display: none; }
             .menu-item { margin: 2px 6px; padding: 11px; justify-content: center; }
             .menu-item svg { margin-right: 0; }
-            .menu-item.active { padding-left: 11px; border-left-width: 2px; }
+            .menu-item.active { padding-left: 11px; border-left-width: 0; }
             .main-content { margin-left: 68px; }
             .account-link { justify-content: center; padding: 8px 4px; }
         }
@@ -67,7 +67,7 @@
         .content h4,
         .content strong,
         .content label {
-            color: #f1f5f9 !important;
+            color: #1f2937 !important;
         }
 
         .content p,
@@ -77,7 +77,7 @@
         .content summary,
         .content details,
         .content small {
-            color: #cbd5e1;
+            color: #475569;
         }
 
         .content [class$='-container'],
@@ -90,8 +90,8 @@
         .content .filter-card,
         .content .form-card,
         .content .table-card {
-            background: #1e2235 !important;
-            border: 1px solid rgba(255,255,255,0.06) !important;
+            background: #ffffff !important;
+            border: 1px solid rgba(0,0,0,0.06) !important;
             border-radius: 12px !important;
             box-shadow: none !important;
         }
@@ -118,20 +118,20 @@
         .content .info-card {
             background: rgba(0,0,0,0.14) !important;
             border-color: rgba(255,255,255,0.1) !important;
-            color: #cbd5e1 !important;
+            color: #000000 !important;
         }
 
         .content .category-summary,
         .content .class-summary {
             background: rgba(124,58,237,0.1) !important;
-            color: #e2e8f0 !important;
+            color: #1f2937 !important;
         }
 
         .content .course-code,
         .content .student-id,
         .content .teacher-id {
             background: rgba(148,163,184,0.16) !important;
-            color: #cbd5e1 !important;
+            color: #000000 !important;
         }
 
         .content .role-badge,
@@ -150,12 +150,12 @@
         .content .report-table,
         .content .reports-table {
             background: transparent !important;
-            color: #cbd5e1 !important;
+            color: #000000 !important;
         }
 
         .content th {
             background: rgba(0,0,0,0.12) !important;
-            color: #94a3b8 !important;
+            color: #000000 !important;
             border-bottom: 1px solid rgba(255,255,255,0.08) !important;
             font-size: 12px;
             text-transform: uppercase;
@@ -164,7 +164,7 @@
 
         .content td {
             border-bottom: 1px solid rgba(255,255,255,0.06) !important;
-            color: #cbd5e1 !important;
+            color: #000000 !important;
         }
 
         .content tr:hover {
@@ -176,7 +176,7 @@
         .content textarea {
             background: rgba(0,0,0,0.2) !important;
             border: 1px solid rgba(255,255,255,0.12) !important;
-            color: #e2e8f0 !important;
+            color: #000000 !important;
             border-radius: 8px !important;
         }
 
@@ -230,12 +230,12 @@
         .content [style*='background:#f8'],
         .content [style*='background: #f0'],
         .content [style*='background:#f0'] {
-            background: #1e2235 !important;
+            background: #ffffff !important;
         }
 
         .content [style*='color: #333'],
         .content [style*='color:#333'] {
-            color: #f1f5f9 !important;
+            color: #1f2937 !important;
         }
 
         .content [style*='color: #666'],
@@ -244,7 +244,7 @@
         .content [style*='color:#555'],
         .content [style*='color: #999'],
         .content [style*='color:#999'] {
-            color: #94a3b8 !important;
+            color: #64748b !important;
         }
 
         .content [style*='fill: #ddd'],
@@ -262,7 +262,7 @@
 
         .content .pagination,
         .content nav[role='navigation'] {
-            color: #cbd5e1;
+            color: #000000;
         }
     </style>
 </head>
@@ -274,20 +274,20 @@
                 <h2>Admin Panel</h2>
                 <p>{{ auth()->user()->name }}</p>
             </div>
-            
+
             <nav class="sidebar-menu">
                 <div class="menu-section">Main</div>
                 <a href="{{ route('admin.dashboard') }}" class="menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                     <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
                     <span>Dashboard</span>
                 </a>
-                
+
                 <div class="menu-section">User Management</div>
                 <a href="{{ route('admin.invitations.index') }}" class="menu-item {{ request()->routeIs('admin.invitations.*') ? 'active' : '' }}">
                     <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
                     <span>Invitations</span>
                 </a>
-                
+
                 <a href="{{ route('admin.users.index') }}" class="menu-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                     <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                     <span>All Users</span>
@@ -300,7 +300,7 @@
                     <svg viewBox="0 0 24 24"><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg>
                     <span>Students</span>
                 </a>
-                
+
                 <div class="menu-section">Academic</div>
                 <a href="{{ route('admin.courses.index') }}" class="menu-item {{ request()->routeIs('admin.courses.*') ? 'active' : '' }}">
                     <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
@@ -311,7 +311,7 @@
                     <span>Reports</span>
                 </a>
             </nav>
-            
+
             <div class="account-section">
                 @php($sidebarAvatarUrl = auth()->user()->avatar_path ? url('/storage/' . auth()->user()->avatar_path) : null)
                 <a href="{{ route('admin.settings') }}" class="account-link" title="Settings">
@@ -333,7 +333,7 @@
                 </a>
             </div>
         </aside>
-        
+
         <!-- Main Content -->
         <main class="main-content">
             <div class="top-bar">
@@ -354,7 +354,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="content">
                 @if(session('role_notice'))
                     <div style="margin-bottom: 14px; padding: 10px 12px; border: 1px solid rgba(245,158,11,0.35); background: rgba(245,158,11,0.12); color: #fbbf24; border-radius: 8px; font-size: 13px;">
