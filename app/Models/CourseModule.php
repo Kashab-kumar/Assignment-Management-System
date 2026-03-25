@@ -8,6 +8,7 @@ class CourseModule extends Model
 {
     protected $fillable = [
         'course_id',
+        'teacher_id',
         'title',
         'description',
         'position',
@@ -24,6 +25,11 @@ class CourseModule extends Model
     public function course()
     {
         return $this->belongsTo(Course::class);
+    }
+
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class);
     }
 
     public function items()

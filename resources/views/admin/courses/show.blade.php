@@ -184,6 +184,9 @@
                                 <span class="module-tag">{{ $module->assignment_count }} assignments</span>
                                 <span class="module-tag">{{ $module->quiz_count }} quizzes</span>
                             </div>
+                            <div class="module-desc" style="margin-top: 10px; margin-bottom: 2px;">
+                                Teacher: <strong>{{ $module->teacher?->name ?? 'Not assigned' }}</strong>
+                            </div>
 
                             @if($moduleItemsEnabled)
                                 @if($module->items->isEmpty())
@@ -217,6 +220,12 @@
                 <h4 style="margin:0;">Add Module</h4>
                 <input type="text" name="title" placeholder="Module title" required>
                 <textarea name="description" rows="3" placeholder="Short description (optional)"></textarea>
+                <select name="teacher_id">
+                    <option value="">No specific teacher</option>
+                    @foreach($availableTeachers as $teacher)
+                        <option value="{{ $teacher->id }}">{{ $teacher->name }}{{ $teacher->teacher_id ? ' (' . $teacher->teacher_id . ')' : '' }}</option>
+                    @endforeach
+                </select>
                 <div class="module-form-grid">
                     <input type="number" name="lesson_count" min="0" value="0" placeholder="Lessons">
                     <input type="number" name="assignment_count" min="0" value="0" placeholder="Assignments">

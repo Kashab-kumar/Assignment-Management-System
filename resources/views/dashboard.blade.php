@@ -5,11 +5,16 @@
 
 @section('content')
 <style>
+    .content {
+        background: #f6f8fc;
+        min-height: 100vh;
+    }
+
     .welcome-card {
         background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
         color: white;
-        padding: 28px 32px;
-        border-radius: 12px;
+        padding: 30px 32px;
+        border-radius: 14px;
         margin-bottom: 24px;
     }
     .welcome-card h2 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }

@@ -12,9 +12,13 @@
 
         /* Sidebar */
         .sidebar { width: 260px; background: #ffffff; color: #1f2937; position: fixed; height: 100vh; overflow-y: auto; border-right: 1px solid rgba(0,0,0,0.06); display: flex; flex-direction: column; }
-        .sidebar-header { padding: 22px 20px 18px; border-bottom: 1px solid rgba(255,255,255,0.07); }
-        .sidebar-header h2 { font-size: 17px; font-weight: 700; color: #ffffff; margin-bottom: 4px; }
-        .sidebar-header p { font-size: 12px; color: #000000; }
+        .sidebar-header { padding: 18px 14px 14px; border-bottom: 1px solid rgba(0,0,0,0.07); }
+        .sidebar-brand-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .sidebar-brand-icon { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #5b4ce6, #8a2be2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .sidebar-brand-icon svg { width: 20px; height: 20px; fill: #ffffff; }
+        .sidebar-brand-name { font-size: 31px; font-weight: 700; color: #111827; line-height: 1; }
+        .sidebar-brand-subtitle { font-size: 12px; color: #64748b; margin-top: 3px; }
+        .sidebar-portal-badge { display: block; width: 100%; text-align: center; background: linear-gradient(90deg, #5b4ce6, #8a2be2); color: #ffffff; border-radius: 999px; padding: 7px 10px; font-size: 12px; font-weight: 700; }
 
         .sidebar-menu { padding: 12px 0; flex: 1; }
         .menu-item { display: flex; align-items: center; padding: 11px 20px; color: #64748b; text-decoration: none; transition: all 0.2s; border-radius: 6px; margin: 2px 10px; font-size: 14px; }
@@ -22,7 +26,7 @@
         .menu-item.active { background: #0f172a; color: #ffffff; border-left: none; padding-left: 20px; }
         .menu-item svg { width: 18px; height: 18px; margin-right: 12px; fill: currentColor; flex-shrink: 0; }
 
-        .menu-section { padding: 14px 20px 6px; font-size: 10px; color: #475569; text-transform: uppercase; font-weight: 700; letter-spacing: 0.08em; }
+        .menu-section { display: none; }
 
         .account-section { padding: 14px; border-top: 1px solid rgba(255,255,255,0.07); }
         .account-link { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #1f2937; padding: 8px; border-radius: 8px; transition: background 0.2s; }
@@ -37,7 +41,7 @@
 
         /* Main Content */
         .main-content { margin-left: 260px; flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
-        .top-bar { background: #161b2e; padding: 14px 30px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; }
+        .top-bar { display: none; }
         .top-bar h1 { font-size: 22px; font-weight: 700; color: #1f2937; }
         .user-info { display: flex; align-items: center; gap: 12px; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: #7c3aed; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; overflow: hidden; border: 2px solid rgba(124,58,237,0.5); }
@@ -229,7 +233,9 @@
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar { width: 68px; }
-            .sidebar-header h2, .sidebar-header p, .menu-item span, .menu-section, .account-meta { display: none; }
+            .sidebar-brand-copy, .sidebar-portal-badge, .menu-item span, .menu-section, .account-meta { display: none; }
+            .sidebar-header { padding: 12px 10px; }
+            .sidebar-brand-row { justify-content: center; margin-bottom: 0; }
             .menu-item { margin: 2px 6px; padding: 11px; justify-content: center; }
             .menu-item svg { margin-right: 0; }
             .menu-item.active { padding-left: 11px; border-left-width: 0; }
@@ -243,8 +249,16 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h2>Teacher Panel</h2>
-                <p>{{ auth()->user()->name }}</p>
+                <div class="sidebar-brand-row">
+                    <div class="sidebar-brand-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3zm-7 9.18V17l7 4 7-4v-4.82L12 16l-7-3.82z"/></svg>
+                    </div>
+                    <div class="sidebar-brand-copy">
+                        <div class="sidebar-brand-name">Institute</div>
+                        <div class="sidebar-brand-subtitle">LMS Platform</div>
+                    </div>
+                </div>
+                <div class="sidebar-portal-badge">Teacher Portal</div>
             </div>
 
             <nav class="sidebar-menu">
@@ -261,7 +275,7 @@
                 </a>
                 <a href="{{ route('teacher.calendar') }}" class="menu-item {{ request()->routeIs('teacher.calendar*') ? 'active' : '' }}">
                     <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5C3.89 4 3 4.9 3 6v14c0 1.1.89 2 2 2h14a2 2 0 0 0 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"/></svg>
-                    <span>Calendar</span>
+                        <span>Recent</span>
                 </a>
                 <a href="{{ route('teacher.assignments.index') }}" class="menu-item {{ request()->routeIs('teacher.assignments.*') ? 'active' : '' }}">
                     <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>

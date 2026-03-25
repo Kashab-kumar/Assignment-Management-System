@@ -20,6 +20,26 @@
         gap: 20px;
     }
 
+    .welcome-card {
+        background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+        color: white;
+        padding: 30px 32px;
+        border-radius: 14px;
+    }
+
+    .welcome-card h2 {
+        font-size: 26px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #ffffff;
+    }
+
+    .welcome-card p {
+        font-size: 14px;
+        opacity: 0.85;
+        color: #ffffff;
+    }
+
     .dashboard-head {
         display: flex;
         justify-content: space-between;
@@ -227,6 +247,11 @@
 @endphp
 
 <div class="dashboard-shell">
+    <div class="welcome-card">
+        <h2>Welcome back, {{ auth()->user()->name }}!</h2>
+        <p>Role: Administrator | Manage users, courses, and reports</p>
+    </div>
+
     <div class="dashboard-head">
         <div>
             <h1>Admin Dashboard</h1>

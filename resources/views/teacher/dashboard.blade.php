@@ -5,6 +5,21 @@
 
 @section('content')
 <style>
+    .content {
+        background: #f6f8fc;
+        min-height: 100vh;
+    }
+
+    .welcome-card {
+        background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+        color: white;
+        padding: 30px 32px;
+        border-radius: 14px;
+        margin-bottom: 24px;
+    }
+    .welcome-card h2 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+    .welcome-card p { font-size: 14px; opacity: 0.85; }
+
     .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
     .stat-card { background: #ffffff; padding: 22px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.06); }
     .stat-card h3 { color: #475569; font-size: 13px; margin-bottom: 10px; }
@@ -21,6 +36,18 @@
     .badge-graded { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
     .empty { color: #64748b; text-align: center; }
 </style>
+
+@php($teacherProfile = auth()->user()->teacher)
+@php($assignedCoursesCount = $teacherProfile ? $teacherProfile->courses()->count() : 0)
+
+<div class="welcome-card">
+    <h2>Welcome back, {{ auth()->user()->name }}!</h2>
+    <p>
+        Teacher ID: {{ $teacherProfile->teacher_id ?? 'N/A' }} |
+        Subject: {{ $teacherProfile->subject ?? 'Not set' }} |
+        Courses: {{ $assignedCoursesCount }}
+    </p>
+</div>
 
 <div class="stats">
     <div class="stat-card">

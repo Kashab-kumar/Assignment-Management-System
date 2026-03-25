@@ -36,6 +36,11 @@
     .module-content-title { color: #f8fafc; font-size: 13px; font-weight: 700; }
     .module-content-type { font-size: 11px; color: #000000; background: rgba(124,58,237,0.18); border: 1px solid rgba(124,58,237,0.3); padding: 3px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; }
     .module-content-body { margin-top: 6px; color: #000000; font-size: 13px; line-height: 1.5; white-space: pre-line; }
+    .status-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 14px; }
+    .status-card { background: #ffffff; border: 1px solid rgba(0,0,0,0.08); border-radius: 10px; padding: 12px; }
+    .status-label { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; }
+    .status-value { margin-top: 6px; font-size: 28px; font-weight: 700; color: #1f2937; line-height: 1; }
+    .status-note { margin-top: 6px; font-size: 12px; color: #64748b; }
     @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
 </style>
 
@@ -61,6 +66,50 @@
         @if($courseModules->isEmpty())
             <div class="row"><div class="value" style="font-size:14px;">No modules are available for your course yet.</div></div>
         @else
+            @php
+                $totalModules = $courseModules->count();
+                $activeModules = $courseModules->filter(fn($module) => (bool) data_get($module, 'is_active', true))->count();
+                $totalLessons = (int) $courseModules->sum('lesson_count');
+                $totalAssignments = (int) $courseModules->sum('assignment_count');
+                $totalQuizzes = (int) $courseModules->sum('quiz_count');
+                $totalModuleItems = $moduleItemsEnabled
+                    ? (int) $courseModules->sum(fn($module) => $module->items->count())
+                    : 0;
+            @endphp
+
+            <div class="status-cards">
+                <div class="status-card">
+                    <div class="status-label">Total Modules</div>
+                    <div class="status-value">{{ $totalModules }}</div>
+                    <div class="status-note">In your current course</div>
+                </div>
+                <div class="status-card">
+                    <div class="status-label">Active Modules</div>
+                    <div class="status-value">{{ $activeModules }}</div>
+                    <div class="status-note">Available right now</div>
+                </div>
+                <div class="status-card">
+                    <div class="status-label">Lessons</div>
+                    <div class="status-value">{{ $totalLessons }}</div>
+                    <div class="status-note">Across all modules</div>
+                </div>
+                <div class="status-card">
+                    <div class="status-label">Assignments</div>
+                    <div class="status-value">{{ $totalAssignments }}</div>
+                    <div class="status-note">Module-linked tasks</div>
+                </div>
+                <div class="status-card">
+                    <div class="status-label">Quizzes</div>
+                    <div class="status-value">{{ $totalQuizzes }}</div>
+                    <div class="status-note">Practice and evaluation</div>
+                </div>
+                <div class="status-card">
+                    <div class="status-label">Content Items</div>
+                    <div class="status-value">{{ $totalModuleItems }}</div>
+                    <div class="status-note">Notes, tests, outlines</div>
+                </div>
+            </div>
+
             <div class="modules-list">
                 @foreach($courseModules as $module)
                     @php

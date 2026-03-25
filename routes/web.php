@@ -19,6 +19,7 @@ use App\Http\Controllers\Teacher\TeacherReportController;
 use App\Http\Controllers\Teacher\TeacherCourseController;
 use App\Http\Controllers\Student\StudentExamController;
 use App\Http\Controllers\Student\StudentGradeController;
+use App\Http\Controllers\Student\StudentModuleController;
 use App\Http\Controllers\Student\StudentRankingController;
 use App\Http\Controllers\Student\StudentProfileController;
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -66,6 +67,7 @@ Route::middleware(['auth:student'])->group(function () {
         Route::get('/exams', [StudentExamController::class, 'index'])->name('exams.index');
         Route::get('/exams/{exam}', [StudentExamController::class, 'show'])->name('exams.show');
         Route::post('/exams/{exam}/submit', [StudentExamController::class, 'submit'])->name('exams.submit');
+        Route::get('/modules', [StudentModuleController::class, 'index'])->name('modules.index');
         Route::get('/grades', [StudentGradeController::class, 'index'])->name('grades.index');
         Route::get('/rankings', [StudentRankingController::class, 'index'])->name('rankings');
         Route::get('/profile', [StudentProfileController::class, 'index'])->name('profile');

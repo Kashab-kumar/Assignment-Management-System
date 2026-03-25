@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 
@@ -14,7 +15,8 @@ class CourseController extends Controller
         $selectedCategory = request('category_name');
         $selectedClass = request('class_name');
 
-        $courses = Course::withCount('students')
+        $courses = Course::with(['teachers:id,name'])
+            ->withCount('students')
             ->when($selectedCategory, function ($query) use ($selectedCategory) {
                 $query->where('category_name', $selectedCategory);
             })
@@ -54,11 +56,18 @@ class CourseController extends Controller
         $modulesEnabled = Schema::hasTable('course_modules');
         $moduleItemsEnabled = Schema::hasTable('course_module_items');
 
-        $course->load(['students.user']);
+        $course->load(['students.user', 'teachers']);
+
+        $availableTeachers = $course->teachers;
+
+        if ($availableTeachers->isEmpty()) {
+            $availableTeachers = Teacher::query()->orderBy('name')->get(['id', 'name', 'teacher_id']);
+        }
 
         if ($modulesEnabled) {
             $course->load([
                 'modules' => function ($query) use ($moduleItemsEnabled) {
+                    $query->with('teacher');
                     if ($moduleItemsEnabled) {
                         $query->with('items.creator');
                     }
@@ -75,7 +84,7 @@ class CourseController extends Controller
                 ->get(['id', 'name', 'code', 'category_name']);
         }
 
-        return view('admin.courses.show', compact('course', 'relatedCourses', 'modulesEnabled', 'moduleItemsEnabled'));
+        return view('admin.courses.show', compact('course', 'relatedCourses', 'modulesEnabled', 'moduleItemsEnabled', 'availableTeachers'));
     }
 
     public function storeModule(Request $request, Course $course)
@@ -90,11 +99,13 @@ class CourseController extends Controller
             'lesson_count' => 'nullable|integer|min:0',
             'assignment_count' => 'nullable|integer|min:0',
             'quiz_count' => 'nullable|integer|min:0',
+            'teacher_id' => 'nullable|exists:teachers,id',
         ]);
 
         $nextPosition = ($course->modules()->max('position') ?? 0) + 1;
 
         $course->modules()->create([
+            'teacher_id' => $validated['teacher_id'] ?? null,
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
             'position' => $nextPosition,
