@@ -192,7 +192,11 @@
     <div>
         <h2>Modules</h2>
         @if($course)
-            <p>{{ $course->name }} ({{ $course->code }})</p>
+            <p>
+                {{ $course->class_name ?: $course->name }}
+                | {{ $coursesCount ?? 1 }} {{ ($coursesCount ?? 1) > 1 ? 'courses' : 'course' }}
+                | {{ $moduleCards->count() }} {{ $moduleCards->count() !== 1 ? 'modules' : 'module' }}
+            </p>
         @else
             <p>No course assigned yet</p>
         @endif
@@ -224,13 +228,13 @@
         @foreach($moduleCards as $module)
             @php
                 $avatarText = strtoupper(substr(preg_replace('/[^A-Za-z]/', '', $module['title'] ?? 'MDL'), 0, 2));
-                $searchValue = strtolower(trim(($module['title'] ?? '') . ' ' . ($module['description'] ?? '') . ' ' . $module['teachers']->join(' ')));
+                $searchValue = strtolower(trim(($module['title'] ?? '') . ' ' . ($module['description'] ?? '') . ' ' . ($module['course_name'] ?? '') . ' ' . ($module['course_code'] ?? '') . ' ' . $module['teachers']->join(' ')));
             @endphp
             <article class="module-card" data-search="{{ $searchValue }}" data-active="{{ $module['is_active'] ? '1' : '0' }}">
                 <div class="module-head">
                     <div class="module-avatar">{{ $avatarText ?: 'MD' }}</div>
                     <div>
-                        <span class="chip chip-module">Module {{ $loop->iteration }}</span>
+                        <span class="chip chip-module">{{ $module['course_code'] }} | Module {{ $module['position'] }}</span>
                         <span class="chip {{ $module['is_active'] ? 'chip-status-active' : 'chip-status-inactive' }}">{{ $module['is_active'] ? 'Active' : 'Inactive' }}</span>
                     </div>
                 </div>
@@ -239,13 +243,14 @@
                 <p class="module-desc">{{ $module['description'] ?: 'No description provided for this module.' }}</p>
 
                 <div class="module-meta">
+                    <span>Course: {{ $module['course_name'] }} ({{ $module['course_code'] }})</span>
                     <span>Teacher: {{ $module['teachers']->isNotEmpty() ? $module['teachers']->join(', ') : 'Not assigned' }}</span>
                     <span>{{ $moduleItemsEnabled ? $module['item_count'] : 0 }} items</span>
                 </div>
 
                 <div class="module-footer">
                     <div class="module-tags">{{ $module['lesson_count'] }} lessons | {{ $module['assignment_count'] }} assignments | {{ $module['quiz_count'] }} quizzes</div>
-                    <a href="{{ route('student.modules.index') }}" class="module-link">View Details ›</a>
+                    <a href="{{ route('student.modules.show', $module['id']) }}" class="module-link">Open Module</a>
                 </div>
             </article>
         @endforeach

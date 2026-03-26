@@ -115,6 +115,10 @@ class CourseController extends Controller
             'is_active' => true,
         ]);
 
+        if (!empty($validated['teacher_id'])) {
+            $course->teachers()->syncWithoutDetaching([(int) $validated['teacher_id']]);
+        }
+
         return back()->with('success', 'Module added successfully.');
     }
 
@@ -134,7 +138,11 @@ class CourseController extends Controller
             ->orderBy('class_name')
             ->pluck('class_name');
 
-        return view('admin.courses.create', compact('categoryOptions', 'classOptions'));
+        $teachers = Teacher::query()
+            ->orderBy('name')
+            ->get(['id', 'name', 'teacher_id']);
+
+        return view('admin.courses.create', compact('categoryOptions', 'classOptions', 'teachers'));
     }
 
     public function store(Request $request)
@@ -145,9 +153,53 @@ class CourseController extends Controller
             'category_name' => 'required|string|max:255',
             'class_name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'modules' => 'nullable|array',
+            'modules.*.title' => 'required_with:modules|string|max:255',
+            'modules.*.description' => 'nullable|string|max:2000',
+            'modules.*.lesson_count' => 'nullable|integer|min:0',
+            'modules.*.assignment_count' => 'nullable|integer|min:0',
+            'modules.*.quiz_count' => 'nullable|integer|min:0',
+            'modules.*.teacher_id' => 'nullable|exists:teachers,id',
         ]);
 
-        Course::create($validated);
+        $course = Course::create([
+            'name' => $validated['name'],
+            'code' => $validated['code'],
+            'category_name' => $validated['category_name'],
+            'class_name' => $validated['class_name'],
+            'description' => $validated['description'] ?? null,
+        ]);
+
+        $modules = collect($validated['modules'] ?? [])->filter(function ($module) {
+            return !empty(trim((string) ($module['title'] ?? '')));
+        })->values();
+
+        if ($modules->isNotEmpty()) {
+            foreach ($modules as $index => $module) {
+                $course->modules()->create([
+                    'teacher_id' => !empty($module['teacher_id']) ? (int) $module['teacher_id'] : null,
+                    'title' => trim((string) $module['title']),
+                    'description' => $module['description'] ?? null,
+                    'position' => $index + 1,
+                    'lesson_count' => (int) ($module['lesson_count'] ?? 0),
+                    'assignment_count' => (int) ($module['assignment_count'] ?? 0),
+                    'quiz_count' => (int) ($module['quiz_count'] ?? 0),
+                    'is_active' => true,
+                ]);
+            }
+
+            $teacherIds = $modules
+                ->pluck('teacher_id')
+                ->filter()
+                ->map(fn ($id) => (int) $id)
+                ->unique()
+                ->values()
+                ->all();
+
+            if (!empty($teacherIds)) {
+                $course->teachers()->syncWithoutDetaching($teacherIds);
+            }
+        }
 
         return redirect()->route('admin.courses.index')
             ->with('success', 'Course created successfully!');

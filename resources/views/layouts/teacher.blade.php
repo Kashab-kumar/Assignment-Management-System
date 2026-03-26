@@ -48,7 +48,7 @@
         .user-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .user-text { text-align: right; }
         .user-text .user-name { font-size: 13px; font-weight: 600; color: #1f2937; }
-        .user-text .user-role { font-size: 11px; color: #64748b; }
+           .user-text .user-role { font-size: 11px; color: #64748b; }
         .user-text a { font-size: 11px; color: #7c3aed; text-decoration: none; }
         .user-text a:hover { text-decoration: underline; }
 

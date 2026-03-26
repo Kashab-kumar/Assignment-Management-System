@@ -38,6 +38,63 @@
         resize: vertical;
     }
 
+    .modules-builder {
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 14px;
+        background: #fafafa;
+    }
+
+    .module-row {
+        border: 1px solid #e4e4e4;
+        border-radius: 6px;
+        background: #fff;
+        padding: 12px;
+        margin-bottom: 10px;
+    }
+
+    .module-row-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .module-row h4 {
+        margin: 0 0 10px;
+        font-size: 14px;
+        color: #333;
+    }
+
+    .module-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+    }
+
+    .btn-small {
+        padding: 6px 12px;
+        font-size: 12px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-add-module {
+        background: #2196F3;
+        color: #fff;
+    }
+
+    .btn-remove-module {
+        background: #f44336;
+        color: #fff;
+    }
+
+    @media (max-width: 900px) {
+        .module-row-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
     .form-group small {
         color: #666;
         font-size: 12px;
@@ -132,10 +189,133 @@
             <small>Optional course description</small>
         </div>
 
+        <div class="form-group">
+            <label>Modules and Teacher Assignment (Optional)</label>
+            <div class="modules-builder">
+                <small style="margin-bottom: 12px;">Add modules now and assign one teacher per module. You can still add/edit modules later.</small>
+
+                <div id="modulesContainer">
+                    @foreach(old('modules', []) as $index => $module)
+                        <div class="module-row" data-module-row>
+                            <h4>Module <span data-module-index>{{ $index + 1 }}</span></h4>
+                            <input type="text" name="modules[{{ $index }}][title]" value="{{ $module['title'] ?? '' }}" placeholder="Module title">
+                            <textarea name="modules[{{ $index }}][description]" rows="2" placeholder="Module description (optional)">{{ $module['description'] ?? '' }}</textarea>
+                            <div class="module-row-grid">
+                                <input type="number" name="modules[{{ $index }}][lesson_count]" min="0" value="{{ $module['lesson_count'] ?? 0 }}" placeholder="Lessons">
+                                <input type="number" name="modules[{{ $index }}][assignment_count]" min="0" value="{{ $module['assignment_count'] ?? 0 }}" placeholder="Assignments">
+                                <input type="number" name="modules[{{ $index }}][quiz_count]" min="0" value="{{ $module['quiz_count'] ?? 0 }}" placeholder="Quizzes">
+                                <select name="modules[{{ $index }}][teacher_id]">
+                                    <option value="">No specific teacher</option>
+                                    @foreach($teachers as $teacher)
+                                        <option value="{{ $teacher->id }}" {{ (string)($module['teacher_id'] ?? '') === (string)$teacher->id ? 'selected' : '' }}>
+                                            {{ $teacher->name }}{{ $teacher->teacher_id ? ' (' . $teacher->teacher_id . ')' : '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="module-actions">
+                                <span></span>
+                                <button type="button" class="btn-small btn-remove-module" data-remove-module>Remove</button>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <button type="button" class="btn-small btn-add-module" id="addModuleBtn">+ Add Module</button>
+            </div>
+        </div>
+
         <div style="margin-top: 30px;">
             <button type="submit" class="btn btn-primary">Create Course</button>
             <a href="{{ route('admin.courses.index') }}" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
 </div>
+
+<template id="moduleRowTemplate">
+    <div class="module-row" data-module-row>
+        <h4>Module <span data-module-index></span></h4>
+        <input type="text" data-name="title" placeholder="Module title">
+        <textarea data-name="description" rows="2" placeholder="Module description (optional)"></textarea>
+        <div class="module-row-grid">
+            <input type="number" data-name="lesson_count" min="0" value="0" placeholder="Lessons">
+            <input type="number" data-name="assignment_count" min="0" value="0" placeholder="Assignments">
+            <input type="number" data-name="quiz_count" min="0" value="0" placeholder="Quizzes">
+            <select data-name="teacher_id">
+                <option value="">No specific teacher</option>
+                @foreach($teachers as $teacher)
+                    <option value="{{ $teacher->id }}">{{ $teacher->name }}{{ $teacher->teacher_id ? ' (' . $teacher->teacher_id . ')' : '' }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="module-actions">
+            <span></span>
+            <button type="button" class="btn-small btn-remove-module" data-remove-module>Remove</button>
+        </div>
+    </div>
+</template>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modulesContainer = document.getElementById('modulesContainer');
+        const addModuleBtn = document.getElementById('addModuleBtn');
+        const rowTemplate = document.getElementById('moduleRowTemplate');
+
+        function syncRowIndexes() {
+            const rows = Array.from(modulesContainer.querySelectorAll('[data-module-row]'));
+
+            rows.forEach(function (row, index) {
+                const title = row.querySelector('[data-module-index]');
+                if (title) {
+                    title.textContent = String(index + 1);
+                }
+
+                const mappedInputs = row.querySelectorAll('[data-name]');
+                mappedInputs.forEach(function (input) {
+                    const field = input.getAttribute('data-name');
+                    input.name = 'modules[' + index + '][' + field + ']';
+                });
+            });
+        }
+
+        function wireRemoveButton(row) {
+            const removeBtn = row.querySelector('[data-remove-module]');
+            if (!removeBtn) {
+                return;
+            }
+
+            removeBtn.addEventListener('click', function () {
+                row.remove();
+                syncRowIndexes();
+            });
+        }
+
+        function addModuleRow() {
+            const fragment = rowTemplate.content.cloneNode(true);
+            const row = fragment.querySelector('[data-module-row]');
+            modulesContainer.appendChild(fragment);
+            wireRemoveButton(modulesContainer.lastElementChild);
+            syncRowIndexes();
+        }
+
+        Array.from(modulesContainer.querySelectorAll('[data-module-row]')).forEach(function (row) {
+            const fields = row.querySelectorAll('input[name], textarea[name], select[name]');
+            fields.forEach(function (field) {
+                const match = field.name.match(/^modules\[(\d+)\]\[(.+)\]$/);
+                if (match) {
+                    field.setAttribute('data-name', match[2]);
+                }
+            });
+            wireRemoveButton(row);
+        });
+
+        addModuleBtn.addEventListener('click', addModuleRow);
+
+        if (!modulesContainer.querySelector('[data-module-row]')) {
+            addModuleRow();
+        } else {
+            syncRowIndexes();
+        }
+    });
+</script>
 @endsection

@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
+use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\CourseModule;
+use App\Models\Exam;
+use App\Models\ExamResult;
+use App\Models\Submission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 
@@ -53,6 +57,7 @@ class TeacherCourseController extends Controller
         if ($modulesEnabled) {
             $course->load([
                 'modules' => function ($query) use ($moduleItemsEnabled) {
+                    $query->with('teacher');
                     if ($moduleItemsEnabled) {
                         $query->with('items.creator');
                     }
@@ -75,12 +80,24 @@ class TeacherCourseController extends Controller
     {
         abort_unless(in_array($course->id, $this->assignedCourseIds(), true), 403);
 
+        $teacher = $request->user()->teacher;
+
+        if (!$teacher) {
+            abort(403);
+        }
+
         if (!Schema::hasTable('course_module_items')) {
             return back()->withErrors(['error' => 'Course module items table not found. Please run migrations first.']);
         }
 
         if ($module->course_id !== $course->id) {
             abort(404);
+        }
+
+        if (!empty($module->teacher_id) && (int) $module->teacher_id !== (int) $teacher->id) {
+            return back()->withErrors([
+                'error' => 'You can only add content to modules assigned to you.',
+            ]);
         }
 
         $validated = $request->validate([
@@ -101,6 +118,100 @@ class TeacherCourseController extends Controller
         ]);
 
         return back()->with('success', 'Module content added successfully.');
+    }
+
+    public function showModule(Course $course, CourseModule $module)
+    {
+        abort_unless(in_array($course->id, $this->assignedCourseIds(), true), 403);
+
+        if ($module->course_id !== $course->id) {
+            abort(404);
+        }
+
+        $moduleItemsEnabled = Schema::hasTable('course_module_items');
+
+        $module->load([
+            'course',
+            'teacher',
+            'items' => fn ($query) => $query->with('creator')->latest('created_at')->take(12),
+        ]);
+
+        $assignments = Assignment::query()
+            ->withCount('submissions')
+            ->where('course_id', $course->id)
+            ->latest('due_date')
+            ->take(10)
+            ->get();
+
+        $exams = Exam::query()
+            ->withCount('results')
+            ->withAvg('results', 'score')
+            ->where('course_id', $course->id)
+            ->orderByDesc('exam_date')
+            ->take(10)
+            ->get();
+
+        $recentSubmissions = Submission::query()
+            ->with(['student', 'assignment'])
+            ->whereHas('assignment', fn ($query) => $query->where('course_id', $course->id))
+            ->latest('submitted_at')
+            ->take(10)
+            ->get();
+
+        $recentResults = ExamResult::query()
+            ->with(['student', 'exam'])
+            ->whereHas('exam', fn ($query) => $query->where('course_id', $course->id))
+            ->latest()
+            ->take(10)
+            ->get();
+
+        $recents = collect();
+
+        if ($moduleItemsEnabled) {
+            $recents = $module->items
+                ->toBase()
+                ->map(function ($item) {
+                    return [
+                        'kind' => 'module_item',
+                        'title' => $item->title,
+                        'subtitle' => ucfirst(str_replace('_', ' ', $item->type)) . ' by ' . ($item->creator?->name ?? 'Teacher'),
+                        'date' => $item->created_at,
+                    ];
+                });
+        }
+
+        $recents = $recents
+            ->merge($recentSubmissions->map(function ($submission) {
+                return [
+                    'kind' => 'submission',
+                    'title' => $submission->assignment?->title ?? 'Assignment submission',
+                    'subtitle' => ($submission->student?->name ?? 'Student') . ' submitted',
+                    'date' => $submission->submitted_at,
+                ];
+            }))
+            ->merge($recentResults->map(function ($result) {
+                return [
+                    'kind' => 'grade',
+                    'title' => $result->exam?->title ?? 'Assessment result',
+                    'subtitle' => ($result->student?->name ?? 'Student') . ' scored ' . $result->score,
+                    'date' => $result->created_at,
+                ];
+            }))
+            ->filter(fn ($item) => !empty($item['date']))
+            ->sortByDesc('date')
+            ->take(12)
+            ->values();
+
+        return view('teacher.courses.module', compact(
+            'course',
+            'module',
+            'assignments',
+            'exams',
+            'recentSubmissions',
+            'recentResults',
+            'recents',
+            'moduleItemsEnabled'
+        ));
     }
 
     private function assignedCourseIds(): array

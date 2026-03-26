@@ -54,6 +54,12 @@
 </style>
 
 <div class="course-container">
+    @if($errors->has('error'))
+        <div style="background:#fee2e2; color:#991b1b; border:1px solid #fecaca; padding:10px 12px; border-radius:8px; margin-bottom:14px;">
+            {{ $errors->first('error') }}
+        </div>
+    @endif
+
     <div class="course-header">
         <div>
             <h1 style="margin: 0 0 10px 0; color: #000000;">{{ $course->name }}</h1>
@@ -154,6 +160,12 @@
                                 <span class="module-tag">{{ $module->assignment_count }} assignments</span>
                                 <span class="module-tag">{{ $module->quiz_count }} quizzes</span>
                             </div>
+                            <div class="module-desc" style="margin-top: 10px; margin-bottom: 2px;">
+                                Assigned Teacher: <strong>{{ $module->teacher?->name ?? 'Any assigned course teacher' }}</strong>
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <a href="{{ route('teacher.courses.modules.show', [$course, $module]) }}" class="btn btn-back" style="padding: 6px 12px;">Open Module Workspace</a>
+                            </div>
 
                             @if($moduleItemsEnabled)
                                 @if($module->items->isEmpty())
@@ -177,22 +189,28 @@
                                     </div>
                                 @endif
 
-                                <form method="POST" action="{{ route('teacher.courses.modules.items.store', [$course, $module]) }}" class="module-form">
-                                    @csrf
-                                    <h4 style="margin:0;">Add Module Content</h4>
-                                    <select name="type" required>
-                                        <option value="">Select content type</option>
-                                        <option value="unit_outline">Unit Outline</option>
-                                        <option value="quiz">Quiz</option>
-                                        <option value="test">Test</option>
-                                        <option value="note">Note</option>
-                                    </select>
-                                    <input type="text" name="title" placeholder="Title" required>
-                                    <textarea name="description" rows="4" placeholder="Details, instructions, or note text"></textarea>
-                                    <div>
-                                        <button type="submit" class="btn btn-exam">Add Content</button>
+                                @if(empty($module->teacher_id) || (int) $module->teacher_id === (int) auth()->user()->teacher?->id)
+                                    <form method="POST" action="{{ route('teacher.courses.modules.items.store', [$course, $module]) }}" class="module-form">
+                                        @csrf
+                                        <h4 style="margin:0;">Add Module Content</h4>
+                                        <select name="type" required>
+                                            <option value="">Select content type</option>
+                                            <option value="unit_outline">Unit Outline</option>
+                                            <option value="quiz">Quiz</option>
+                                            <option value="test">Test</option>
+                                            <option value="note">Note</option>
+                                        </select>
+                                        <input type="text" name="title" placeholder="Title" required>
+                                        <textarea name="description" rows="4" placeholder="Details, instructions, or note text"></textarea>
+                                        <div>
+                                            <button type="submit" class="btn btn-exam">Add Content</button>
+                                        </div>
+                                    </form>
+                                @else
+                                    <div class="module-desc" style="margin-top: 12px; color: #7f1d1d;">
+                                        This module is assigned to {{ $module->teacher?->name }}. Only that teacher can add module content.
                                     </div>
-                                </form>
+                                @endif
                             @endif
                         </div>
                     @endforeach

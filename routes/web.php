@@ -68,6 +68,7 @@ Route::middleware(['auth:student'])->group(function () {
         Route::get('/exams/{exam}', [StudentExamController::class, 'show'])->name('exams.show');
         Route::post('/exams/{exam}/submit', [StudentExamController::class, 'submit'])->name('exams.submit');
         Route::get('/modules', [StudentModuleController::class, 'index'])->name('modules.index');
+        Route::get('/modules/{module}', [StudentModuleController::class, 'show'])->name('modules.show');
         Route::get('/grades', [StudentGradeController::class, 'index'])->name('grades.index');
         Route::get('/rankings', [StudentRankingController::class, 'index'])->name('rankings');
         Route::get('/profile', [StudentProfileController::class, 'index'])->name('profile');
@@ -106,6 +107,7 @@ Route::middleware(['auth:teacher'])->prefix('teacher')->name('teacher.')->group(
     // Courses
     Route::get('/courses', [TeacherCourseController::class, 'index'])->name('courses.index');
     Route::get('/courses/{course}', [TeacherCourseController::class, 'show'])->name('courses.show');
+    Route::get('/courses/{course}/modules/{module}', [TeacherCourseController::class, 'showModule'])->name('courses.modules.show');
     Route::post('/courses/{course}/modules/{module}/items', [TeacherCourseController::class, 'storeModuleItem'])->name('courses.modules.items.store');
 
     // Students / Grades / Reports
