@@ -23,6 +23,7 @@ class StudentExamController extends Controller
         }
 
         $studentCourseId = Schema::hasColumn('students', 'course_id') ? $student->course_id : null;
+        $activeFilter = $request->query('filter', 'all');
 
         $exams = Exam::with([
             'results' => function ($query) use ($student) {
@@ -47,6 +48,9 @@ class StudentExamController extends Controller
                     }
                 }
             )
+            ->when($activeFilter !== 'all', function ($query) use ($activeFilter) {
+                $query->where('type', $activeFilter);
+            })
             ->latest('exam_date')
             ->get();
 
@@ -77,6 +81,7 @@ class StudentExamController extends Controller
         return view('student.exams.index', compact(
             'student',
             'activeTab',
+            'activeFilter',
             'selectedExam',
             'upcomingExams',
             'completedExams'
@@ -107,6 +112,33 @@ class StudentExamController extends Controller
 
         $answers = $exam->answers->keyBy('exam_question_id');
         $existingResult = $exam->results->first();
+
+        // Check if this is a secure exam
+        if ($exam->secure_mode) {
+            $now = now();
+            $examStartsAt = $this->getExamStartDateTime($exam);
+
+            if ($now->lt($examStartsAt)) {
+                return view('student.exams.secure-waiting', compact('exam', 'student', 'examStartsAt'));
+            }
+
+            if ($exam->end_datetime && $now->gt($exam->end_datetime)) {
+                return redirect()->route('student.exams.index')
+                    ->withErrors(['error' => 'This secure exam has ended.']);
+            }
+
+            // Check for existing session
+            $existingSession = \App\Models\ExamSession::where('exam_id', $exam->id)
+                ->where('student_id', $student->id)
+                ->first();
+
+            if ($existingSession && $existingSession->isTerminated()) {
+                return redirect()->route('student.exams.index')
+                    ->withErrors(['error' => 'Your exam session was terminated: ' . $existingSession->termination_reason]);
+            }
+
+            return view('student.exams.secure-show', compact('exam', 'student', 'answers', 'existingResult'));
+        }
 
         return view('student.exams.show', compact('exam', 'student', 'answers', 'existingResult'));
     }

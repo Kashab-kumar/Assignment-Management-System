@@ -219,7 +219,7 @@
     $activeTab = request()->query('tab', 'upcoming');
     
     // Filter exams by type
-    $allExams = \App\Models\Exam::with([
+    $allExams = Exam::with([
             'results' => function ($query) use ($student) {
                 $query->where('student_id', $student->id);
             },
@@ -282,6 +282,7 @@
                 <a href="{{ route('student.exams.index') }}?filter=quiz&tab={{ $activeTab }}" class="filter-btn {{ $activeFilter === 'quiz' ? 'active' : '' }}">Quiz</a>
                 <a href="{{ route('student.exams.index') }}?filter=test&tab={{ $activeTab }}" class="filter-btn {{ $activeFilter === 'test' ? 'active' : '' }}">Test</a>
             </div>
+            <a href="#" class="create-btn" onclick="alert('Create functionality not available for students. Teachers can create exams from their dashboard.')">+ Create</a>
         </div>
         
         <div class="tabs">

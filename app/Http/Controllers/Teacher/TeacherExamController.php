@@ -18,6 +18,7 @@ class TeacherExamController extends Controller
     public function index(Request $request)
     {
         $selectedCourseId = $request->integer('course_id') ?: null;
+        $activeFilter = $request->query('filter', 'all');
         $assignedCourseIds = $this->assignedCourseIds();
 
         if ($selectedCourseId && !in_array($selectedCourseId, $assignedCourseIds, true)) {
@@ -26,10 +27,12 @@ class TeacherExamController extends Controller
 
         $exams = Exam::withCount('results')
             ->withCount('questions')
-            ->with('course')
             ->withAvg('results', 'score')
             ->whereIn('course_id', $assignedCourseIds)
             ->when($selectedCourseId, fn ($q) => $q->where('course_id', $selectedCourseId))
+            ->when($activeFilter !== 'all', function ($query) use ($activeFilter) {
+                $query->where('type', $activeFilter);
+            })
             ->orderByDesc('exam_date')
             ->get();
 
@@ -40,7 +43,7 @@ class TeacherExamController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('teacher.exams.index', compact('exams', 'courses', 'selectedCourseId'));
+        return view('teacher.exams.index', compact('exams', 'courses', 'selectedCourseId', 'activeFilter'));
     }
 
     public function create(Request $request)
@@ -76,6 +79,10 @@ class TeacherExamController extends Controller
             'exam_time' => 'nullable|date_format:H:i',
             'duration_minutes' => 'required|integer|min:1|max:600',
             'max_score' => 'required|integer|min:1|max:1000',
+            'secure_mode' => 'boolean',
+            'secure_instructions' => 'nullable|string',
+            'max_violations' => 'nullable|integer|min:1|max:10',
+            'max_warnings' => 'nullable|integer|min:1|max:20',
             'questions' => 'required|array|min:1',
             'questions.*.question_text' => 'required|string|max:5000',
             'questions.*.question_type' => 'required|in:short_answer,long_answer',
@@ -92,6 +99,10 @@ class TeacherExamController extends Controller
                 'exam_time' => $validated['exam_time'] ?? null,
                 'duration_minutes' => $validated['duration_minutes'],
                 'max_score' => $validated['max_score'],
+                'secure_mode' => $validated['secure_mode'] ?? false,
+                'secure_instructions' => $validated['secure_instructions'] ?? null,
+                'max_violations' => $validated['max_violations'] ?? 3,
+                'max_warnings' => $validated['max_warnings'] ?? 5,
             ]);
 
             foreach ($validated['questions'] as $index => $question) {

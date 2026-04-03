@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\SecureExamController;
 
 // Authentication Routes
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
@@ -172,4 +173,12 @@ Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(functi
     Route::get('/reports/users', [ReportController::class, 'users'])->name('reports.users');
     Route::get('/reports/academic', [ReportController::class, 'academic'])->name('reports.academic');
     Route::post('/reports/export', [ReportController::class, 'export'])->name('reports.export');
+});
+
+// Secure Exam Routes
+Route::middleware(['auth:student', 'secure.exam'])->prefix('secure-exam')->name('secure-exam.')->group(function () {
+    Route::post('/{exam}/start', [SecureExamController::class, 'startSession'])->name('start');
+    Route::post('/{exam}/violation', [SecureExamController::class, 'recordViolation'])->name('violation');
+    Route::post('/{exam}/heartbeat', [SecureExamController::class, 'heartbeat'])->name('heartbeat');
+    Route::post('/{exam}/end', [SecureExamController::class, 'endSession'])->name('end');
 });

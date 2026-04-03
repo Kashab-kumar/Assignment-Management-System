@@ -247,29 +247,29 @@
         <p>Explore and engage with your learning modules</p>
     </div>
 
-    @if($moduleCards->count() > 0)
+    @if($modules->count() > 0)
         <div class="modules-grid">
-            @foreach($moduleCards as $module)
+            @foreach($modules as $module)
                 <div class="module-card">
                     <div class="module-header">
                         <div class="module-icon">📖</div>
-                        <div class="module-title">{{ $module['title'] }}</div>
-                        <div class="module-course">{{ $module['course_name'] ?? 'General Course' }}</div>
+                        <div class="module-title">{{ $module->title }}</div>
+                        <div class="module-course">{{ $module->course?->name ?? 'General Course' }}</div>
                     </div>
                     
                     <div class="module-body">
                         <div class="module-description">
-                            {{ $module['description'] ?: 'No description available for this module.' }}
+                            {{ $module->description ?: 'No description available for this module.' }}
                         </div>
                         
                         <div class="module-stats">
                             <div class="stat-item">
-                                <div class="stat-value">{{ $module['item_count'] ?? $module['lesson_count'] ?? 0 }}</div>
+                                <div class="stat-value">{{ $module->items_count ?? 0 }}</div>
                                 <div class="stat-label">Items</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-value">{{ $module['quiz_count'] ?? 0 }}</div>
-                                <div class="stat-label">Quizzes</div>
+                                <div class="stat-value">{{ $module->estimated_hours ?? 'N/A' }}</div>
+                                <div class="stat-label">Hours</div>
                             </div>
                         </div>
                     </div>
@@ -278,16 +278,16 @@
                         <div class="module-progress">
                             <div class="progress-label">
                                 <span>Progress</span>
-                                <span>{{ $module['completion_percentage'] ?? 0 }}%</span>
+                                <span>{{ $module->completion_percentage ?? 0 }}%</span>
                             </div>
                             <div class="progress-bar">
-                                <div class="progress-fill" style="width: {{ $module['completion_percentage'] ?? 0 }}%"></div>
+                                <div class="progress-fill" style="width: {{ $module->completion_percentage ?? 0 }}%"></div>
                             </div>
                         </div>
                         
                         <div class="module-actions">
-                            <a href="{{ route('student.modules.show', $module['id']) }}" class="btn btn-primary">Continue</a>
-                            <a href="{{ route('student.modules.show', $module['id']) }}" class="btn btn-secondary">View Details</a>
+                            <a href="{{ route('student.modules.show', $module) }}" class="btn btn-primary">Continue</a>
+                            <a href="{{ route('student.modules.show', $module) }}" class="btn btn-secondary">View Details</a>
                         </div>
                     </div>
                 </div>
