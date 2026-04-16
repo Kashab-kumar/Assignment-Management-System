@@ -27,21 +27,14 @@ class RegisterController extends Controller
     // Show admin registration form
     public function showAdminRegister()
     {
-        // Check if admin already exists
-        if (User::where('role', 'admin')->exists()) {
-            return redirect()->route('login')->withErrors(['email' => 'Admin account already exists.']);
-        }
-
+        // Admin registration is now allowed for multiple admins
         return view('register-admin');
     }
 
     // Handle admin registration
     public function registerAdmin(Request $request)
     {
-        // Check if admin already exists
-        if (User::where('role', 'admin')->exists()) {
-            return redirect()->route('login')->withErrors(['email' => 'Admin account already exists.']);
-        }
+        // Multiple admin accounts are now allowed
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',

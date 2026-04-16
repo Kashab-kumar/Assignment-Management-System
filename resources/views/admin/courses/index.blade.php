@@ -17,8 +17,16 @@
         padding: 32px;
         margin-bottom: 32px;
         color: white;
-        text-align: center;
         position: relative;
+    }
+
+    .header-actions {
+        position: absolute;
+        top: 32px;
+        right: 32px;
+        display: flex;
+        gap: 12px;
+        align-items: center;
     }
 
     .courses-header h1 {
@@ -33,9 +41,6 @@
     }
 
     .btn-add {
-        position: absolute;
-        top: 32px;
-        right: 32px;
         background: white;
         color: #667eea;
         text-decoration: none;
@@ -46,6 +51,25 @@
         border: none;
         transition: all 0.3s ease;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-add-module {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 12px;
+        padding: 12px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+        margin-left: 12px;
+    }
+
+    .btn-add-module:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(16, 185, 129, 0.4);
     }
 
     .btn-add:hover {
@@ -357,7 +381,10 @@
     <div class="courses-header">
         <h1>Courses Management</h1>
         <p>Manage and monitor all courses in the system</p>
-        <a href="{{ route('admin.courses.create') }}" class="btn-add">+ Add New Course</a>
+        <div class="header-actions">
+            <a href="{{ route('admin.courses.create') }}" class="btn-add">+ Add New Course</a>
+            <a href="{{ route('teacher.modules.create') }}" class="btn-add-module">+ Add Module</a>
+        </div>
     </div>
 
     <div class="courses-filters">

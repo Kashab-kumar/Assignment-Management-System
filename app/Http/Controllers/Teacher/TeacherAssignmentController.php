@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Teacher;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\Course;
+use App\Models\CourseModule;
 use App\Models\Submission;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -58,21 +59,33 @@ class TeacherAssignmentController extends Controller
 
     public function store(Request $request)
     {
+        $teacher = auth()->user()->teacher;
         $assignedCourseIds = $this->assignedCourseIds();
 
         $validated = $request->validate([
             'course_id' => ['required', Rule::in($assignedCourseIds)],
+            'module_id' => 'required|exists:course_modules,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'type' => 'required|in:assignment,homework',
+            'instructions' => 'nullable|string',
+            'type' => 'required|in:essay,project,quiz,presentation,homework,lab,other',
             'due_date' => 'required|date',
-            'max_score' => 'required|integer|min:1'
+            'max_score' => 'required|integer|min:1',
+            'weightage' => 'required|numeric|min:0|max:100'
         ]);
 
-        Assignment::create($validated);
+        // Verify teacher owns this module
+        $module = CourseModule::findOrFail($validated['module_id']);
+        if ($module->teacher_id !== $teacher->id) {
+            abort(403, 'Unauthorized access to this module');
+        }
 
-        return redirect()->route('teacher.courses.show', $validated['course_id'])
-            ->with('success', 'Assignment created successfully for this course.');
+        $validated['teacher_id'] = $teacher->id;
+        
+        $assignment = Assignment::create($validated);
+
+        return redirect()->route('teacher.modules.show', $validated['module_id'])
+            ->with('success', 'Assignment created successfully!');
     }
 
     public function show(Assignment $assignment)

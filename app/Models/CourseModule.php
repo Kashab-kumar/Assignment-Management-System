@@ -12,6 +12,8 @@ class CourseModule extends Model
         'title',
         'description',
         'position',
+        'weightage',
+        'model_unit_outline',
         'lesson_count',
         'assignment_count',
         'quiz_count',

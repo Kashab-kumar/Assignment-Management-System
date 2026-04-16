@@ -25,10 +25,19 @@
         body {
             font-family: 'Manrope', 'Segoe UI', sans-serif;
             min-height: 100vh;
-            background: var(--bg);
+            background-image: url('/images/rim.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
             color: var(--text);
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 34px 16px 20px;
+        }
+        
+                    flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 34px 16px 20px;
@@ -37,11 +46,14 @@
         .auth-card {
             width: 100%;
             max-width: 470px;
-            background: var(--card);
-            border: 1px solid #dddfe6;
-            border-radius: 14px;
-            box-shadow: 0 12px 28px rgba(26, 30, 52, 0.12);
+            background-color: #ffffff;
+            background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+            border: 3px solid black;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
             padding: 28px 30px 24px;
+            position: relative;
+            z-index: 10;
         }
 
         .brand-wrap {
@@ -127,7 +139,7 @@
             padding: 0 12px;
             font-size: 15px;
             color: #0f1322;
-            background: #fff;
+            background: white !important;
         }
 
         .input:focus {
@@ -223,7 +235,7 @@
     </style>
 </head>
 <body>
-    <main class="auth-card">
+    <main class="auth-card" style="border: 2px solid #d1d5db !important; background: white !important; border-radius: 20px !important; padding: 40px !important;">
         <div class="brand-wrap">
             <div class="brand-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

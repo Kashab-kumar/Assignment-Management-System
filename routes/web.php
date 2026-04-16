@@ -105,6 +105,15 @@ Route::middleware(['auth:teacher'])->prefix('teacher')->name('teacher.')->group(
     Route::get('/exams/{exam}', [TeacherExamController::class, 'show'])->name('exams.show');
     Route::post('/exams/{exam}/results', [TeacherExamController::class, 'upsertResult'])->name('exams.results.upsert');
 
+    // Modules
+    Route::get('/modules', [TeacherModuleController::class, 'index'])->name('modules.index');
+    Route::get('/modules/create', [TeacherModuleController::class, 'create'])->name('modules.create');
+    Route::post('/modules', [TeacherModuleController::class, 'store'])->name('modules.store');
+    Route::get('/modules/{module}', [TeacherModuleController::class, 'show'])->name('modules.show');
+    Route::get('/modules/{module}/edit', [TeacherModuleController::class, 'edit'])->name('modules.edit');
+    Route::put('/modules/{module}', [TeacherModuleController::class, 'update'])->name('modules.update');
+    Route::delete('/modules/{module}', [TeacherModuleController::class, 'destroy'])->name('modules.destroy');
+
     // Courses
     Route::get('/courses', [TeacherCourseController::class, 'index'])->name('courses.index');
     Route::get('/courses/{course}', [TeacherCourseController::class, 'show'])->name('courses.show');
