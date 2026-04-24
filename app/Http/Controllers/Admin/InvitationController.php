@@ -15,15 +15,19 @@ class InvitationController extends Controller
         return view('admin.invitations.index', compact('invitations'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return view('admin.invitations.create');
+        $role = $request->query('role', null);
+        $courseId = $request->query('course_id', null);
+        $courses = \App\Models\Course::all();
+        return view('admin.invitations.create', compact('role', 'courseId', 'courses'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'role' => 'required|in:teacher,student',
+            'course_id' => 'nullable|exists:courses,id',
         ]);
 
         $token = Str::random(32);
@@ -31,6 +35,7 @@ class InvitationController extends Controller
         $invitation = Invitation::create([
             'token' => $token,
             'role' => $validated['role'],
+            'course_id' => $validated['course_id'] ?? null,
             'invited_by' => auth()->id(),
             'expires_at' => now()->addDays(30), // 30 days validity
         ]);

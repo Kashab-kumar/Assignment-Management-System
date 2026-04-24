@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Teacher extends Model
 {
-    protected $fillable = ['user_id', 'teacher_id', 'name', 'email', 'subject'];
+    protected $fillable = ['user_id', 'teacher_id', 'name', 'email'];
 
     public function user()
     {
@@ -16,5 +16,10 @@ class Teacher extends Model
     public function courses()
     {
         return $this->belongsToMany(Course::class)->withTimestamps();
+    }
+
+    public function subjects()
+    {
+        return $this->hasMany(TeacherSubject::class);
     }
 }

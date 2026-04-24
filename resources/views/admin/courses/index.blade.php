@@ -327,6 +327,24 @@
         background: #dc2626;
     }
 
+    .btn-invite-teacher {
+        background: #03A9F4;
+        color: white;
+    }
+
+    .btn-invite-teacher:hover {
+        background: #0288d1;
+    }
+
+    .btn-invite-student {
+        background: #4CAF50;
+        color: white;
+    }
+
+    .btn-invite-student:hover {
+        background: #388E3C;
+    }
+
     .empty-state {
         text-align: center;
         padding: 60px 20px;
@@ -460,6 +478,8 @@
                         <div class="course-actions">
                             <a href="{{ route('admin.courses.show', $course) }}" class="btn btn-primary">Manage</a>
                             <a href="{{ route('admin.courses.edit', $course) }}" class="btn btn-secondary">Edit</a>
+                            <a href="{{ route('admin.invitations.create', ['role' => 'teacher', 'course_id' => $course->id]) }}" class="btn btn-invite-teacher">Invite Teacher</a>
+                            <a href="{{ route('admin.invitations.create', ['role' => 'student', 'course_id' => $course->id]) }}" class="btn btn-invite-student">Invite Student</a>
                             <form method="POST" action="{{ route('admin.courses.destroy', $course) }}" style="display: inline;">
                                 @csrf
                                 @method('DELETE')

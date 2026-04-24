@@ -290,7 +290,7 @@
                 <span class="stat-trend">&nbsp;</span>
             </div>
             <div class="stat-label">Active Courses</div>
-            <div class="stat-value">{{ $totalTeachers > 0 ? $totalTeachers * 2 : 0 }}</div>
+            <div class="stat-value">{{ $totalCourses }}</div>
         </article>
 
         <article class="stat-card">

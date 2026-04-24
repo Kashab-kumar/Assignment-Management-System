@@ -14,9 +14,16 @@ class AdminDashboardController extends Controller
     public function index()
     {
         $totalUsers = User::count();
-        $totalStudents = Student::count();
-        $totalTeachers = Teacher::count();
+        
+        // Only count students and teachers that have valid user records
+        $totalStudents = Student::whereHas('user')->count();
+        $totalTeachers = Teacher::whereHas('user')->count();
         $totalAssignments = Assignment::count();
+        
+        // Get courses that have valid teachers
+        $totalCourses = \App\Models\Course::whereHas('teachers', function($query) {
+            $query->whereHas('user');
+        })->count();
         
         $recentUsers = User::latest()->take(10)->get();
         
@@ -25,6 +32,7 @@ class AdminDashboardController extends Controller
             'totalStudents',
             'totalTeachers',
             'totalAssignments',
+            'totalCourses',
             'recentUsers'
         ));
     }

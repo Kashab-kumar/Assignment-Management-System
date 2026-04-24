@@ -138,13 +138,21 @@ class RegisterController extends Controller
 
                 Student::create($studentData);
             } elseif ($invitation->role === 'teacher') {
-                Teacher::create([
+                $teacherData = [
                     'user_id' => $user->id,
                     'teacher_id' => $validated['teacher_id'],
                     'name' => $validated['name'],
                     'email' => $validated['email'],
                     'subject' => $validated['subject'],
-                ]);
+                ];
+
+                // Assign course if specified in invitation
+                if ($invitation->course_id) {
+                    $teacher = Teacher::create($teacherData);
+                    $teacher->courses()->attach($invitation->course_id);
+                } else {
+                    Teacher::create($teacherData);
+                }
             }
 
             // Track usage count only after the full registration succeeds.

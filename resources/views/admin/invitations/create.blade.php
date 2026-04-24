@@ -43,7 +43,7 @@
             <label>Select Role</label>
             
             <label class="role-option" onclick="selectRole('teacher')">
-                <input type="radio" name="role" value="teacher" {{ old('role') == 'teacher' ? 'checked' : '' }} required>
+                <input type="radio" name="role" value="teacher" {{ old('role') == 'teacher' || $role == 'teacher' ? 'checked' : '' }} required>
                 <strong>Teacher</strong>
                 <p style="margin: 5px 0 0 30px; color: #666; font-size: 13px;">
                     For instructors who will create assignments and grade students
@@ -51,12 +51,27 @@
             </label>
 
             <label class="role-option" onclick="selectRole('student')">
-                <input type="radio" name="role" value="student" {{ old('role') == 'student' ? 'checked' : '' }} required>
+                <input type="radio" name="role" value="student" {{ old('role') == 'student' || $role == 'student' ? 'checked' : '' }} required>
                 <strong>Student</strong>
                 <p style="margin: 5px 0 0 30px; color: #666; font-size: 13px;">
                     For learners who will submit assignments and view grades
                 </p>
             </label>
+        </div>
+
+        <div class="form-group">
+            <label>Assign to Course (Optional)</label>
+            <select name="course_id" class="form-control">
+                <option value="">-- No Course Assignment --</option>
+                @foreach($courses as $course)
+                    <option value="{{ $course->id }}" {{ old('course_id') == $course->id || $courseId == $course->id ? 'selected' : '' }}>
+                        {{ $course->name }} ({{ $course->code }})
+                    </option>
+                @endforeach
+            </select>
+            <p style="margin-top: 5px; color: #666; font-size: 12px;">
+                Leave empty if you want to assign the course later
+            </p>
         </div>
 
         <button type="submit" class="btn">Generate Invitation Link</button>

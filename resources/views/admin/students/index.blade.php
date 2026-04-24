@@ -20,6 +20,11 @@
         padding-bottom: 15px;
         border-bottom: 1px solid #eee;
     }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+    }
     
     .students-table {
         width: 100%;
@@ -72,6 +77,7 @@
     .btn-edit { background: #2196F3; color: white; }
     .btn-delete { background: #f44336; color: white; }
     .btn-add { background: #9C27B0; color: white; padding: 8px 16px; }
+    .btn-invite { background: #03A9F4; color: white; }
     
     .filters {
         background: #f8f9fa;
@@ -97,7 +103,10 @@
 <div class="students-container">
     <div class="students-header">
         <h2 style="margin: 0; color: #333;">All Students ({{ $students->total() }})</h2>
-        <a href="{{ route('admin.students.create') }}" class="btn btn-add">+ Add New Student</a>
+        <div class="header-actions">
+            <a href="{{ route('admin.invitations.create', ['role' => 'student']) }}" class="btn btn-invite">+ Generate Invite Link</a>
+            <a href="{{ route('admin.students.create') }}" class="btn btn-add">+ Add New Student</a>
+        </div>
     </div>
     
     @if(session('success'))

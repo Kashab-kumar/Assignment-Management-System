@@ -87,12 +87,256 @@
     .module-course {
         font-size: 14px;
         color: #6b7280;
+        margin-bottom: 4px;
     }
 
     .module-description {
         color: #4b5563;
         margin-bottom: 20px;
         line-height: 1.6;
+    }
+
+    .module-framework {
+        background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);
+        border: 3px solid #f59e0b;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 20px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(245, 158, 11, 0.1);
+    }
+
+    .framework-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .framework-icon {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+        margin-right: 12px;
+    }
+
+    .framework-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .framework-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 12px;
+    }
+
+    .framework-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .framework-label {
+        font-size: 12px;
+        color: #6b7280;
+        font-weight: 600;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .framework-value {
+        font-size: 14px;
+        color: #374151;
+        font-weight: 500;
+    }
+
+    .framework-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 12px;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .framework-status {
+        background: #dcfce7;
+        color: #166534;
+        padding: 4px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .framework-progress {
+        width: 120px;
+        height: 6px;
+        background: #e5e7eb;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .framework-progress-bar {
+        height: 100%;
+        background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+        border-radius: 3px;
+        transition: width 0.3s ease;
+    }
+
+    .module-activities {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+
+    .activities-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .activities-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .activities-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .activity-section {
+        margin-bottom: 20px;
+    }
+
+    .activity-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .activity-section-header h4 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+    }
+
+    .activity-count {
+        background: #10b981;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .activity-list {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .activity-item {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 12px;
+        transition: transform 0.3s ease;
+    }
+
+    .activity-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .activity-icon {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .activity-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .activity-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1f2937;
+        flex: 1;
+    }
+
+    .activity-meta {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .activity-type {
+        font-size: 12px;
+        color: #6b7280;
+        background: #f3f4f6;
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+
+    .activity-weightage {
+        font-size: 12px;
+        color: #10b981;
+        background: #dcfce7;
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+
+    .activity-action {
+        display: flex;
+        gap: 8px;
+    }
+
+    .view-all {
+        text-align: center;
+        margin-top: 12px;
+    }
+
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-sm:hover {
+        transform: translateY(-1px);
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 1px solid #667eea;
+        color: #667eea;
+    }
+
+    .btn-outline:hover {
+        background: #667eea;
+        color: white;
     }
 
     .module-stats {
@@ -246,40 +490,128 @@
                     </div>
                     
                     <div class="module-description">
-                        {{ Str::limit($module->description, 100) }}
+                        {{ Str::limit($module->description, 150) }}
                     </div>
                     
-                    <div class="module-weightage">
-                        Weightage: {{ $module->weightage ?? 0 }}%
+                    <div class="module-activities">
+                        <div class="activities-header">
+                            <div class="activities-title">Activities</div>
+                            <div class="activities-actions">
+                                <a href="{{ route('teacher.assignments.create', ['module_id' => $module->id]) }}" class="btn btn-success">+ Assignment</a>
+                                <a href="{{ route('teacher.exams.create', ['module_id' => $module->id]) }}" class="btn btn-info">+ Exam</a>
+                            </div>
+                        </div>
+                        
+                        @if($module->assignments->count() > 0)
+                            <div class="activity-section">
+                                <div class="activity-section-header">
+                                    <h4>Assignments</h4>
+                                    <span class="activity-count">{{ $module->assignments->count() }} Active</span>
+                                </div>
+                                <div class="activity-list">
+                                    @foreach($module->assignments->take(5) as $assignment)
+                                        <div class="activity-item">
+                                            <div class="activity-icon">📝</div>
+                                            <div class="activity-details">
+                                                <div class="activity-title">{{ $assignment->title }}</div>
+                                                <div class="activity-meta">
+                                                    <span class="activity-type">{{ ucfirst($assignment->type ?? 'Assignment') }}</span>
+                                                    <span class="activity-weightage">{{ $assignment->weightage ?? 0 }}%</span>
+                                                </div>
+                                            </div>
+                                            <div class="activity-action">
+                                                <a href="{{ route('teacher.assignments.show', $assignment) }}" class="btn btn-sm">View</a>
+                                                <a href="{{ route('teacher.assignments.edit', $assignment) }}" class="btn btn-sm btn-secondary">Edit</a>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                    @if($module->assignments->count() > 5)
+                                        <div class="view-all">
+                                            <a href="{{ route('teacher.modules.show', $module) }}" class="btn btn-outline">View All {{ $module->assignments->count() }} Assignments</a>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+                        
+                        @if($module->exams->count() > 0)
+                            <div class="activity-section">
+                                <div class="activity-section-header">
+                                    <h4>Exams</h4>
+                                    <span class="activity-count">{{ $module->exams->count() }} Active</span>
+                                </div>
+                                <div class="activity-list">
+                                    @foreach($module->exams->take(5) as $exam)
+                                        <div class="activity-item">
+                                            <div class="activity-icon">📋</div>
+                                            <div class="activity-details">
+                                                <div class="activity-title">{{ $exam->title }}</div>
+                                                <div class="activity-meta">
+                                                    <span class="activity-type">{{ ucfirst($exam->type ?? 'Exam') }}</span>
+                                                    <span class="activity-weightage">{{ $exam->weightage ?? 0 }}%</span>
+                                                </div>
+                                            </div>
+                                            <div class="activity-action">
+                                                <a href="{{ route('teacher.exams.show', $exam) }}" class="btn btn-sm">View</a>
+                                                <a href="{{ route('teacher.exams.edit', $exam) }}" class="btn btn-sm btn-secondary">Edit</a>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                    @if($module->exams->count() > 5)
+                                        <div class="view-all">
+                                            <a href="{{ route('teacher.modules.show', $module) }}" class="btn btn-outline">View All {{ $module->exams->count() }} Exams</a>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+                        
+                        @if($module->lesson_count > 0)
+                            <div class="activity-section">
+                                <div class="activity-section-header">
+                                    <h4>Lessons</h4>
+                                    <span class="activity-count">{{ $module->lesson_count }} Active</span>
+                                </div>
+                                <div class="activity-list">
+                                    @for($i = 1; $i <= min($module->lesson_count, 5); $i++)
+                                        <div class="activity-item">
+                                            <div class="activity-icon">📚</div>
+                                            <div class="activity-details">
+                                                <div class="activity-title">Lesson {{ $i }}</div>
+                                                <div class="activity-meta">
+                                                    <span class="activity-type">Unit Content</span>
+                                                    <span class="activity-weightage">Lesson Plan</span>
+                                                </div>
+                                            </div>
+                                        @endfor
+                                    @if($module->lesson_count > 5)
+                                        <div class="view-all">
+                                            <a href="{{ route('teacher.modules.show', $module) }}" class="btn btn-outline">View All {{ $module->lesson_count }} Lessons</a>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
                     </div>
                     
-                    <div class="module-stats">
-                        <div class="stat-item">
-                            <div class="stat-value">{{ $module->assignments->count() }}</div>
-                            <div class="stat-label">Assignments</div>
+                    <div class="module-footer">
+                        <div class="module-weightage">
+                            Weightage: {{ $module->weightage ?? 0 }}%
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-value">{{ $module->exams->count() }}</div>
-                            <div class="stat-label">Exams</div>
+                        
+                        <div class="module-actions">
+                            <a href="{{ route('teacher.modules.show', $module) }}" class="btn btn-primary">Manage Module</a>
+                            <a href="{{ route('teacher.modules.edit', $module) }}" class="btn btn-secondary">Edit Module</a>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-value">{{ $module->lesson_count ?? 0 }}</div>
-                            <div class="stat-label">Lessons</div>
-                        </div>
-                    </div>
-                    
-                    <div class="module-actions">
-                        <a href="{{ route('teacher.modules.show', $module) }}" class="btn btn-primary">Manage</a>
-                        <a href="{{ route('teacher.modules.edit', $module) }}" class="btn btn-secondary">Edit</a>
                     </div>
                 </div>
             @endforeach
         </div>
     @else
         <div class="empty-state">
-            <div class="empty-state-icon">{$module->title[0]}</div>
+            <div class="empty-state-icon">📚</div>
             <h3>No Modules Yet</h3>
-            <p>Start by creating your first module to manage course activities</p>
+            <p>Start by creating your first module to manage course activities and assignments</p>
             <a href="{{ route('teacher.modules.create') }}" class="btn btn-primary">Create Module</a>
         </div>
     @endif

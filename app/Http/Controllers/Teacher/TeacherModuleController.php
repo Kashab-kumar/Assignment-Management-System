@@ -15,6 +15,7 @@ class TeacherModuleController extends Controller
     {
         $teacher = auth()->user()->teacher;
         
+        // Only show modules where this teacher is explicitly assigned as the instructor
         $modules = CourseModule::with(['course', 'assignments', 'exams'])
             ->where('teacher_id', $teacher->id)
             ->orderBy('position')
