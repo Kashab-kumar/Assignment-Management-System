@@ -49,8 +49,17 @@ class TeacherExamController extends Controller
     public function create(Request $request)
     {
         $selectedCourseId = $request->integer('course_id') ?: null;
+        $moduleId = $request->integer('module_id') ?: null;
         $mode = in_array($request->input('mode'), ['quiz', 'test'], true) ? $request->input('mode') : 'exam';
         $assignedCourseIds = $this->assignedCourseIds();
+
+        // If module_id is provided, get the course_id from the module
+        if ($moduleId && !$selectedCourseId) {
+            $module = \App\Models\CourseModule::find($moduleId);
+            if ($module && in_array($module->course_id, $assignedCourseIds, true)) {
+                $selectedCourseId = $module->course_id;
+            }
+        }
 
         if ($selectedCourseId && !in_array($selectedCourseId, $assignedCourseIds, true)) {
             $selectedCourseId = null;

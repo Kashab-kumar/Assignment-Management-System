@@ -471,9 +471,6 @@
                 <h1>Module Management</h1>
                 <p>Manage your course modules, assignments, and activities</p>
             </div>
-            <div class="header-actions">
-                <a href="{{ route('teacher.modules.create') }}" class="btn btn-primary">+ Add Module</a>
-            </div>
         </div>
     </div>
 
@@ -498,7 +495,9 @@
                             <div class="activities-title">Activities</div>
                             <div class="activities-actions">
                                 <a href="{{ route('teacher.assignments.create', ['module_id' => $module->id]) }}" class="btn btn-success">+ Assignment</a>
-                                <a href="{{ route('teacher.exams.create', ['module_id' => $module->id]) }}" class="btn btn-info">+ Exam</a>
+                                <a href="{{ route('teacher.exams.create', ['module_id' => $module->id, 'mode' => 'exam']) }}" class="btn btn-info">+ Exam</a>
+                                <a href="{{ route('teacher.exams.create', ['module_id' => $module->id, 'mode' => 'quiz']) }}" class="btn btn-warning">+ Quiz</a>
+                                <a href="{{ route('teacher.exams.create', ['module_id' => $module->id, 'mode' => 'test']) }}" class="btn btn-secondary">+ Test</a>
                             </div>
                         </div>
                         

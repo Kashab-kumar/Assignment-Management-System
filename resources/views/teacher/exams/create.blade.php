@@ -214,6 +214,42 @@
         font-size: 12px;
         margin-top: 4px;
     }
+
+    .question-item {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 16px;
+    }
+
+    .question-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .question-number {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .btn-remove-question {
+        background: #ef4444;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .btn-remove-question:hover {
+        background: #dc2626;
+    }
 </style>
 
 <div class="assessment-container">
@@ -289,19 +325,19 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="exam_date">Deadline</label>
-                        <input type="datetime-local" id="exam_date" name="exam_date" class="form-control" 
-                               value="{{ old('exam_date') }}">
+                        <label for="exam_date">Exam Date <span class="required">*</span></label>
+                        <input type="date" id="exam_date" name="exam_date" class="form-control" 
+                               value="{{ old('exam_date') }}" required>
                         @error('exam_date')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
                     </div>
 
                     <div class="form-group">
-                        <label for="duration_minutes">Duration (minutes) <span class="required">*</span></label>
-                        <input type="number" id="duration_minutes" name="duration_minutes" class="form-control" 
-                               value="{{ old('duration_minutes', 30) }}" min="1" required>
-                        @error('duration_minutes')
+                        <label for="exam_time">Exam Time</label>
+                        <input type="time" id="exam_time" name="exam_time" class="form-control" 
+                               value="{{ old('exam_time') }}">
+                        @error('exam_time')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
                     </div>
@@ -323,60 +359,112 @@
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="max_score">Total Questions <span class="required">*</span></label>
+                        <label for="max_score">Max Score <span class="required">*</span></label>
                         <input type="number" id="max_score" name="max_score" class="form-control" 
-                               value="{{ old('max_score', 10) }}" min="1" required>
+                               value="{{ old('max_score', 100) }}" min="1" required>
                         @error('max_score')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
                     </div>
 
                     <div class="form-group">
-                        <label for="passing_score">Passing Score (%)</label>
-                        <input type="number" id="passing_score" name="passing_score" class="form-control" 
-                               value="{{ old('passing_score', 60) }}" min="0" max="100">
-                        @error('passing_score')
+                        <label for="duration_minutes">Duration (minutes) <span class="required">*</span></label>
+                        <input type="number" id="duration_minutes" name="duration_minutes" class="form-control" 
+                               value="{{ old('duration_minutes', 30) }}" min="1" max="600" required>
+                        @error('duration_minutes')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="instructions">Instructions for Students</label>
-                    <textarea id="instructions" name="instructions" class="form-control" 
-                              placeholder="Enter instructions that students will see before starting...">{{ old('instructions') }}</textarea>
-                    @error('instructions')
+                    <label for="secure_instructions">Secure Mode Instructions</label>
+                    <textarea id="secure_instructions" name="secure_instructions" class="form-control" 
+                              placeholder="Instructions for secure exam mode...">{{ old('secure_instructions') }}</textarea>
+                    @error('secure_instructions')
                         <div class="error-message">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <!-- Additional Settings -->
+                <!-- Secure Mode Settings -->
                 <div class="checkbox-group">
-                    <input type="checkbox" id="randomize_questions" name="randomize_questions" 
-                           @if(old('randomize_questions')) checked @endif>
-                    <label for="randomize_questions">Randomize Questions</label>
-                    <span style="color: #6b7280; font-size: 12px;">Shuffle question order for each student</span>
+                    <input type="checkbox" id="secure_mode" name="secure_mode" 
+                           @if(old('secure_mode')) checked @endif>
+                    <label for="secure_mode">Enable Secure Mode</label>
+                    <span style="color: #6b7280; font-size: 12px;">Prevent cheating during exam</span>
                 </div>
 
-                <div class="checkbox-group">
-                    <input type="checkbox" id="show_results_immediately" name="show_results_immediately" 
-                           @if(old('show_results_immediately')) checked @endif>
-                    <label for="show_results_immediately">Show Results Immediately</label>
-                    <span style="color: #6b7280; font-size: 12px;">Students see scores after submission</span>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="max_violations">Max Violations</label>
+                        <input type="number" id="max_violations" name="max_violations" class="form-control" 
+                               value="{{ old('max_violations', 3) }}" min="1" max="10">
+                        @error('max_violations')
+                            <div class="error-message">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="max_warnings">Max Warnings</label>
+                        <input type="number" id="max_warnings" name="max_warnings" class="form-control" 
+                               value="{{ old('max_warnings', 5) }}" min="1" max="20">
+                        @error('max_warnings')
+                            <div class="error-message">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
+            </div>
+
+            <!-- Questions Section -->
+            <div class="form-section">
+                <h2 class="form-section-title">Questions</h2>
+                <div id="questions-container">
+                    @if(old('questions'))
+                        @foreach(old('questions') as $index => $question)
+                            <div class="question-item" data-index="{{ $index }}">
+                                <div class="question-header">
+                                    <span class="question-number">Question {{ $index + 1 }}</span>
+                                    <button type="button" class="btn-remove-question" onclick="removeQuestion({{ $index }})">Remove</button>
+                                </div>
+                                <div class="form-group">
+                                    <label>Question Text <span class="required">*</span></label>
+                                    <textarea name="questions[{{ $index }}][question_text]" class="form-control" rows="3" required>{{ $question['question_text'] ?? '' }}</textarea>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Question Type</label>
+                                        <select name="questions[{{ $index }}][question_type]" class="form-control">
+                                            <option value="short_answer" {{ ($question['question_type'] ?? '') == 'short_answer' ? 'selected' : '' }}>Short Answer</option>
+                                            <option value="long_answer" {{ ($question['question_type'] ?? '') == 'long_answer' ? 'selected' : '' }}>Long Answer</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Points</label>
+                                        <input type="number" name="questions[{{ $index }}][points]" class="form-control" value="{{ $question['points'] ?? 1 }}" min="1">
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    @endif
+                </div>
+                <button type="button" class="btn btn-outline" onclick="addQuestion()" style="margin-top: 16px;">+ Add Question</button>
+                @error('questions')
+                    <div class="error-message">{{ $message }}</div>
+                @enderror
             </div>
 
             <!-- Form Actions -->
             <div class="form-actions">
                 <a href="{{ route('teacher.exams.index', ['course_id' => $selectedCourseId]) }}" class="btn btn-outline">Cancel</a>
-                <button type="submit" name="action" value="draft" class="btn btn-secondary">Save as Draft</button>
-                <button type="submit" name="action" value="publish" class="btn btn-primary">Publish Now</button>
+                <button type="submit" class="btn btn-primary">Create Assessment</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
+let questionCount = 0;
+
 document.addEventListener('DOMContentLoaded', function() {
     // Handle assessment type selection
     const typeOptions = document.querySelectorAll('.type-option');
@@ -394,6 +482,51 @@ document.addEventListener('DOMContentLoaded', function() {
             radio.checked = true;
         });
     });
+
+    // Initialize question count if there are existing questions
+    const existingQuestions = document.querySelectorAll('.question-item');
+    if (existingQuestions.length > 0) {
+        questionCount = existingQuestions.length;
+    }
 });
+
+function addQuestion() {
+    const container = document.getElementById('questions-container');
+    const questionHtml = `
+        <div class="question-item" data-index="${questionCount}">
+            <div class="question-header">
+                <span class="question-number">Question ${questionCount + 1}</span>
+                <button type="button" class="btn-remove-question" onclick="removeQuestion(${questionCount})">Remove</button>
+            </div>
+            <div class="form-group">
+                <label>Question Text <span class="required">*</span></label>
+                <textarea name="questions[${questionCount}][question_text]" class="form-control" rows="3" required></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Question Type</label>
+                    <select name="questions[${questionCount}][question_type]" class="form-control">
+                        <option value="short_answer">Short Answer</option>
+                        <option value="long_answer">Long Answer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Points</label>
+                    <input type="number" name="questions[${questionCount}][points]" class="form-control" value="1" min="1">
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', questionHtml);
+    questionCount++;
+}
+
+function removeQuestion(index) {
+    const questionItem = document.querySelector(`.question-item[data-index="${index}"]`);
+    if (questionItem) {
+        questionItem.remove();
+    }
+}
 </script>
 @endsection

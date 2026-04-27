@@ -55,9 +55,10 @@ class TeacherCourseController extends Controller
             ->loadCount(['assignments', 'exams']);
 
         if ($modulesEnabled) {
+            $teacher = auth()->user()->teacher;
             $course->load([
-                'modules' => function ($query) use ($moduleItemsEnabled) {
-                    $query->with('teacher');
+                'modules' => function ($query) use ($moduleItemsEnabled, $teacher) {
+                    $query->where('teacher_id', $teacher->id)->with('teacher');
                     if ($moduleItemsEnabled) {
                         $query->with('items.creator');
                     }

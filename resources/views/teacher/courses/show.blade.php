@@ -34,7 +34,9 @@
     .related-list li { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
     .related-list li:last-child { border-bottom: none; }
     .modules-grid { display: grid; gap: 12px; margin-top: 12px; }
-    .module-card { background: rgba(0,0,0,0.14); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; }
+    .module-card-link { text-decoration: none; display: block; }
+    .module-card { background: rgba(0,0,0,0.14); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; transition: all 0.3s ease; }
+    .module-card-link:hover .module-card { background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.15); transform: translateY(-2px); }
     .module-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
     .module-title { font-size: 15px; font-weight: 700; color: #000000; }
     .module-order { font-size: 11px; color: #000000; background: rgba(148,163,184,0.16); padding: 3px 8px; border-radius: 999px; }
@@ -147,25 +149,25 @@
                                 'note' => 'Note',
                             ];
                         @endphp
-                        <div class="module-card">
-                            <div class="module-head">
-                                <div class="module-title">{{ $module->title }}</div>
-                                <span class="module-order">Module {{ $module->position }}</span>
+                        <a href="{{ route('teacher.courses.modules.show', [$course, $module]) }}" class="module-card-link">
+                            <div class="module-card">
+                                <div class="module-head">
+                                    <div class="module-title">{{ $module->title }}</div>
+                                    <span class="module-order">Module {{ $module->position }}</span>
+                                </div>
+                                @if($module->description)
+                                    <div class="module-desc">{{ $module->description }}</div>
+                                @endif
+                                <div class="module-tags">
+                                    <span class="module-tag">{{ $module->lesson_count }} lessons</span>
+                                    <span class="module-tag">{{ $module->assignment_count }} assignments</span>
+                                    <span class="module-tag">{{ $module->quiz_count }} quizzes</span>
+                                </div>
+                                <div class="module-desc" style="margin-top: 10px; margin-bottom: 2px;">
+                                    Assigned Teacher: <strong>{{ $module->teacher?->name ?? 'Any assigned course teacher' }}</strong>
+                                </div>
                             </div>
-                            @if($module->description)
-                                <div class="module-desc">{{ $module->description }}</div>
-                            @endif
-                            <div class="module-tags">
-                                <span class="module-tag">{{ $module->lesson_count }} lessons</span>
-                                <span class="module-tag">{{ $module->assignment_count }} assignments</span>
-                                <span class="module-tag">{{ $module->quiz_count }} quizzes</span>
-                            </div>
-                            <div class="module-desc" style="margin-top: 10px; margin-bottom: 2px;">
-                                Assigned Teacher: <strong>{{ $module->teacher?->name ?? 'Any assigned course teacher' }}</strong>
-                            </div>
-                            <div style="margin-top: 10px;">
-                                <a href="{{ route('teacher.courses.modules.show', [$course, $module]) }}" class="btn btn-back" style="padding: 6px 12px;">Open Module Workspace</a>
-                            </div>
+                        </a>
 
                             @if($moduleItemsEnabled)
                                 @if($module->items->isEmpty())
@@ -189,29 +191,7 @@
                                     </div>
                                 @endif
 
-                                @if(empty($module->teacher_id) || (int) $module->teacher_id === (int) auth()->user()->teacher?->id)
-                                    <form method="POST" action="{{ route('teacher.courses.modules.items.store', [$course, $module]) }}" class="module-form">
-                                        @csrf
-                                        <h4 style="margin:0;">Add Module Content</h4>
-                                        <select name="type" required>
-                                            <option value="">Select content type</option>
-                                            <option value="unit_outline">Unit Outline</option>
-                                            <option value="quiz">Quiz</option>
-                                            <option value="test">Test</option>
-                                            <option value="note">Note</option>
-                                        </select>
-                                        <input type="text" name="title" placeholder="Title" required>
-                                        <textarea name="description" rows="4" placeholder="Details, instructions, or note text"></textarea>
-                                        <div>
-                                            <button type="submit" class="btn btn-exam">Add Content</button>
-                                        </div>
-                                    </form>
-                                @else
-                                    <div class="module-desc" style="margin-top: 12px; color: #7f1d1d;">
-                                        This module is assigned to {{ $module->teacher?->name }}. Only that teacher can add module content.
-                                    </div>
-                                @endif
-                            @endif
+                                                            @endif
                         </div>
                     @endforeach
                 </div>
