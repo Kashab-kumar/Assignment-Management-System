@@ -41,7 +41,16 @@ class TeacherAssignmentController extends Controller
     public function create(Request $request)
     {
         $selectedCourseId = $request->integer('course_id') ?: null;
+        $selectedModuleId = $request->integer('module_id') ?: null;
         $assignedCourseIds = $this->assignedCourseIds();
+
+        // If module_id is provided, get the course_id from the module
+        if ($selectedModuleId && !$selectedCourseId) {
+            $module = CourseModule::find($selectedModuleId);
+            if ($module && in_array($module->course_id, $assignedCourseIds, true)) {
+                $selectedCourseId = $module->course_id;
+            }
+        }
 
         if ($selectedCourseId && !in_array($selectedCourseId, $assignedCourseIds, true)) {
             $selectedCourseId = null;
@@ -54,7 +63,7 @@ class TeacherAssignmentController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('teacher.assignments.create', compact('courses', 'selectedCourseId'));
+        return view('teacher.assignments.create', compact('courses', 'selectedCourseId', 'selectedModuleId'));
     }
 
     public function store(Request $request)

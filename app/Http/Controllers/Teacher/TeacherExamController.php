@@ -81,22 +81,25 @@ class TeacherExamController extends Controller
 
         $validated = $request->validate([
             'course_id' => ['required', Rule::in($assignedCourseIds)],
-            'type' => 'required|in:exam,quiz,test',
+            'type' => 'required|in:exam,test',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'exam_date' => 'required|date',
             'exam_time' => 'nullable|date_format:H:i',
             'duration_minutes' => 'required|integer|min:1|max:600',
             'max_score' => 'required|integer|min:1|max:1000',
-            'secure_mode' => 'boolean',
+            'secure_mode' => 'nullable|boolean',
             'secure_instructions' => 'nullable|string',
             'max_violations' => 'nullable|integer|min:1|max:10',
             'max_warnings' => 'nullable|integer|min:1|max:20',
-            'questions' => 'required|array|min:1',
-            'questions.*.question_text' => 'required|string|max:5000',
-            'questions.*.question_type' => 'required|in:short_answer,long_answer',
+            'questions' => 'nullable|array',
+            'questions.*.question_text' => 'nullable|string|max:5000',
+            'questions.*.question_type' => 'nullable|in:short_answer,long_answer',
             'questions.*.points' => 'nullable|integer|min:1|max:1000',
         ]);
+
+        // Convert secure_mode to boolean (checkbox sends "0" or "1")
+        $validated['secure_mode'] = isset($validated['secure_mode']) && $validated['secure_mode'] == '1';
 
         DB::transaction(function () use ($validated) {
             $exam = Exam::create([
@@ -114,13 +117,15 @@ class TeacherExamController extends Controller
                 'max_warnings' => $validated['max_warnings'] ?? 5,
             ]);
 
-            foreach ($validated['questions'] as $index => $question) {
-                $exam->questions()->create([
-                    'question_text' => $question['question_text'],
-                    'question_type' => $question['question_type'],
-                    'points' => (int) ($question['points'] ?? 1),
-                    'position' => $index + 1,
-                ]);
+            if (!empty($validated['questions'])) {
+                foreach ($validated['questions'] as $index => $question) {
+                    $exam->questions()->create([
+                        'question_text' => $question['question_text'],
+                        'question_type' => $question['question_type'],
+                        'points' => (int) ($question['points'] ?? 1),
+                        'position' => $index + 1,
+                    ]);
+                }
             }
         });
 

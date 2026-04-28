@@ -252,15 +252,9 @@
             <label class="form-label" for="course_id">Course *</label>
             <select class="form-select" id="course_id" name="course_id" required>
                 <option value="">Select a course</option>
-                @php
-                    $teacher = auth()->user()->teacher;
-                    $courses = \App\Models\Course::whereHas('teachers', function($query) use ($teacher) {
-                        $query->where('teacher_id', $teacher->id);
-                    })->get();
-                @endphp
                 @foreach($courses as $course)
-                    <option value="{{ $course->id }}" {{ old('course_id') == $course->id ? 'selected' : '' }}>
-                        {{ $course->name }} - {{ $course->category_name }}
+                    <option value="{{ $course->id }}" {{ old('course_id', $selectedCourseId) == $course->id ? 'selected' : '' }}>
+                        {{ $course->category_name ?: 'Uncategorized' }} / {{ $course->class_name ?: 'Unassigned' }} / {{ $course->name }}
                     </option>
                 @endforeach
             </select>
@@ -278,7 +272,7 @@
                     $modules = \App\Models\CourseModule::where('teacher_id', $teacher->id)->get();
                 @endphp
                 @foreach($modules as $module)
-                    <option value="{{ $module->id }}" {{ old('module_id') == $module->id || (request('module_id') == $module->id) ? 'selected' : '' }}>
+                    <option value="{{ $module->id }}" {{ old('module_id', $selectedModuleId) == $module->id ? 'selected' : '' }}>
                         {{ $module->title }} - {{ $module->course->name }}
                     </option>
                 @endforeach
@@ -367,7 +361,7 @@
         </div>
 
         <div class="form-actions">
-            <a href="{{ request('module_id') ? route('teacher.modules.show', request('module_id')) : route('teacher.modules.index') }}" class="btn btn-secondary">Cancel</a>
+            <a href="{{ request('module_id') ? route('modules.show', request('module_id')) : route('teacher.modules.index') }}" class="btn btn-secondary">Cancel</a>
             <button type="submit" class="btn btn-primary">Create Assignment</button>
         </div>
     </form>

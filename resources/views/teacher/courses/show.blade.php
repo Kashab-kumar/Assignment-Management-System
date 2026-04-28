@@ -92,7 +92,6 @@
     <div style="margin-bottom: 20px;">
         <a href="{{ route('teacher.courses.index') }}" class="btn btn-back">← Back to Courses</a>
         <a href="{{ route('teacher.assignments.create', ['course_id' => $course->id]) }}" class="btn btn-assign">Give Assignment</a>
-        <a href="{{ route('teacher.exams.create', ['course_id' => $course->id, 'mode' => 'quiz']) }}" class="btn btn-quiz">Create Quiz</a>
         <a href="{{ route('teacher.exams.create', ['course_id' => $course->id, 'mode' => 'test']) }}" class="btn btn-test">Create Test</a>
         <a href="{{ route('teacher.exams.create', ['course_id' => $course->id]) }}" class="btn btn-exam">Create Exam</a>
         <a href="{{ route('teacher.students.index') }}" class="btn btn-invite">Invite Students</a>

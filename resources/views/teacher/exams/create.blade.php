@@ -258,6 +258,17 @@
         <p>Fill in the details to create an exam, quiz, or test</p>
     </div>
 
+    @if($errors->any())
+        <div style="background: #fee2e2; border: 1px solid #fecaca; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+            <strong style="color: #dc2626;">Please fix the following errors:</strong>
+            <ul style="margin: 10px 0 0 20px; color: #dc2626;">
+                @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="assessment-body">
         <form method="POST" action="{{ route('teacher.exams.store') }}">
             @csrf
@@ -265,32 +276,18 @@
             <!-- Assessment Type -->
             <div class="form-section">
                 <h2 class="form-section-title">Assessment Type</h2>
-                <div class="assessment-type-selector">
-                    <div class="type-option @if(old('type', 'exam') == 'exam') selected @endif">
-                        <input type="radio" name="type" value="exam" id="type_exam" @if(old('type', 'exam') == 'exam') checked @endif>
-                        <label for="type_exam">
-                            <h3>Exam</h3>
-                            <p>Full-length formal assessment</p>
-                        </label>
-                    </div>
-                    <div class="type-option @if(old('type', 'exam') == 'quiz') selected @endif">
-                        <input type="radio" name="type" value="quiz" id="type_quiz" @if(old('type', 'exam') == 'quiz') checked @endif>
-                        <label for="type_quiz">
-                            <h3>Quiz</h3>
-                            <p>Short practice quiz</p>
-                        </label>
-                    </div>
-                    <div class="type-option @if(old('type', 'exam') == 'test') selected @endif">
-                        <input type="radio" name="type" value="test" id="type_test" @if(old('type', 'exam') == 'test') checked @endif>
-                        <label for="type_test">
-                            <h3>Test</h3>
-                            <p>Unit test or checkpoint</p>
-                        </label>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label" for="type">Assessment Type <span class="required">*</span></label>
+                    <select class="form-control" id="type" name="type" required>
+                        <option value="">Select assessment type</option>
+                        <option value="exam" {{ old('type', $mode) == 'exam' ? 'selected' : '' }}>Exam</option>
+                        <option value="test" {{ old('type', $mode) == 'test' ? 'selected' : '' }}>Test</option>
+                    </select>
+                    <div class="help-text">Choose the type of assessment you want to create</div>
+                    @error('type')
+                        <div class="error-message">{{ $message }}</div>
+                    @enderror
                 </div>
-                @error('type')
-                    <div class="error-message">{{ $message }}</div>
-                @enderror
             </div>
 
             <!-- Basic Information -->
@@ -388,7 +385,8 @@
 
                 <!-- Secure Mode Settings -->
                 <div class="checkbox-group">
-                    <input type="checkbox" id="secure_mode" name="secure_mode" 
+                    <input type="hidden" name="secure_mode" value="0">
+                    <input type="checkbox" id="secure_mode" name="secure_mode" value="1"
                            @if(old('secure_mode')) checked @endif>
                     <label for="secure_mode">Enable Secure Mode</label>
                     <span style="color: #6b7280; font-size: 12px;">Prevent cheating during exam</span>
@@ -466,23 +464,6 @@
 let questionCount = 0;
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle assessment type selection
-    const typeOptions = document.querySelectorAll('.type-option');
-    
-    typeOptions.forEach(option => {
-        option.addEventListener('click', function() {
-            // Remove selected class from all options
-            typeOptions.forEach(opt => opt.classList.remove('selected'));
-            
-            // Add selected class to clicked option
-            this.classList.add('selected');
-            
-            // Check the radio button
-            const radio = this.querySelector('input[type="radio"]');
-            radio.checked = true;
-        });
-    });
-
     // Initialize question count if there are existing questions
     const existingQuestions = document.querySelectorAll('.question-item');
     if (existingQuestions.length > 0) {
