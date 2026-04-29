@@ -92,6 +92,7 @@ Route::middleware(['auth:teacher'])->prefix('teacher')->name('teacher.')->group(
     Route::post('/assignments', [TeacherAssignmentController::class, 'store'])->name('assignments.store');
     Route::get('/assignments/{assignment}', [TeacherAssignmentController::class, 'show'])->name('assignments.show');
     Route::post('/submissions/{submission}/grade', [TeacherAssignmentController::class, 'gradeSubmission'])->name('submissions.grade');
+Route::post('/submissions/{submission}/grade-ai', [TeacherAssignmentController::class, 'gradeWithAI'])->name('submissions.grade-ai');
 
     // Submissions
     Route::get('/submissions', [TeacherSubmissionController::class, 'index'])->name('submissions.index');
@@ -113,6 +114,11 @@ Route::middleware(['auth:teacher'])->prefix('teacher')->name('teacher.')->group(
     Route::get('/modules/{module}/edit', [TeacherModuleController::class, 'edit'])->name('modules.edit');
     Route::put('/modules/{module}', [TeacherModuleController::class, 'update'])->name('modules.update');
     Route::delete('/modules/{module}', [TeacherModuleController::class, 'destroy'])->name('modules.destroy');
+
+    // Units
+    Route::post('/modules/{module}/units', [UnitController::class, 'store'])->name('modules.units.store');
+    Route::put('/units/{unit}', [UnitController::class, 'update'])->name('units.update');
+    Route::delete('/units/{unit}', [UnitController::class, 'destroy'])->name('units.destroy');
 
     // Courses
     Route::get('/courses', [TeacherCourseController::class, 'index'])->name('courses.index');

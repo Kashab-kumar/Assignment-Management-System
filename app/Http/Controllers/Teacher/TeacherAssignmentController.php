@@ -7,6 +7,7 @@ use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\CourseModule;
 use App\Models\Submission;
+use App\Services\GradingService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -119,6 +120,26 @@ class TeacherAssignmentController extends Controller
         ]);
 
         return back()->with('success', 'Submission graded successfully!');
+    }
+
+    public function gradeWithAI(Submission $submission)
+    {
+        abort_unless(in_array($submission->assignment?->course_id, $this->assignedCourseIds(), true), 403);
+
+        $assignment = $submission->assignment;
+        $module = $assignment->module;
+        $unitOutlines = $module ? $module->units : [];
+
+        $gradingService = new GradingService();
+        $result = $gradingService->gradeAssignment($submission, $assignment, $unitOutlines);
+
+        $submission->update([
+            'score' => $result['score'],
+            'status' => 'graded',
+            'feedback' => $result['feedback'] ?? null
+        ]);
+
+        return back()->with('success', 'Submission graded using ' . $result['method'] . ' approach!');
     }
 
     private function assignedCourseIds(): array

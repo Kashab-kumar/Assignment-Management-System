@@ -94,6 +94,7 @@ class TeacherExamController extends Controller
             'max_warnings' => 'nullable|integer|min:1|max:20',
             'questions' => 'nullable|array',
             'questions.*.question_text' => 'nullable|string|max:5000',
+            'questions.*.answer_key' => 'nullable|string|max:5000',
             'questions.*.question_type' => 'nullable|in:short_answer,long_answer',
             'questions.*.points' => 'nullable|integer|min:1|max:1000',
         ]);
@@ -121,6 +122,7 @@ class TeacherExamController extends Controller
                 foreach ($validated['questions'] as $index => $question) {
                     $exam->questions()->create([
                         'question_text' => $question['question_text'],
+                        'answer_key' => $question['answer_key'] ?? null,
                         'question_type' => $question['question_type'],
                         'points' => (int) ($question['points'] ?? 1),
                         'position' => $index + 1,

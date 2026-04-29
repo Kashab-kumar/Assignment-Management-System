@@ -1,10 +1,10 @@
-@extends('layouts.student')
-
-@section('title', $exam->title . ' - Secure Exam')
-@section('page-title', $exam->title)
-
-@section('content')
-<meta name="csrf-token" content="{{ csrf_token() }}">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ $exam->title }} - Secure Exam</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
 <style>
     * { 
@@ -352,6 +352,19 @@
     let secureExam = null;
     
     document.addEventListener('DOMContentLoaded', async function() {
+        // Show start button instead of auto-starting
+        document.getElementById('loading-screen').innerHTML = `
+            <div style="text-align: center; padding: 40px;">
+                <h2 style="color: #1f2937; margin-bottom: 20px;">Ready to Start Secure Exam</h2>
+                <p style="color: #6b7280; margin-bottom: 30px;">Click the button below to start the exam in secure mode. This will enter fullscreen mode.</p>
+                <button onclick="startSecureExam()" style="padding: 15px 40px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: 600;">
+                    Start Exam
+                </button>
+            </div>
+        `;
+    });
+
+    async function startSecureExam() {
         try {
             // Start secure exam session
             const response = await fetch('/secure-exam/{{ $exam->id }}/start', {
@@ -361,43 +374,62 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 }
             });
-            
+
             const data = await response.json();
-            
+
             if (!response.ok) {
-                throw new Error(data.error || 'Failed to start exam session');
+                let errorMessage = data.error || 'Failed to start exam session';
+                if (data.starts_at) {
+                    const startDate = new Date(data.starts_at);
+                    errorMessage += '. Exam starts at ' + startDate.toLocaleString();
+                }
+                throw new Error(errorMessage);
             }
-            
+
             // Initialize secure exam browser
+            console.log('Exam duration from DB: {{ $exam->duration_minutes ?? "NULL" }}');
+            console.log('Remaining time from server:', data.remaining_time);
+
             secureExam = new SecureExamBrowser({
                 examId: {{ $exam->id }},
                 sessionId: data.session_id,
-                maxViolations: {{ $exam->max_violations }},
-                maxWarnings: {{ $exam->max_warnings }}
+                maxViolations: {{ $exam->max_violations ?? 3 }},
+                maxWarnings: {{ $exam->max_warnings ?? 5 }},
+                duration: {{ $exam->duration_minutes ?? 0 }}
             });
-            
+
+            // Initialize timer with remaining time from response
+            if (data.remaining_time !== undefined) {
+                secureExam.updateTimer(data.remaining_time);
+            }
+
             // Hide loading screen and show exam interface
             document.getElementById('loading-screen').style.display = 'none';
             document.getElementById('exam-interface').style.display = 'block';
-            
+
             // Auto-save answers every 30 seconds
             setInterval(autoSaveAnswers, 30000);
-            
+
         } catch (error) {
             console.error('Failed to start secure exam:', error);
-            
+
             // Show error message
             document.getElementById('loading-screen').innerHTML = `
-                <div style="text-align: center; color: #dc2626;">
+                <div style="text-align: center; color: #dc2626; padding: 40px;">
                     <h2>Failed to Start Secure Exam</h2>
-                    <p style="margin-top: 10px;">${error.message}</p>
-                    <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        Retry
-                    </button>
+                    <p style="margin-top: 10px; font-size: 16px;">${error.message}</p>
+                    <div style="margin-top: 20px;">
+                        <button onclick="location.reload()" style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">
+                            Retry
+                        </button>
+                        <a href="/student/exams" style="padding: 10px 20px; background: #6b7280; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block;">
+                            Back to Exams
+                        </a>
+                    </div>
                 </div>
             `;
         }
-    });
+    }
     
     function autoSaveAnswers() {
         const formData = new FormData(document.getElementById('exam-form'));
@@ -428,4 +460,5 @@
         }
     });
 </script>
-@endsection
+</body>
+</html>

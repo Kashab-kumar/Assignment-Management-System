@@ -40,4 +40,9 @@ class CourseModule extends Model
             ->orderBy('position')
             ->orderBy('id');
     }
+
+    public function units()
+    {
+        return $this->hasMany(Unit::class, 'module_id')->orderBy('order')->orderBy('id');
+    }
 }

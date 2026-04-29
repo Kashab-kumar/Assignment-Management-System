@@ -497,6 +497,7 @@
                         
                         <div class="module-actions">
                             <a href="{{ route('teacher.modules.show', $module) }}" class="btn btn-primary">Manage Module</a>
+                            <a href="{{ route('teacher.modules.show', $module) }}#unit-outline" class="btn btn-success">Manage Units</a>
                             <a href="{{ route('teacher.modules.edit', $module) }}" class="btn btn-secondary">Edit Module</a>
                         </div>
                     </div>

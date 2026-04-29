@@ -195,18 +195,45 @@ class StudentExamController extends Controller
         }
 
         DB::transaction(function () use ($exam, $student, $submittedAnswers) {
+            $totalScore = 0;
+
             foreach ($exam->questions as $question) {
+                $studentAnswer = trim((string) $submittedAnswers[$question->id]);
+                $correctAnswer = trim((string) ($question->answer_key ?? ''));
+
                 ExamAnswer::create([
                     'exam_question_id' => $question->id,
                     'student_id' => $student->id,
                     'exam_id' => $exam->id,
-                    'answer_text' => trim((string) $submittedAnswers[$question->id]),
+                    'answer_text' => $studentAnswer,
                 ]);
+
+                // Auto-grade: compare student answer with answer key
+                if ($correctAnswer !== '' && $studentAnswer !== '') {
+                    // Case-insensitive comparison with trimming
+                    $isCorrect = strtolower(trim($studentAnswer)) === strtolower(trim($correctAnswer));
+
+                    if ($isCorrect) {
+                        $totalScore += $question->points;
+                    }
+                }
             }
+
+            // Save the auto-calculated score
+            ExamResult::updateOrCreate(
+                [
+                    'student_id' => $student->id,
+                    'exam_id' => $exam->id,
+                ],
+                [
+                    'score' => $totalScore,
+                    'remarks' => 'Auto-graded',
+                ]
+            );
         });
 
         return redirect()->route('student.exams.show', $exam)
-            ->with('success', 'Your answers have been submitted successfully.');
+            ->with('success', 'Your answers have been submitted and auto-graded successfully.');
     }
 
     private function ensureExamAccess(Exam $exam, int $studentId, ?int $courseId): void

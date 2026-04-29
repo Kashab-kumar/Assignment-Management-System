@@ -428,6 +428,11 @@
                                     <label>Question Text <span class="required">*</span></label>
                                     <textarea name="questions[{{ $index }}][question_text]" class="form-control" rows="3" required>{{ $question['question_text'] ?? '' }}</textarea>
                                 </div>
+                                <div class="form-group">
+                                    <label>Answer Key (Correct Answer) <span class="required">*</span></label>
+                                    <textarea name="questions[{{ $index }}][answer_key]" class="form-control" rows="2" placeholder="Enter the correct answer for auto-grading">{{ $question['answer_key'] ?? '' }}</textarea>
+                                    <small style="color: #6b7280;">This will be used to automatically grade student answers</small>
+                                </div>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label>Question Type</label>
@@ -483,6 +488,11 @@ function addQuestion() {
                 <label>Question Text <span class="required">*</span></label>
                 <textarea name="questions[${questionCount}][question_text]" class="form-control" rows="3" required></textarea>
             </div>
+            <div class="form-group">
+                <label>Answer Key (Correct Answer) <span class="required">*</span></label>
+                <textarea name="questions[${questionCount}][answer_key]" class="form-control" rows="2" placeholder="Enter the correct answer for auto-grading"></textarea>
+                <small style="color: #6b7280;">This will be used to automatically grade student answers</small>
+            </div>
             <div class="form-row">
                 <div class="form-group">
                     <label>Question Type</label>
@@ -498,7 +508,7 @@ function addQuestion() {
             </div>
         </div>
     `;
-    
+
     container.insertAdjacentHTML('beforeend', questionHtml);
     questionCount++;
 }

@@ -4,37 +4,67 @@ class SecureExamBrowser {
         this.sessionId = options.sessionId;
         this.maxViolations = options.maxViolations || 3;
         this.maxWarnings = options.maxWarnings || 5;
+        this.duration = options.duration || null;
         this.heartbeatInterval = null;
         this.fullscreenInterval = null;
         this.isActive = false;
         this.violations = 0;
         this.warnings = 0;
         this.startTime = null;
-        this.duration = null;
-        
+        this.remainingTime = this.duration ? this.duration * 60 : null; // Convert to seconds
+
         this.init();
     }
 
     async init() {
         try {
             // Request fullscreen
-            await this.requestFullscreen();
-            
+            try {
+                await this.requestFullscreen();
+            } catch (error) {
+                console.error('Fullscreen request failed:', error);
+                this.handleFatalError('Fullscreen request failed: ' + error.message + '. Please ensure you interact with the page first and allow fullscreen.');
+                return;
+            }
+
             // Start monitoring
-            this.startMonitoring();
-            
+            try {
+                this.startMonitoring();
+            } catch (error) {
+                console.error('Monitoring start failed:', error);
+                this.handleFatalError('Failed to start monitoring: ' + error.message);
+                return;
+            }
+
             // Setup event listeners
-            this.setupEventListeners();
-            
+            try {
+                this.setupEventListeners();
+            } catch (error) {
+                console.error('Event listeners setup failed:', error);
+                this.handleFatalError('Failed to setup event listeners: ' + error.message);
+                return;
+            }
+
             // Start heartbeat
-            this.startHeartbeat();
-            
+            try {
+                this.startHeartbeat();
+            } catch (error) {
+                console.error('Heartbeat start failed:', error);
+                this.handleFatalError('Failed to start heartbeat: ' + error.message);
+                return;
+            }
+
+            // Start countdown timer if duration is set
+            if (this.remainingTime !== null) {
+                this.startCountdown();
+            }
+
             this.isActive = true;
             this.showNotification('Secure exam mode activated', 'success');
-            
+
         } catch (error) {
             console.error('Failed to initialize secure exam:', error);
-            this.handleFatalError('Failed to initialize secure exam mode');
+            this.handleFatalError('Failed to initialize secure exam mode: ' + error.message);
         }
     }
 
@@ -198,8 +228,11 @@ class SecureExamBrowser {
                         throw new Error(data.error || 'Heartbeat failed');
                     }
                 } else {
-                    // Update remaining time display
-                    this.updateTimer(data.remaining_time);
+                    // Update remaining time display from server
+                    if (data.remaining_time !== undefined) {
+                        this.remainingTime = data.remaining_time;
+                    }
+                    this.updateTimer(this.remainingTime);
                     this.updateViolationCounters(data.violations, data.warnings);
                 }
 
@@ -209,6 +242,21 @@ class SecureExamBrowser {
                 setTimeout(() => this.startHeartbeat(), 5000);
             }
         }, 30000); // Every 30 seconds
+    }
+
+    startCountdown() {
+        // Update timer every second
+        setInterval(() => {
+            if (this.remainingTime !== null && this.remainingTime > 0) {
+                this.remainingTime--;
+                this.updateTimer(this.remainingTime);
+
+                // Auto-submit when time runs out
+                if (this.remainingTime <= 0) {
+                    this.submitExam();
+                }
+            }
+        }, 1000);
     }
 
     async handleViolation(type, details = {}) {

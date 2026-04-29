@@ -339,6 +339,73 @@
         </div>
     @endif
 
+    <div class="activities-section" id="unit-outline">
+        <div class="section-header">
+            <h2 class="section-title">Unit Outline</h2>
+            <button type="button" class="btn btn-primary" onclick="showAddUnitForm()">+ Add Unit</button>
+        </div>
+
+        <div id="add-unit-form" style="display: none; margin-bottom: 24px; padding: 20px; background: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb;">
+            <form method="POST" action="{{ route('teacher.modules.units.store', $module) }}" enctype="multipart/form-data">
+                @csrf
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1f2937;">Unit Title *</label>
+                    <input type="text" name="title" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;" placeholder="e.g., Chapter 1: Introduction">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1f2937;">Description</label>
+                    <textarea name="description" rows="3" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;" placeholder="Unit description and topics covered..."></textarea>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1f2937;">Import Unit Outline File (PDF, DOC, DOCX, TXT)</label>
+                    <input type="file" name="unit_file" accept=".pdf,.doc,.docx,.txt" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;">
+                    <small style="color: #6b7280;">Upload a file containing the unit outline. The content will be extracted and used for AI marking.</small>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1f2937;">Order</label>
+                    <input type="number" name="order" value="{{ $module->units->count() + 1 }}" style="width: 100px; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;">
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button type="submit" class="btn btn-success">Save Unit</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideAddUnitForm()">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        @if($module->units->count() > 0)
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                @foreach($module->units as $unit)
+                    <div class="activity-card" id="unit-{{ $unit->id }}">
+                        <div class="activity-header">
+                            <div class="activity-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                                {{ $unit->order }}
+                            </div>
+                            <div style="flex: 1;">
+                                <div class="activity-title">{{ $unit->title }}</div>
+                                @if($unit->description)
+                                    <div class="activity-type">{{ Str::limit($unit->description, 100) }}</div>
+                                @endif
+                            </div>
+                            <div class="activity-actions">
+                                <button type="button" class="btn btn-secondary" onclick="editUnit({{ $unit->id }}, '{{ $unit->title }}', '{{ $unit->description ?? '' }}', {{ $unit->order }})">Edit</button>
+                                <form method="POST" action="{{ route('teacher.units.destroy', $unit) }}" style="display: inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-secondary" style="background: #fee2e2; color: #dc2626;" onclick="return confirm('Are you sure you want to delete this unit?')">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <div class="empty-activities">
+                <div class="empty-activities-icon">📚</div>
+                <p>No units added yet. Click "+ Add Unit" to create your unit outline.</p>
+            </div>
+        @endif
+    </div>
+
     <div class="activities-section">
         <div class="section-header">
             <h2 class="section-title">Module Activities</h2>
@@ -425,4 +492,50 @@
         });
     });
 </script>
-@endsection
+
+@push('scripts')
+<script>
+function showAddUnitForm() {
+    document.getElementById('add-unit-form').style.display = 'block';
+}
+
+function hideAddUnitForm() {
+    document.getElementById('add-unit-form').style.display = 'none';
+}
+
+function editUnit(unitId, title, description, order) {
+    const unitCard = document.getElementById('unit-' + unitId);
+    const currentContent = unitCard.innerHTML;
+
+    unitCard.innerHTML = `
+        <form method="POST" action="{{ route('teacher.units.update', ':unitId') }}" style="width: 100%;">
+            @csrf
+            @method('PUT')
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1f2937;">Unit Title *</label>
+                <input type="text" name="title" value="${title}" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;">
+            </div>
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1f2937;">Description</label>
+                <textarea name="description" rows="3" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;">${description}</textarea>
+            </div>
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1f2937;">Order</label>
+                <input type="number" name="order" value="${order}" style="width: 100px; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;">
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button type="submit" class="btn btn-success">Update Unit</button>
+                <button type="button" class="btn btn-secondary" onclick="cancelEditUnit(${unitId}, \`${currentContent.replace(/`/g, '\\`').replace(/\n/g, '')}\`)">Cancel</button>
+            </div>
+        </form>
+    `;
+
+    // Replace the unitId placeholder in the form action
+    unitCard.querySelector('form').action = unitCard.querySelector('form').action.replace(':unitId', unitId);
+}
+
+function cancelEditUnit(unitId, originalContent) {
+    document.getElementById('unit-' + unitId).innerHTML = originalContent;
+}
+</script>
+@endpush
