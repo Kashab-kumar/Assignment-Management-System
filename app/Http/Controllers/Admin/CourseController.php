@@ -122,6 +122,41 @@ class CourseController extends Controller
         return back()->with('success', 'Module added successfully.');
     }
 
+    public function updateModuleTeacher(Request $request, Course $course, $moduleId)
+    {
+        if (!Schema::hasTable('course_modules')) {
+            return back()->withErrors(['error' => 'Course modules table not found. Please run migrations first.']);
+        }
+
+        $module = $course->modules()->findOrFail($moduleId);
+
+        $validated = $request->validate([
+            'teacher_id' => 'nullable|exists:teachers,id',
+        ]);
+
+        $module->update([
+            'teacher_id' => $validated['teacher_id'] ?? null,
+        ]);
+
+        if (!empty($validated['teacher_id'])) {
+            $course->teachers()->syncWithoutDetaching([(int) $validated['teacher_id']]);
+        }
+
+        return back()->with('success', 'Module teacher updated successfully.');
+    }
+
+    public function destroyModule(Course $course, $moduleId)
+    {
+        if (!Schema::hasTable('course_modules')) {
+            return back()->withErrors(['error' => 'Course modules table not found. Please run migrations first.']);
+        }
+
+        $module = $course->modules()->findOrFail($moduleId);
+        $module->delete();
+
+        return back()->with('success', 'Module deleted successfully.');
+    }
+
     public function create()
     {
         $categoryOptions = Course::query()

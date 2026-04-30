@@ -124,7 +124,9 @@ Route::post('/submissions/{submission}/grade-ai', [TeacherAssignmentController::
     Route::get('/courses', [TeacherCourseController::class, 'index'])->name('courses.index');
     Route::get('/courses/{course}', [TeacherCourseController::class, 'show'])->name('courses.show');
     Route::get('/courses/{course}/modules/{module}', [TeacherCourseController::class, 'showModule'])->name('courses.modules.show');
+    Route::get('/courses/{course}/modules/{module}/items/create', [TeacherCourseController::class, 'createModuleItem'])->name('courses.modules.items.create');
     Route::post('/courses/{course}/modules/{module}/items', [TeacherCourseController::class, 'storeModuleItem'])->name('courses.modules.items.store');
+    Route::post('/api/generate-content', [TeacherCourseController::class, 'generateAIContent'])->name('api.generate-content');
 
     // Students / Grades / Reports
     Route::get('/students', [TeacherStudentController::class, 'index'])->name('students.index');
@@ -182,6 +184,8 @@ Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(functi
     Route::put('/courses/{course}', [CourseController::class, 'update'])->name('courses.update');
     Route::delete('/courses/{course}', [CourseController::class, 'destroy'])->name('courses.destroy');
     Route::post('/courses/{course}/modules', [CourseController::class, 'storeModule'])->name('courses.modules.store');
+    Route::put('/courses/{course}/modules/{module}/update-teacher', [CourseController::class, 'updateModuleTeacher'])->name('courses.modules.update-teacher');
+    Route::delete('/courses/{course}/modules/{module}', [CourseController::class, 'destroyModule'])->name('courses.modules.destroy');
 
     // Reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');

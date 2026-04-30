@@ -95,13 +95,16 @@
         color: #666;
     }
     .modules-grid { display: grid; gap: 12px; margin-top: 12px; }
-    .module-card { background: rgba(0,0,0,0.14); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; }
+    .module-card-link { text-decoration: none; display: block; }
+    .module-card { background: rgba(0,0,0,0.14); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; cursor: pointer; transition: all 0.3s ease; }
+    .module-card-link:hover .module-card { background: rgba(124,58,237,0.15); border-color: rgba(124,58,237,0.4); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(124,58,237,0.2); }
     .module-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
     .module-title { font-size: 15px; font-weight: 700; color: #000000; }
     .module-order { font-size: 11px; color: #000000; background: rgba(148,163,184,0.16); padding: 3px 8px; border-radius: 999px; }
     .module-desc { color: #000000; font-size: 13px; margin-top: 6px; line-height: 1.5; }
     .module-tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
     .module-tag { font-size: 11px; color: #000000; background: rgba(124,58,237,0.18); border: 1px solid rgba(124,58,237,0.3); padding: 3px 8px; border-radius: 999px; }
+    .module-actions { display: flex; gap: 8px; margin-top: 12px; }
     .module-form { margin-top: 12px; display: grid; gap: 10px; background: rgba(0,0,0,0.14); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; }
     .module-form input, .module-form textarea { width: 100%; }
     .module-form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
@@ -186,6 +189,26 @@
                             </div>
                             <div class="module-desc" style="margin-top: 10px; margin-bottom: 2px;">
                                 Teacher: <strong>{{ $module->teacher?->name ?? 'Not assigned' }}</strong>
+                            </div>
+                            <div class="module-actions">
+                                <form action="{{ route('admin.courses.modules.update-teacher', [$course, $module]) }}" method="POST" style="display: flex; gap: 8px; align-items: center; flex: 1;">
+                                    @csrf
+                                    @method('PUT')
+                                    <select name="teacher_id" style="padding: 6px; border-radius: 4px; border: 1px solid #ddd; flex: 1;">
+                                        <option value="">Assign Teacher</option>
+                                        @foreach($availableTeachers as $teacher)
+                                            <option value="{{ $teacher->id }}" {{ $module->teacher_id == $teacher->id ? 'selected' : '' }}>
+                                                {{ $teacher->name }}{{ $teacher->teacher_id ? ' (' . $teacher->teacher_id . ')' : '' }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <button type="submit" class="btn btn-edit" style="padding: 6px 12px; font-size: 12px;">Update</button>
+                                </form>
+                                <form action="{{ route('admin.courses.modules.destroy', [$course, $module]) }}" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-delete" style="padding: 6px 12px; font-size: 12px;" onclick="return confirm('Delete this module?')">Delete</button>
+                                </form>
                             </div>
 
                             @if($moduleItemsEnabled)

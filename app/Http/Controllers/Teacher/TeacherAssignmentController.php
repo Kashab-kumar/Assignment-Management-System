@@ -16,16 +16,19 @@ class TeacherAssignmentController extends Controller
     public function index(Request $request)
     {
         $selectedCourseId = $request->integer('course_id') ?: null;
+        $selectedModuleId = $request->integer('module_id') ?: null;
         $assignedCourseIds = $this->assignedCourseIds();
 
         if ($selectedCourseId && !in_array($selectedCourseId, $assignedCourseIds, true)) {
             $selectedCourseId = null;
+            $selectedModuleId = null;
         }
 
         $assignments = Assignment::with(['course'])
             ->withCount('submissions')
             ->whereIn('course_id', $assignedCourseIds)
             ->when($selectedCourseId, fn ($q) => $q->where('course_id', $selectedCourseId))
+            ->when($selectedModuleId, fn ($q) => $q->where('module_id', $selectedModuleId))
             ->latest()
             ->get();
 
@@ -36,7 +39,7 @@ class TeacherAssignmentController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('teacher.assignments.index', compact('assignments', 'courses', 'selectedCourseId'));
+        return view('teacher.assignments.index', compact('assignments', 'courses', 'selectedCourseId', 'selectedModuleId'));
     }
 
     public function create(Request $request)

@@ -18,11 +18,13 @@ class TeacherExamController extends Controller
     public function index(Request $request)
     {
         $selectedCourseId = $request->integer('course_id') ?: null;
+        $selectedModuleId = $request->integer('module_id') ?: null;
         $activeFilter = $request->query('filter', 'all');
         $assignedCourseIds = $this->assignedCourseIds();
 
         if ($selectedCourseId && !in_array($selectedCourseId, $assignedCourseIds, true)) {
             $selectedCourseId = null;
+            $selectedModuleId = null;
         }
 
         $exams = Exam::withCount('results')
@@ -30,6 +32,7 @@ class TeacherExamController extends Controller
             ->withAvg('results', 'score')
             ->whereIn('course_id', $assignedCourseIds)
             ->when($selectedCourseId, fn ($q) => $q->where('course_id', $selectedCourseId))
+            ->when($selectedModuleId, fn ($q) => $q->where('module_id', $selectedModuleId))
             ->when($activeFilter !== 'all', function ($query) use ($activeFilter) {
                 $query->where('type', $activeFilter);
             })
@@ -43,7 +46,7 @@ class TeacherExamController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('teacher.exams.index', compact('exams', 'courses', 'selectedCourseId', 'activeFilter'));
+        return view('teacher.exams.index', compact('exams', 'courses', 'selectedCourseId', 'selectedModuleId', 'activeFilter'));
     }
 
     public function create(Request $request)
@@ -67,12 +70,13 @@ class TeacherExamController extends Controller
 
         $courses = Course::query()
             ->whereIn('id', $assignedCourseIds)
+            ->with(['modules' => fn ($query) => $query->orderBy('position')])
             ->orderBy('category_name')
             ->orderBy('class_name')
             ->orderBy('name')
             ->get();
 
-        return view('teacher.exams.create', compact('courses', 'selectedCourseId', 'mode'));
+        return view('teacher.exams.create', compact('courses', 'selectedCourseId', 'selectedModuleId', 'mode'));
     }
 
     public function store(Request $request)
@@ -81,6 +85,7 @@ class TeacherExamController extends Controller
 
         $validated = $request->validate([
             'course_id' => ['required', Rule::in($assignedCourseIds)],
+            'module_id' => 'nullable|exists:course_modules,id',
             'type' => 'required|in:exam,test',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -105,6 +110,7 @@ class TeacherExamController extends Controller
         DB::transaction(function () use ($validated) {
             $exam = Exam::create([
                 'course_id' => $validated['course_id'],
+                'module_id' => $validated['module_id'] ?? null,
                 'type' => $validated['type'],
                 'title' => $validated['title'],
                 'description' => $validated['description'] ?? null,

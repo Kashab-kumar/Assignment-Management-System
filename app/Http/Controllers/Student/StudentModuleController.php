@@ -154,6 +154,7 @@ class StudentModuleController extends Controller
         $assignments = Assignment::query()
             ->with(['submissions' => fn ($query) => $query->where('student_id', $student->id)])
             ->where('course_id', $module->course_id)
+            ->where('module_id', $module->id)
             ->latest('due_date')
             ->take(8)
             ->get();
@@ -164,20 +165,21 @@ class StudentModuleController extends Controller
                 'answers' => fn ($query) => $query->where('student_id', $student->id),
             ])
             ->where('course_id', $module->course_id)
+            ->where('module_id', $module->id)
             ->orderByDesc('exam_date')
             ->take(8)
             ->get();
 
         $gradedAssignments = $student->submissions()
             ->where('status', 'graded')
-            ->whereHas('assignment', fn ($query) => $query->where('course_id', $module->course_id))
+            ->whereHas('assignment', fn ($query) => $query->where('course_id', $module->course_id)->where('module_id', $module->id))
             ->with('assignment')
             ->latest('submitted_at')
             ->take(6)
             ->get();
 
         $examResults = $student->examResults()
-            ->whereHas('exam', fn ($query) => $query->where('course_id', $module->course_id))
+            ->whereHas('exam', fn ($query) => $query->where('course_id', $module->course_id)->where('module_id', $module->id))
             ->with('exam')
             ->latest()
             ->take(6)

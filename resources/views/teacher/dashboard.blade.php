@@ -68,31 +68,4 @@
     </div>
 </div>
 
-<div class="section">
-    <h2>Recent Submissions</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Student</th>
-                <th>Assignment</th>
-                <th>Submitted</th>
-                <th>Status</th>
-                <th>Score</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($recentSubmissions as $submission)
-            <tr>
-                <td>{{ $submission->student->name }}</td>
-                <td>{{ $submission->assignment->title }}</td>
-                <td>{{ $submission->submitted_at->format('M d, Y h:i A') }}</td>
-                <td><span class="badge badge-{{ $submission->status }}">{{ ucfirst($submission->status) }}</span></td>
-                <td>{{ $submission->score ?? '-' }}/{{ $submission->assignment->max_score }}</td>
-            </tr>
-            @empty
-            <tr><td colspan="5" class="empty">No submissions yet</td></tr>
-            @endforelse
-        </tbody>
-    </table>
-</div>
 @endsection

@@ -11,27 +11,53 @@
     .header p { margin: 6px 0 0; color: #475569; }
     .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
     .chip { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 4px 10px; font-size: 12px; }
-    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-    .section-title { margin: 0 0 10px; color: #111827; }
-    .list { display: grid; gap: 10px; }
-    .item { border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px; }
-    .item h4 { margin: 0 0 6px; color: #111827; }
-    .item p { margin: 0; color: #6b7280; font-size: 13px; }
-    .actions { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
-    .btn { display: inline-block; text-decoration: none; border-radius: 8px; padding: 7px 12px; font-size: 13px; }
-    .btn-primary { background: #2459ff; color: #fff; }
-    .btn-muted { background: #f3f4f6; color: #111827; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }
-    th { font-size: 12px; color: #64748b; text-transform: uppercase; }
-    td { color: #111827; }
-    .empty { color: #6b7280; text-align: center; padding: 12px; }
-    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+    .breadcrumb { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 14px; }
+    .breadcrumb a { color: #7c3aed; text-decoration: none; transition: color 0.2s; }
+    .breadcrumb a:hover { color: #5b21b6; text-decoration: underline; }
+    .breadcrumb span { color: #6b7280; }
+    .cards-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+    .card-link { text-decoration: none; display: block; }
+    .card { background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%); color: white; padding: 32px; border-radius: 16px; cursor: pointer; transition: all 0.3s; }
+    .card:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 24px rgba(124,58,237,0.3); }
+    .card h3 { margin: 0 0 8px; font-size: 24px; font-weight: 700; }
+    .card .count { font-size: 48px; font-weight: 800; }
+    .card .icon { font-size: 32px; opacity: 0.8; }
+    @media (max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } }
+
+    /* Unit Outline Styles */
+    .section-title { font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 12px; }
+    .items-list { display: grid; gap: 10px; }
+    .item-card { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
+    .item-card:hover { background: #f3f4f6; border-color: #d1d5db; }
+    .item-info { flex: 1; }
+    .item-title { font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 4px; }
+    .item-meta { display: flex; align-items: center; gap: 8px; }
+    .item-type { font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 500; }
+    .item-type.video { background: #dbeafe; color: #1e40af; }
+    .item-type.note { background: #dcfce7; color: #166534; }
+    .item-type.quiz { background: #fef3c7; color: #92400e; }
+    .item-type.test { background: #fce7f3; color: #9d174d; }
+    .item-type.other { background: #e5e7eb; color: #374151; }
+    .item-actions { display: flex; gap: 6px; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; text-decoration: none; border: none; cursor: pointer; transition: all 0.2s; }
+    .btn-edit { background: #3b82f6; color: white; }
+    .btn-edit:hover { background: #2563eb; }
+    .btn-delete { background: #ef4444; color: white; }
+    .btn-delete:hover { background: #dc2626; }
+    .btn-add { background: #7c3aed; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; display: inline-block; font-weight: 500; margin-top: 12px; }
+    .btn-add:hover { background: #6d28d9; }
+    .empty-state { text-align: center; padding: 24px; color: #6b7280; font-size: 14px; }
 </style>
 
 <div class="wrap">
     <div class="panel header">
-        <a href="{{ route('teacher.courses.show', $course) }}" class="btn btn-muted" style="margin-bottom:10px;">&larr; Back to Course</a>
+        <nav class="breadcrumb">
+            <a href="{{ route('teacher.courses.index') }}">Courses</a>
+            <span>/</span>
+            <a href="{{ route('teacher.courses.show', $course) }}">{{ $course->name }}</a>
+            <span>/</span>
+            <span>{{ $module->title }}</span>
+        </nav>
         <h2>{{ $module->title }}</h2>
         <p>{{ $course->name }} ({{ $course->code }})</p>
         <p>{{ $module->description ?: 'No module description provided.' }}</p>
@@ -43,112 +69,57 @@
         </div>
     </div>
 
-    <div class="panel">
-        <h3 class="section-title">Assignments</h3>
-        <div class="actions">
-            <a class="btn btn-primary" href="{{ route('teacher.assignments.create', ['course_id' => $course->id]) }}">Create Assignment</a>
-            <a class="btn btn-muted" href="{{ route('teacher.assignments.index', ['course_id' => $course->id]) }}">View All Assignments</a>
-        </div>
-        <div class="list" style="margin-top:10px;">
-            @forelse($assignments as $assignment)
-                <div class="item">
-                    <h4>{{ $assignment->title }}</h4>
-                    <p>Due {{ $assignment->due_date?->format('M d, Y') ?: '-' }} | Submissions: {{ $assignment->submissions_count }}</p>
-                    <div class="actions">
-                        <a class="btn btn-primary" href="{{ route('teacher.assignments.show', $assignment) }}">Open Assignment</a>
-                    </div>
-                </div>
-            @empty
-                <div class="empty">No assignments found for this module's course.</div>
-            @endforelse
-        </div>
-    </div>
-
-    <div class="panel">
-        <h3 class="section-title">Exams</h3>
-        <div class="actions">
-            <a class="btn btn-primary" href="{{ route('teacher.exams.create', ['course_id' => $course->id]) }}">Create Exam</a>
-            <a class="btn btn-muted" href="{{ route('teacher.exams.index', ['course_id' => $course->id]) }}">View All Exams</a>
-        </div>
-        <div class="list" style="margin-top:10px;">
-            @forelse($exams as $exam)
-                <div class="item">
-                    <h4>{{ $exam->title }}</h4>
-                    <p>{{ ucfirst($exam->type) }} on {{ $exam->exam_date?->format('M d, Y') ?: '-' }} | Results: {{ $exam->results_count }}</p>
-                    <div class="actions">
-                        <a class="btn btn-primary" href="{{ route('teacher.exams.show', $exam) }}">Open Exam</a>
-                    </div>
-                </div>
-            @empty
-                <div class="empty">No exams found for this module's course.</div>
-            @endforelse
-        </div>
-    </div>
-
-    <div class="panel">
-        <h3 class="section-title">Recents</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Type</th>
-                    <th>Title</th>
-                    <th>Detail</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($recents as $recent)
-                    <tr>
-                        <td>{{ ucfirst(str_replace('_', ' ', $recent['kind'])) }}</td>
-                        <td>{{ $recent['title'] }}</td>
-                        <td>{{ $recent['subtitle'] }}</td>
-                        <td>{{ $recent['date']->format('M d, Y') }}</td>
-                    </tr>
-                @empty
-                    <tr><td colspan="4" class="empty">No recent activity for this module yet.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
-    <div class="panel">
-        <h3 class="section-title">Grade Snapshot</h3>
-        <div class="grid">
-            <div>
-                <h4 style="margin:0 0 8px;">Recent Submissions</h4>
-                <table>
-                    <thead><tr><th>Student</th><th>Assignment</th><th>Status</th></tr></thead>
-                    <tbody>
-                        @forelse($recentSubmissions as $submission)
-                            <tr>
-                                <td>{{ $submission->student?->name ?? '-' }}</td>
-                                <td>{{ $submission->assignment?->title ?? '-' }}</td>
-                                <td>{{ ucfirst($submission->status) }}</td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="3" class="empty">No submission records.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
+    <div class="cards-grid">
+        <a href="{{ route('teacher.assignments.index', ['course_id' => $course->id, 'module_id' => $module->id]) }}" class="card-link">
+            <div class="card">
+                <h3>Assignments</h3>
+                <div class="count">{{ $assignments->count() }}</div>
             </div>
-            <div>
-                <h4 style="margin:0 0 8px;">Recent Exam Results</h4>
-                <table>
-                    <thead><tr><th>Student</th><th>Exam</th><th>Score</th></tr></thead>
-                    <tbody>
-                        @forelse($recentResults as $result)
-                            <tr>
-                                <td>{{ $result->student?->name ?? '-' }}</td>
-                                <td>{{ $result->exam?->title ?? '-' }}</td>
-                                <td>{{ $result->score }}</td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="3" class="empty">No exam result records.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
+        </a>
+        <a href="{{ route('teacher.exams.index', ['course_id' => $course->id, 'module_id' => $module->id]) }}" class="card-link">
+            <div class="card">
+                <h3>Exams</h3>
+                <div class="count">{{ $exams->count() }}</div>
             </div>
-        </div>
+        </a>
+    </div>
+    <div style="margin-top: 20px; display: flex; gap: 12px;">
+        <a href="{{ route('teacher.assignments.create', ['course_id' => $course->id, 'module_id' => $module->id]) }}" style="padding: 10px 20px; background: #10b981; color: white; text-decoration: none; border-radius: 8px; font-weight: 500;">+ Create Assignment</a>
+        <a href="{{ route('teacher.exams.create', ['course_id' => $course->id, 'module_id' => $module->id]) }}" style="padding: 10px 20px; background: #7c3aed; color: white; text-decoration: none; border-radius: 8px; font-weight: 500;">+ Create Exam</a>
+    </div>
+
+    <div class="panel" style="margin-top: 20px;">
+        <h3 class="section-title">Unit Outline</h3>
+        @if($module->items && $module->items->count() > 0)
+            <div class="items-list">
+                @foreach($module->items as $item)
+                    <div class="item-card">
+                        <div class="item-info">
+                            <div class="item-title">{{ $item->title }}</div>
+                            <div class="item-meta">
+                                <span class="item-type {{ $item->type }}">{{ ucfirst($item->type) }}</span>
+                                @if($item->file_name)
+                                    <span style="font-size: 11px; color: #10b981;">📎 {{ $item->file_name }}</span>
+                                @endif
+                                @if($item->creator)
+                                    <span style="font-size: 11px; color: #6b7280;">by {{ $item->creator->name }}</span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="item-actions">
+                            @if($item->file_path)
+                                <a href="{{ asset('storage/' . $item->file_path) }}" target="_blank" class="btn-sm" style="background: #10b981; color: white; text-decoration: none;">Download</a>
+                            @endif
+                            <button class="btn-sm btn-edit">Edit</button>
+                            <button class="btn-sm btn-delete" onclick="return confirm('Delete this item?')">Delete</button>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <div class="empty-state">No content has been added to this unit yet.</div>
+        @endif
+        <a href="{{ route('teacher.courses.modules.items.create', [$course, $module]) }}" class="btn-add">+ Add Content</a>
     </div>
 </div>
 @endsection

@@ -306,16 +306,28 @@
 
                 <div class="form-group">
                     <label for="course_id">Course <span class="required">*</span></label>
-                    <select id="course_id" name="course_id" class="form-control" required>
+                    <select id="course_id" name="course_id" class="form-control" required onchange="loadModules(this.value)">
                         <option value="">Select a course</option>
                         @foreach($courses as $course)
                             <option value="{{ $course->id }}" 
+                                    data-modules="{{ json_encode($course->modules ?? []) }}"
                                     {{ old('course_id', $selectedCourseId) == $course->id ? 'selected' : '' }}>
                                 {{ $course->category_name ?: 'Uncategorized' }} / {{ $course->class_name ?: 'Unassigned' }} / {{ $course->name }}
                             </option>
                         @endforeach
                     </select>
                     @error('course_id')
+                        <div class="error-message">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="module_id">Module</label>
+                    <select id="module_id" name="module_id" class="form-control">
+                        <option value="">Select a module (optional)</option>
+                    </select>
+                    <small style="color: #6b7280;">Assign this exam to a specific module</small>
+                    @error('module_id')
                         <div class="error-message">{{ $message }}</div>
                     @enderror
                 </div>
@@ -467,6 +479,7 @@
 
 <script>
 let questionCount = 0;
+const selectedModuleId = {{ $selectedModuleId ?? 'null' }};
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize question count if there are existing questions
@@ -474,7 +487,39 @@ document.addEventListener('DOMContentLoaded', function() {
     if (existingQuestions.length > 0) {
         questionCount = existingQuestions.length;
     }
+
+    // Load modules for initially selected course
+    const courseSelect = document.getElementById('course_id');
+    if (courseSelect.value) {
+        loadModules(courseSelect.value);
+    }
 });
+
+function loadModules(courseId) {
+    const moduleSelect = document.getElementById('module_id');
+    const courseOption = document.querySelector(`#course_id option[value="${courseId}"]`);
+    
+    moduleSelect.innerHTML = '<option value="">Select a module (optional)</option>';
+    
+    if (!courseOption || !courseOption.dataset.modules) {
+        return;
+    }
+    
+    try {
+        const modules = JSON.parse(courseOption.dataset.modules);
+        modules.forEach(module => {
+            const option = document.createElement('option');
+            option.value = module.id;
+            option.textContent = `Module ${module.position}: ${module.title}`;
+            if (module.id == selectedModuleId) {
+                option.selected = true;
+            }
+            moduleSelect.appendChild(option);
+        });
+    } catch (e) {
+        console.error('Error parsing modules:', e);
+    }
+}
 
 function addQuestion() {
     const container = document.getElementById('questions-container');

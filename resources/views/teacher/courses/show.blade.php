@@ -18,25 +18,38 @@
     .students-table th { background: rgba(0,0,0,0.05); padding: 12px 15px; text-align: left; font-weight: 600; color: #64748b; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
     .students-table td { padding: 12px 15px; border-bottom: 1px solid rgba(0,0,0,0.06); color: #475569; }
     .students-table tr:hover { background: rgba(124,58,237,0.03); }
-    .btn { padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 14px; margin-right: 10px; }
+    .btn { padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 14px; margin-right: 10px; cursor: pointer; transition: all 0.2s; display: inline-block; font-weight: 500; }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .btn:active { transform: translateY(0); }
     .btn-back { background: rgba(0,0,0,0.05); color: #1f2937; }
+    .btn-back:hover { background: rgba(0,0,0,0.1); }
     .btn-invite { background: #3b82f6; color: white; }
+    .btn-invite:hover { background: #2563eb; }
     .btn-assign { background: #10b981; color: white; }
+    .btn-assign:hover { background: #059669; }
     .btn-quiz { background: #f59e0b; color: white; }
+    .btn-quiz:hover { background: #d97706; }
     .btn-test { background: #ef4444; color: white; }
+    .btn-test:hover { background: #dc2626; }
     .btn-exam { background: #7c3aed; color: white; }
+    .btn-exam:hover { background: #6d28d9; }
     .stats-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 16px 0 22px; }
-    .stat-card { background: rgba(0,0,0,0.14); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; }
-    .stat-card h4 { margin: 0 0 6px 0; color: #000000; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .stat-card { background: rgba(0,0,0,0.14); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; cursor: pointer; transition: all 0.3s; text-decoration: none; display: block; }
+    .stat-card:hover { background: rgba(124,58,237,0.25); border-color: rgba(124,58,237,0.6); transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 20px rgba(124,58,237,0.3); }
+    .stat-card:hover h4 { text-decoration: underline; color: #7c3aed; }
+    .stat-card h4 { margin: 0 0 6px 0; color: #000000; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; transition: color 0.3s; }
     .stat-card p { margin: 0; font-size: 24px; font-weight: 700; color: #7c3aed; }
     .empty-state { text-align: center; padding: 40px; color: #000000; }
     .related-list { list-style: none; margin-top: 10px; padding: 0; background: rgba(0,0,0,0.14); border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); }
-    .related-list li { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .related-list li { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.08); cursor: pointer; transition: background 0.2s; }
+    .related-list li:hover { background: rgba(124,58,237,0.1); }
+    .related-list li a { cursor: pointer; transition: color 0.2s; }
+    .related-list li a:hover { color: #7c3aed !important; text-decoration: underline; }
     .related-list li:last-child { border-bottom: none; }
     .modules-grid { display: grid; gap: 12px; margin-top: 12px; }
-    .module-card-link { text-decoration: none; display: block; }
-    .module-card { background: rgba(0,0,0,0.14); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; transition: all 0.3s ease; }
-    .module-card-link:hover .module-card { background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.15); transform: translateY(-2px); }
+    .module-card-link { text-decoration: none; display: block; cursor: pointer; }
+    .module-card { background: rgba(0,0,0,0.14); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; transition: all 0.3s ease; cursor: pointer; }
+    .module-card-link:hover .module-card { background: rgba(124,58,237,0.15); border-color: rgba(124,58,237,0.4); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(124,58,237,0.2); }
     .module-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
     .module-title { font-size: 15px; font-weight: 700; color: #000000; }
     .module-order { font-size: 11px; color: #000000; background: rgba(148,163,184,0.16); padding: 3px 8px; border-radius: 999px; }
@@ -78,57 +91,6 @@
     <div class="course-description">{{ $course->description }}</div>
     @endif
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <h4>Assignments</h4>
-            <p>{{ $course->assignments_count }}</p>
-        </div>
-        <div class="stat-card">
-            <h4>Exams / Quizzes / Tests</h4>
-            <p>{{ $course->exams_count }}</p>
-        </div>
-    </div>
-
-    <div style="margin-bottom: 20px;">
-        <a href="{{ route('teacher.courses.index') }}" class="btn btn-back">← Back to Courses</a>
-        <a href="{{ route('teacher.assignments.create', ['course_id' => $course->id]) }}" class="btn btn-assign">Give Assignment</a>
-        <a href="{{ route('teacher.exams.create', ['course_id' => $course->id, 'mode' => 'test']) }}" class="btn btn-test">Create Test</a>
-        <a href="{{ route('teacher.exams.create', ['course_id' => $course->id]) }}" class="btn btn-exam">Create Exam</a>
-        <a href="{{ route('teacher.students.index') }}" class="btn btn-invite">Invite Students</a>
-    </div>
-
-    <div class="students-section">
-        <h3>Enrolled Students ({{ $course->students->count() }})</h3>
-
-        @if($course->students->count() > 0)
-        <table class="students-table">
-            <thead>
-                <tr>
-                    <th>Student ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Joined</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($course->students as $student)
-                <tr>
-                    <td><strong>{{ $student->student_id }}</strong></td>
-                    <td>{{ $student->name }}</td>
-                    <td>{{ $student->email }}</td>
-                    <td>{{ $student->created_at->format('M d, Y') }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-        @else
-        <div class="empty-state">
-            <p>No students enrolled in this course yet.</p>
-            <a href="{{ route('teacher.students.index') }}" class="btn btn-invite" style="margin-top:12px; display:inline-block;">Invite Students</a>
-        </div>
-        @endif
-    </div>
-
     <div class="students-section">
         <h3>Course Modules ({{ $modulesEnabled ? $course->modules->count() : 0 }})</h3>
 
@@ -167,51 +129,10 @@
                                 </div>
                             </div>
                         </a>
-
-                            @if($moduleItemsEnabled)
-                                @if($module->items->isEmpty())
-                                    <div class="module-desc" style="margin-top: 12px;">No teacher content has been added for this module yet.</div>
-                                @else
-                                    <div class="module-items">
-                                        @foreach($module->items as $item)
-                                            <div class="module-item-card">
-                                                <div class="module-item-head">
-                                                    <div class="module-item-title">{{ $item->title }}</div>
-                                                    <span class="module-item-type">{{ $typeLabels[$item->type] ?? ucfirst(str_replace('_', ' ', $item->type)) }}</span>
-                                                </div>
-                                                @if($item->content)
-                                                    <div class="module-item-content">{{ $item->content }}</div>
-                                                @endif
-                                                <div class="module-item-meta">
-                                                    Added by {{ $item->creator?->name ?? 'Teacher' }} on {{ $item->created_at->format('M d, Y') }}
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                @endif
-
-                                                            @endif
-                        </div>
                     @endforeach
                 </div>
             @endif
         @endif
     </div>
-
-    @if($relatedCourses->count() > 0)
-    <div class="students-section">
-        <h3>Other Courses in {{ $course->class_name }} ({{ $relatedCourses->count() }})</h3>
-        <ul class="related-list">
-            @foreach($relatedCourses as $related)
-            <li>
-                <a href="{{ route('teacher.courses.show', $related) }}" style="color:#a78bfa; text-decoration:none;">
-                    {{ $related->name }}
-                </a>
-                <span style="color: #000000; font-size:13px; margin-left:8px;">{{ $related->category_name }}</span>
-            </li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
 </div>
 @endsection

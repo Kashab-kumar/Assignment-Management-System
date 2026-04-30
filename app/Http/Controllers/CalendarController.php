@@ -173,9 +173,9 @@ class CalendarController extends Controller
                 ];
             });
 
-        $events = $assignmentEvents
-            ->merge($examEvents)
-            ->merge($customEvents)
+        $events = collect($assignmentEvents)
+            ->merge(collect($examEvents))
+            ->merge(collect($customEvents))
             ->sortBy(fn ($e) => $e['date']->timestamp)
             ->values();
 

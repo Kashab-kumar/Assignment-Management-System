@@ -102,10 +102,22 @@ class TeacherCourseController extends Controller
         }
 
         $validated = $request->validate([
-            'type' => 'required|in:unit_outline,quiz,test,note',
+            'type' => 'required|in:unit_outline,quiz,test,note,video',
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string|max:2000',
+            'description' => 'nullable|string|max:5000',
+            'file' => 'nullable|file|mimes:pdf,doc,docx,txt|max:10240',
         ]);
+
+        $filePath = null;
+        $fileName = null;
+        $fileType = null;
+
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $fileName = $file->getClientOriginalName();
+            $fileType = $file->getClientOriginalExtension();
+            $filePath = $file->store('module-files', 'public');
+        }
 
         $nextPosition = ($module->items()->max('position') ?? 0) + 1;
 
@@ -113,6 +125,9 @@ class TeacherCourseController extends Controller
             'type' => $validated['type'],
             'title' => $validated['title'],
             'content' => $validated['description'] ?? null,
+            'file_path' => $filePath,
+            'file_name' => $fileName,
+            'file_type' => $fileType,
             'position' => $nextPosition,
             'created_by' => $request->user()->id,
             'is_active' => true,
@@ -140,6 +155,7 @@ class TeacherCourseController extends Controller
         $assignments = Assignment::query()
             ->withCount('submissions')
             ->where('course_id', $course->id)
+            ->where('module_id', $module->id)
             ->latest('due_date')
             ->take(10)
             ->get();
@@ -148,6 +164,7 @@ class TeacherCourseController extends Controller
             ->withCount('results')
             ->withAvg('results', 'score')
             ->where('course_id', $course->id)
+            ->where('module_id', $module->id)
             ->orderByDesc('exam_date')
             ->take(10)
             ->get();
@@ -213,6 +230,163 @@ class TeacherCourseController extends Controller
             'recents',
             'moduleItemsEnabled'
         ));
+    }
+
+    public function createModuleItem(Course $course, CourseModule $module)
+    {
+        abort_unless(in_array($course->id, $this->assignedCourseIds(), true), 403);
+
+        if ($module->course_id !== $course->id) {
+            abort(404);
+        }
+
+        $teacher = auth()->user()->teacher;
+        if (!empty($module->teacher_id) && (int) $module->teacher_id !== (int) $teacher->id) {
+            abort(403, 'You can only add content to modules assigned to you.');
+        }
+
+        return view('teacher.courses.module-item-create', compact('course', 'module'));
+    }
+
+    public function generateAIContent(Request $request)
+    {
+        try {
+            $title = $request->input('title', '');
+            $type = $request->input('type', '');
+            $itemsCount = $request->input('items_count', 3);
+            $difficulty = $request->input('difficulty', 'intermediate');
+            $includeExamples = $request->input('include_examples', false);
+            $includeSummary = $request->input('include_summary', false);
+            $includeKeyPoints = $request->input('include_key_points', false);
+            $includePractice = $request->input('include_practice', false);
+            
+            $fileText = '';
+            $analyzedContent = '';
+            
+            // Extract text from uploaded file
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $fileExtension = strtolower($file->getClientOriginalExtension());
+                
+                switch ($fileExtension) {
+                    case 'txt':
+                        $fileText = file_get_contents($file->getPathname());
+                        $analyzedContent = "Successfully analyzed TXT file: " . $file->getClientOriginalName();
+                        break;
+                    case 'pdf':
+                        $fileText = $this->extractTextFromPDF($file);
+                        $analyzedContent = "Successfully analyzed PDF file: " . $file->getClientOriginalName();
+                        break;
+                    case 'doc':
+                    case 'docx':
+                        $fileText = $this->extractTextFromDoc($file);
+                        $analyzedContent = "Successfully analyzed Word document: " . $file->getClientOriginalName();
+                        break;
+                    default:
+                        return response()->json(['success' => false, 'error' => 'Unsupported file type']);
+                }
+                
+                if (empty($fileText)) {
+                    return response()->json(['success' => false, 'error' => 'Could not extract text from file']);
+                }
+            }
+
+            // Build the prompt for Gemini
+            $prompt = $this->buildPrompt($title, $type, $fileText, $difficulty, $includeExamples, $includeSummary, $includeKeyPoints, $includePractice, $itemsCount);
+            
+            // Call Gemini API
+            $content = $this->callGeminiAPI($prompt);
+            
+            return response()->json([
+                'success' => true,
+                'content' => $content,
+                'analyzed_content' => $analyzedContent
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('AI Generation Error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    private function extractTextFromPDF($file)
+    {
+        // For now, return a placeholder - would need a PDF parsing library
+        // You can install 'spatie/pdf-to-text' or similar package
+        return '[PDF text extraction would require a PDF parsing library. For now, please use TXT files or copy-paste the content.]';
+    }
+
+    private function extractTextFromDoc($file)
+    {
+        // For now, return a placeholder - would need a DOCX parsing library
+        // You can install 'phpoffice/phpword' package
+        return '[DOC/DOCX text extraction would require a Word parsing library. For now, please use TXT files or copy-paste the content.]';
+    }
+
+    private function buildPrompt($title, $type, $fileText, $difficulty, $includeExamples, $includeSummary, $includeKeyPoints, $includePractice, $itemsCount)
+    {
+        $prompt = "You are an educational content creator. ";
+        
+        if (!empty($fileText)) {
+            $prompt .= "I have provided a document with the following content:\n\n" . substr($fileText, 0, 10000) . "\n\n";
+            $prompt .= "Based on this document, create educational content for: " . $title . "\n";
+        } else {
+            $prompt .= "Create educational content for the topic: " . $title . "\n";
+        }
+        
+        $prompt .= "Content Type: " . ucfirst($type) . "\n";
+        $prompt .= "Difficulty Level: " . ucfirst($difficulty) . "\n";
+        $prompt .= "Number of items to generate: " . $itemsCount . "\n\n";
+        
+        $prompt .= "Requirements:\n";
+        if ($includeExamples) $prompt .= "- Include practical examples\n";
+        if ($includeSummary) $prompt .= "- Include a summary section\n";
+        if ($includeKeyPoints) $prompt .= "- Highlight key points\n";
+        if ($includePractice) $prompt .= "- Include practice questions\n";
+        
+        $prompt .= "\nPlease generate comprehensive, well-structured educational content that is appropriate for the specified difficulty level.";
+        
+        return $prompt;
+    }
+
+    private function callGeminiAPI($prompt)
+    {
+        $apiKey = env('GEMINI_API_KEY');
+        
+        if (!$apiKey) {
+            throw new \Exception('Gemini API key not configured');
+        }
+
+        $client = new \GuzzleHttp\Client();
+        
+        $response = $client->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=' . $apiKey, [
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
+            'json' => [
+                'contents' => [
+                    [
+                        'parts' => [
+                            ['text' => $prompt]
+                        ]
+                    ]
+                ],
+                'generationConfig' => [
+                    'temperature' => 0.7,
+                    'topK' => 40,
+                    'topP' => 0.95,
+                    'maxOutputTokens' => 8192,
+                ]
+            ]
+        ]);
+
+        $result = json_decode($response->getBody(), true);
+        
+        if (isset($result['candidates'][0]['content']['parts'][0]['text'])) {
+            return $result['candidates'][0]['content']['parts'][0]['text'];
+        }
+        
+        throw new \Exception('Invalid response from Gemini API');
     }
 
     private function assignedCourseIds(): array
