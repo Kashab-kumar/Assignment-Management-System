@@ -509,11 +509,11 @@
             <!-- Basic Information -->
             <div class="form-section">
                 <h2 class="form-section-title">Basic Information</h2>
-                
+
                 <div class="form-group">
                     <label for="title">Title <span class="required">*</span></label>
-                    <input type="text" id="title" name="title" class="form-control" 
-                           value="{{ old('title') }}" 
+                    <input type="text" id="title" name="title" class="form-control"
+                           value="{{ old('title') }}"
                            placeholder="e.g., Midterm Exam - Chapter 1-5" required>
                     @error('title')
                         <div class="error-message">{{ $message }}</div>
@@ -525,7 +525,7 @@
                     <select id="course_id" name="course_id" class="form-control" required onchange="loadModules(this.value)">
                         <option value="">Select a course</option>
                         @foreach($courses as $course)
-                            <option value="{{ $course->id }}" 
+                            <option value="{{ $course->id }}"
                                     data-modules="{{ json_encode($course->modules ?? []) }}"
                                     {{ old('course_id', $selectedCourseId) == $course->id ? 'selected' : '' }}>
                                 {{ $course->category_name ?: 'Uncategorized' }} / {{ $course->class_name ?: 'Unassigned' }} / {{ $course->name }}
@@ -551,7 +551,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="exam_date">Exam Date <span class="required">*</span></label>
-                        <input type="date" id="exam_date" name="exam_date" class="form-control" 
+                        <input type="date" id="exam_date" name="exam_date" class="form-control"
                                value="{{ old('exam_date') }}" required>
                         @error('exam_date')
                             <div class="error-message">{{ $message }}</div>
@@ -560,7 +560,7 @@
 
                     <div class="form-group">
                         <label for="exam_time">Exam Time</label>
-                        <input type="time" id="exam_time" name="exam_time" class="form-control" 
+                        <input type="time" id="exam_time" name="exam_time" class="form-control"
                                value="{{ old('exam_time') }}">
                         @error('exam_time')
                             <div class="error-message">{{ $message }}</div>
@@ -570,7 +570,7 @@
 
                 <div class="form-group">
                     <label for="description">Description</label>
-                    <textarea id="description" name="description" class="form-control" 
+                    <textarea id="description" name="description" class="form-control"
                               placeholder="Brief description of the assessment...">{{ old('description') }}</textarea>
                     @error('description')
                         <div class="error-message">{{ $message }}</div>
@@ -581,11 +581,11 @@
             <!-- Assessment Settings -->
             <div class="form-section">
                 <h2 class="form-section-title">Assessment Settings</h2>
-                
+
                 <div class="form-row">
                     <div class="form-group">
                         <label for="max_score">Max Score <span class="required">*</span></label>
-                        <input type="number" id="max_score" name="max_score" class="form-control" 
+                        <input type="number" id="max_score" name="max_score" class="form-control"
                                value="{{ old('max_score', 100) }}" min="1" required>
                         @error('max_score')
                             <div class="error-message">{{ $message }}</div>
@@ -594,7 +594,7 @@
 
                     <div class="form-group">
                         <label for="duration_minutes">Duration (minutes) <span class="required">*</span></label>
-                        <input type="number" id="duration_minutes" name="duration_minutes" class="form-control" 
+                        <input type="number" id="duration_minutes" name="duration_minutes" class="form-control"
                                value="{{ old('duration_minutes', 30) }}" min="1" max="600" required>
                         @error('duration_minutes')
                             <div class="error-message">{{ $message }}</div>
@@ -604,7 +604,7 @@
 
                 <div class="form-group">
                     <label for="secure_instructions">Secure Mode Instructions</label>
-                    <textarea id="secure_instructions" name="secure_instructions" class="form-control" 
+                    <textarea id="secure_instructions" name="secure_instructions" class="form-control"
                               placeholder="Instructions for secure exam mode...">{{ old('secure_instructions') }}</textarea>
                     @error('secure_instructions')
                         <div class="error-message">{{ $message }}</div>
@@ -623,7 +623,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="max_violations">Max Violations</label>
-                        <input type="number" id="max_violations" name="max_violations" class="form-control" 
+                        <input type="number" id="max_violations" name="max_violations" class="form-control"
                                value="{{ old('max_violations', 3) }}" min="1" max="10">
                         @error('max_violations')
                             <div class="error-message">{{ $message }}</div>
@@ -632,7 +632,7 @@
 
                     <div class="form-group">
                         <label for="max_warnings">Max Warnings</label>
-                        <input type="number" id="max_warnings" name="max_warnings" class="form-control" 
+                        <input type="number" id="max_warnings" name="max_warnings" class="form-control"
                                value="{{ old('max_warnings', 5) }}" min="1" max="20">
                         @error('max_warnings')
                             <div class="error-message">{{ $message }}</div>
@@ -731,59 +731,57 @@ let questionCount = 0;
 const selectedModuleId = {{ $selectedModuleId ?? 'null' }};
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize question count if there are existing questions
     const existingQuestions = document.querySelectorAll('.google-question-card');
+
     if (existingQuestions.length > 0) {
-        questionCount = existingQuestions.length;
-        
-        // Add input event listeners for MCQ options
-        existingQuestions.forEach((question, index) => {
+        let maxIndex = -1;
+
+        existingQuestions.forEach((question) => {
+            const index = Number(question.dataset.index);
+            if (!Number.isNaN(index)) {
+                maxIndex = Math.max(maxIndex, index);
+            }
+
+            bindQuestionEvents(index);
+
             const typeSelect = question.querySelector('select[name*="[question_type]"]');
             if (typeSelect && typeSelect.value === 'multiple_choice') {
-                // Add event listeners to option inputs
-                const optionInputs = question.querySelectorAll('.google-option-input');
-                optionInputs.forEach(input => {
-                    input.addEventListener('input', () => updateCorrectAnswer(index));
-                });
-                
-                // Add event listeners to correct answer radio buttons
-                const radioButtons = question.querySelectorAll('.google-correct-radio');
-                radioButtons.forEach(radio => {
-                    radio.addEventListener('change', () => updateCorrectAnswer(index));
-                });
-                
-                // Initialize correct answer
                 updateCorrectAnswer(index);
             }
         });
+
+        questionCount = maxIndex + 1;
     }
 
     // Load modules for initially selected course
     const courseSelect = document.getElementById('course_id');
-    if (courseSelect.value) {
+    if (courseSelect && courseSelect.value) {
         loadModules(courseSelect.value);
     }
-    
-    // Add event listener for add question button
+
     const addQuestionBtn = document.getElementById('add-question-btn');
     if (addQuestionBtn) {
         addQuestionBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            alert('Button clicked!');
             addQuestion();
         });
-        a
+    }
+});
 
 function loadModules(courseId) {
     const moduleSelect = document.getElementById('module_id');
     const courseOption = document.querySelector(`#course_id option[value="${courseId}"]`);
-    
+
+    if (!moduleSelect) {
+        return;
+    }
+
     moduleSelect.innerHTML = '<option value="">Select a module (optional)</option>';
-    
+
     if (!courseOption || !courseOption.dataset.modules) {
         return;
     }
-    
+
     try {
         const modules = JSON.parse(courseOption.dataset.modules);
         modules.forEach(module => {
@@ -802,21 +800,84 @@ function loadModules(courseId) {
 
 function addQuestion() {
     const container = document.getElementById('questions-container');
-    
+
     if (!container) {
         console.error('questions-container not found');
         return;
     }
-    
-    // Simple test - just add a div
-    const testDiv = document.createElement('div');
-    testDiv.innerHTML = '<h3>Test Question ' + (questionCount + 1) + '</h3>';
-    testDiv.style.padding = '20px';
-    testDiv.style.border = '2px solid red';
-    container.appendChild(testDiv);
-    
+
+    const questionIndex = questionCount;
+    const questionHtml = `
+        <div class="google-question-card" data-index="${questionIndex}" data-type="short_answer">
+            <div class="google-question-header">
+                <input type="text" name="questions[${questionIndex}][question_text]" class="google-question-input" placeholder="Question" required>
+                <div class="google-question-actions">
+                    <select name="questions[${questionIndex}][question_type]" class="google-type-select" onchange="toggleQuestionType(${questionIndex}, this.value)">
+                        <option value="short_answer" selected>Short answer</option>
+                        <option value="long_answer">Paragraph</option>
+                        <option value="multiple_choice">Multiple choice</option>
+                    </select>
+                    <button type="button" class="google-action-btn" onclick="removeQuestion(${questionIndex})" title="Delete">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="google-answer-area" data-area="text-answer-${questionIndex}">
+                <textarea class="google-answer-preview" readonly placeholder="Short answer text"></textarea>
+                <div class="google-points-input">
+                    <label>Points:</label>
+                    <input type="number" name="questions[${questionIndex}][points]" value="1" min="1" style="width: 60px; padding: 4px 8px;">
+                </div>
+            </div>
+
+            <div class="google-mcq-options hidden" data-area="mcq-options-${questionIndex}">
+                <div style="font-size: 12px; color: #6b7280; margin-bottom: 8px;">Click the radio button to mark the correct answer:</div>
+                <div class="google-mcq-option-row">
+                    <input type="radio" name="correct-answer-${questionIndex}" class="google-correct-radio" checked onchange="updateCorrectAnswer(${questionIndex})">
+                    <input type="text" class="google-option-input" placeholder="Option 1">
+                    <button type="button" class="google-remove-option" onclick="removeOption(${questionIndex}, this)">×</button>
+                </div>
+                <div class="google-mcq-option-row">
+                    <input type="radio" name="correct-answer-${questionIndex}" class="google-correct-radio" onchange="updateCorrectAnswer(${questionIndex})">
+                    <input type="text" class="google-option-input" placeholder="Option 2">
+                    <button type="button" class="google-remove-option" onclick="removeOption(${questionIndex}, this)">×</button>
+                </div>
+                <button type="button" class="google-add-option" onclick="addOption(${questionIndex})">Add option</button>
+                <div class="google-points-input">
+                    <label>Points:</label>
+                    <input type="number" name="questions[${questionIndex}][points]" value="1" min="1" style="width: 60px; padding: 4px 8px;">
+                </div>
+            </div>
+
+            <input type="hidden" name="questions[${questionIndex}][answer_key]" class="google-answer-key" value="">
+        </div>
+    `;
+
+    container.insertAdjacentHTML('beforeend', questionHtml);
+
+    bindQuestionEvents(questionIndex);
     questionCount++;
-    console.log('Question added, count:', questionCount);
+}
+
+function bindQuestionEvents(questionIndex) {
+    const questionCard = document.querySelector(`.google-question-card[data-index="${questionIndex}"]`);
+    if (!questionCard) {
+        return;
+    }
+
+    const optionInputs = questionCard.querySelectorAll('.google-option-input');
+    optionInputs.forEach(input => {
+        input.addEventListener('input', () => updateCorrectAnswer(questionIndex));
+    });
+
+    const radioButtons = questionCard.querySelectorAll('.google-correct-radio');
+    radioButtons.forEach(radio => {
+        radio.addEventListener('change', () => updateCorrectAnswer(questionIndex));
+    });
 }
 
 function removeQuestion(index) {
@@ -834,16 +895,20 @@ function toggleQuestionType(index, questionType) {
 
     const textAnswerArea = questionCard.querySelector(`[data-area="text-answer-${index}"]`);
     const mcqOptionsArea = questionCard.querySelector(`[data-area="mcq-options-${index}"]`);
+    if (!textAnswerArea || !mcqOptionsArea) {
+        return;
+    }
+
     const answerPreview = textAnswerArea.querySelector('.google-answer-preview');
 
     if (questionType === 'multiple_choice') {
         textAnswerArea.classList.add('hidden');
         mcqOptionsArea.classList.remove('hidden');
-        updateAnswerKey(index);
+        updateCorrectAnswer(index);
     } else {
         textAnswerArea.classList.remove('hidden');
         mcqOptionsArea.classList.add('hidden');
-        
+
         if (questionType === 'long_answer') {
             answerPreview.placeholder = 'Long answer text';
             answerPreview.style.minHeight = '120px';
@@ -851,49 +916,69 @@ function toggleQuestionType(index, questionType) {
             answerPreview.placeholder = 'Short answer text';
             answerPreview.style.minHeight = '40px';
         }
-        
+
         // Clear answer key for text questions
         const answerKeyInput = questionCard.querySelector('.google-answer-key');
         if (answerKeyInput) {
             answerKeyInput.value = '';
         }
+
+                delete questionCard.dataset.correctAnswer;
     }
 }
 
 function addOption(questionIndex) {
     const questionCard = document.querySelector(`.google-question-card[data-index="${questionIndex}"]`);
     if (!questionCard) return;
-input tye="radio" name="correct-nswer-${questionIdex}"crrec-rado" hage=udteCorrectAnswer(${questionIdex})"
+
     const mcqOptionsArea = questionCard.querySelector(`[data-area="mcq-options-${questionIndex}"]`);
+            if (!mcqOptionsArea) {
+                return;
+            }
+
     const addOptionBtn = mcqOptionsArea.querySelector('.google-add-option');
-    
+            if (!addOptionBtn) {
+                return;
+            }
+
     const optionCount = mcqOptionsArea.querySelectorAll('.google-mcq-option-row').length + 1;
     const optionHtml = `
         <div class="google-mcq-option-row">
-            <span class="google-option-icon">○</span>
+                    <input type="radio" name="correct-answer-${questionIndex}" class="google-correct-radio" onchange="updateCorrectAnswer(${questionIndex})">
             <input type="text" class="google-option-input" placeholder="Option ${optionCount}">
             <button type="button" class="google-remove-option" onclick="removeOption(${questionIndex}, this)">×</button>
-        </div>);
-    updateCorrectAnswer(questionIndex
+                </div>
     `;
-    
+
     addOptionBtn.insertAdjacentHTML('beforebegin', optionHtml);
-    
-    // Add input event listener to update answer key
-    const newOptionInput = mcqOptionsArea.querySelectorAll('.google-option-input')[optionCount - 1];
-    newOptionInput.addEventListener('input', () => updateAnswerKey(questionIndex));
+
+            const newOptionRow = addOptionBtn.previousElementSibling;
+            if (newOptionRow) {
+                const newOptionInput = newOptionRow.querySelector('.google-option-input');
+                const newRadio = newOptionRow.querySelector('.google-correct-radio');
+
+                if (newOptionInput) {
+                    newOptionInput.addEventListener('input', () => updateCorrectAnswer(questionIndex));
+                }
+
+                if (newRadio) {
+                    newRadio.addEventListener('change', () => updateCorrectAnswer(questionIndex));
+                }
+            }
+
+            updateCorrectAnswer(questionIndex);
 }
 
 function removeOption(questionIndex, button) {
     const mcqOptionsArea = button.closest('.google-mcq-options');
     const optionRow = button.closest('.google-mcq-option-row');
-    
+
     // Ensure at least 2 options remain
     if (mcqOptionsArea.querySelectorAll('.google-mcq-option-row').length <= 2) {
         alert('Multiple choice questions must have at least 2 options');
         return;
     }
-    
+
     optionRow.remove();
     updateCorrectAnswer(questionIndex);
 }
@@ -904,7 +989,7 @@ function updateAnswerKey(questionIndex) {
 
     const answerKeyInput = questionCard.querySelector('.google-answer-key');
     const optionInputs = questionCard.querySelectorAll('.google-option-input');
-    
+
     const options = [];
     optionInputs.forEach(input => {
         const value = input.value.trim();
@@ -912,22 +997,33 @@ function updateAnswerKey(questionIndex) {
             options.push(value);
         }
     });
-    
+
     answerKeyInput.value = options.join('|');
 }
 
 function updateCorrectAnswer(questionIndex) {
-    updateAnswerKey(questionIndex);
-    
     const questionCard = document.querySelector(`.google-question-card[data-index="${questionIndex}"]`);
     if (!questionCard) return;
 
     const answerKeyInput = questionCard.querySelector('.google-answer-key');
     const correctRadio = questionCard.querySelector('.google-correct-radio:checked');
     const optionInputs = questionCard.querySelectorAll('.google-option-input');
-    
-    if (!correctRadio || optionInputs.length === 0) return;
-    
+
+    if (!answerKeyInput) return;
+
+    const allOptions = [];
+    optionInputs.forEach(input => {
+        const value = input.value.trim();
+        if (value) {
+            allOptions.push(value);
+        }
+    });
+
+    if (!correctRadio || optionInputs.length === 0) {
+        answerKeyInput.value = allOptions.join('|');
+        return;
+    }
+
     // Find the index of the selected radio button
     const radioButtons = questionCard.querySelectorAll('.google-correct-radio');
     let selectedIndex = -1;
@@ -936,27 +1032,19 @@ function updateCorrectAnswer(questionIndex) {
             selectedIndex = index;
         }
     });
-    
-    // Get the correct answer value
+
     if (selectedIndex >= 0 && selectedIndex < optionInputs.length) {
         const correctAnswer = optionInputs[selectedIndex].value.trim();
-        
-        // Store the correct answer in a data attribute
+
         questionCard.dataset.correctAnswer = correctAnswer;
-        
-        // Update the answer key to store both options and correct answer
-        const allOptions = [];
-        optionInputs.forEach(input => {
-            const value = input.value.trim();
-            if (value) {
-                allOptions.push(value);
-            }
-        });
-        
-        // Format: correct_answer|option1|option2|option3...
+
         if (correctAnswer && allOptions.length > 0) {
             answerKeyInput.value = correctAnswer + '|' + allOptions.join('|');
+        } else {
+            answerKeyInput.value = allOptions.join('|');
         }
+    } else {
+        answerKeyInput.value = allOptions.join('|');
     }
 }
 </script>

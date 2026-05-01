@@ -165,7 +165,10 @@ class StudentModuleController extends Controller
                 'answers' => fn ($query) => $query->where('student_id', $student->id),
             ])
             ->where('course_id', $module->course_id)
-            ->where('module_id', $module->id)
+            ->where(function ($query) use ($module) {
+                $query->where('module_id', $module->id)
+                    ->orWhereNull('module_id');
+            })
             ->orderByDesc('exam_date')
             ->take(8)
             ->get();
@@ -179,7 +182,13 @@ class StudentModuleController extends Controller
             ->get();
 
         $examResults = $student->examResults()
-            ->whereHas('exam', fn ($query) => $query->where('course_id', $module->course_id)->where('module_id', $module->id))
+            ->whereHas('exam', function ($query) use ($module) {
+                $query->where('course_id', $module->course_id)
+                    ->where(function ($inner) use ($module) {
+                        $inner->where('module_id', $module->id)
+                            ->orWhereNull('module_id');
+                    });
+            })
             ->with('exam')
             ->latest()
             ->take(6)

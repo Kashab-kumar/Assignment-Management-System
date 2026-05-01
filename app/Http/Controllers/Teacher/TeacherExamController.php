@@ -100,7 +100,7 @@ class TeacherExamController extends Controller
             'questions' => 'nullable|array',
             'questions.*.question_text' => 'nullable|string|max:5000',
             'questions.*.answer_key' => 'nullable|string|max:5000',
-            'questions.*.question_type' => 'nullable|in:short_answer,long_answer',
+            'questions.*.question_type' => 'nullable|in:short_answer,long_answer,multiple_choice',
             'questions.*.points' => 'nullable|integer|min:1|max:1000',
         ]);
 

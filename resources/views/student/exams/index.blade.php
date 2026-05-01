@@ -27,12 +27,12 @@
         border-bottom: 1px solid rgba(255,255,255,0.06);
         gap: 12px;
     }
-    
+
     .filter-buttons {
         display: flex;
         gap: 8px;
     }
-    
+
     .filter-btn {
         padding: 8px 16px;
         border: 1px solid rgba(0,0,0,0.1);
@@ -45,19 +45,19 @@
         transition: all 0.2s;
         cursor: pointer;
     }
-    
+
     .filter-btn:hover {
         background: rgba(124,58,237,0.05);
         border-color: rgba(124,58,237,0.2);
         color: #4338ca;
     }
-    
+
     .filter-btn.active {
         background: #7c3aed;
         color: #ffffff;
         border-color: #7c3aed;
     }
-    
+
     .create-btn {
         background: #10b981;
         color: #ffffff;
@@ -70,7 +70,7 @@
         transition: background 0.2s;
         cursor: pointer;
     }
-    
+
     .create-btn:hover {
         background: #059669;
     }
@@ -217,7 +217,7 @@
     $studentCourseId = Schema::hasColumn('students', 'course_id') ? $student->course_id : null;
     $activeFilter = request()->query('filter', 'all');
     $activeTab = request()->query('tab', 'upcoming');
-    
+
     // Filter exams by type
     $allExams = \App\Models\Exam::with([
             'results' => function ($query) use ($student) {
@@ -283,7 +283,7 @@
                 <a href="{{ route('student.exams.index') }}?filter=test&tab={{ $activeTab }}" class="filter-btn {{ $activeFilter === 'test' ? 'active' : '' }}">Test</a>
             </div>
         </div>
-        
+
         <div class="tabs">
             <a href="{{ route('student.exams.index') }}?filter={{ $activeFilter }}&tab=upcoming" class="tab-link {{ $activeTab === 'upcoming' ? 'active' : '' }}">Upcoming ({{ $upcomingExams->count() }})</a>
             <a href="{{ route('student.exams.index') }}?filter={{ $activeFilter }}&tab=completed" class="tab-link {{ $activeTab === 'completed' ? 'active' : '' }}">Completed ({{ $completedExams->count() }})</a>
@@ -341,7 +341,9 @@
                     $examStartsAt = $selectedExam->exam_date->copy()->setTime((int) $hours, (int) $minutes, 0);
                 }
 
+                $examEndsAt = $examStartsAt->copy()->addMinutes((int) $durationMinutes);
                 $hasStarted = now()->greaterThanOrEqualTo($examStartsAt);
+                $isOverdue = now()->greaterThan($examEndsAt);
             @endphp
             <div class="detail-head">
                 <div class="detail-head-top">
@@ -419,8 +421,4 @@
         @endif
     </section>
 </div>
-@endsection
-    </section>
-</div>
-@endsection
 @endsection

@@ -39,7 +39,7 @@ Professional sidebar navigation has been created for all three user roles with d
 **Teaching**
 - Assignments → `teacher.assignments.index` ✅ (Implemented)
 - Submissions → `teacher.submissions.index` ⚠️ (Need to create)
-- Exams → `teacher.exams.index` ⚠️ (Need to create)
+- Exams → moved to course module pages (use teacher.courses.modules view) 
 
 **Students**
 - My Students → `teacher.students.index` ⚠️ (Need to create)

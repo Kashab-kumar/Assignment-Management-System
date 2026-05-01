@@ -201,11 +201,11 @@
         .form-row {
             grid-template-columns: 1fr;
         }
-        
+
         .form-actions {
             flex-direction: column;
         }
-        
+
         .btn {
             width: 100%;
         }
@@ -243,11 +243,11 @@
 
     <form class="assignment-form" method="POST" action="{{ route('teacher.assignments.store') }}">
         @csrf
-        
+
         @if(request('module_id'))
             <input type="hidden" name="module_id" value="{{ request('module_id') }}">
         @endif
-        
+
         <div class="form-group">
             <label class="form-label" for="course_id">Course *</label>
             <select class="form-select" id="course_id" name="course_id" required>
@@ -361,7 +361,7 @@
         </div>
 
         <div class="form-actions">
-            <a href="{{ request('module_id') ? route('modules.show', request('module_id')) : route('teacher.modules.index') }}" class="btn btn-secondary">Cancel</a>
+            <a href="{{ request('module_id') ? route('teacher.modules.show', request('module_id')) : route('teacher.modules.index') }}" class="btn btn-secondary">Cancel</a>
             <button type="submit" class="btn btn-primary">Create Assignment</button>
         </div>
     </form>
@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Parse course info from option text
             const optionText = selectedOption.text;
             const courseName = optionText.split(' - ')[1];
-            
+
             // Find and select the corresponding course
             for (let option of courseSelect.options) {
                 if (option.text.includes(courseName)) {
