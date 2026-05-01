@@ -315,8 +315,18 @@
 
                             // Parse multiple choice options if available
                             $options = [];
+                            $correctAnswer = '';
                             if ($isMultipleChoice && !empty($question->answer_key)) {
-                                $options = array_map('trim', explode('|', $question->answer_key));
+                                // New format: correct_answer|option1|option2|option3...
+                                $parts = array_map('trim', explode('|', $question->answer_key));
+                                if (count($parts) > 1) {
+                                    $correctAnswer = $parts[0];
+                                    $options = array_slice($parts, 1);
+                                } else {
+                                    // Old format: option1|option2|option3... (first is correct)
+                                    $options = $parts;
+                                    $correctAnswer = $parts[0] ?? '';
+                                }
                             }
                         @endphp
                         

@@ -99,30 +99,245 @@
 
     .form-group label {
         display: block;
-        font-size: 14px;
-        font-weight: 600;
-        color: #374151;
         margin-bottom: 8px;
+        font-weight: 500;
+        color: #374151;
     }
 
-    .form-group label .required {
-        color: #ef4444;
-    }
-
-    .form-control {
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
         width: 100%;
-        padding: 12px 16px;
+        padding: 12px;
         border: 1px solid #d1d5db;
         border-radius: 8px;
         font-size: 14px;
-        transition: border-color 0.3s ease;
-        background: #ffffff;
+        transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    .form-control:focus {
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
         outline: none;
         border-color: #667eea;
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .google-question-card {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 24px;
+        margin-bottom: 16px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        transition: box-shadow 0.2s;
+    }
+
+    .google-question-card:hover {
+        box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    }
+
+    .google-question-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .google-question-input {
+        flex: 1;
+        font-size: 16px;
+        font-weight: 500;
+        border: none;
+        border-bottom: 1px solid transparent;
+        padding: 8px 0;
+        background: transparent;
+        transition: border-color 0.2s;
+    }
+
+    .google-question-input:focus {
+        outline: none;
+        border-bottom-color: #673ab7;
+    }
+
+    .google-question-input::placeholder {
+        color: #9e9e9e;
+    }
+
+    .google-question-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .google-type-select {
+        border: none;
+        background: transparent;
+        font-size: 14px;
+        color: #673ab7;
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+    .google-type-select:focus {
+        outline: none;
+    }
+
+    .google-action-btn {
+        background: transparent;
+        border: none;
+        color: #5f6368;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 50%;
+        transition: background 0.2s;
+    }
+
+    .google-action-btn:hover {
+        background: #f1f3f4;
+    }
+
+    .google-answer-area {
+        margin-top: 12px;
+    }
+
+    .google-answer-preview {
+        width: 100%;
+        border: none;
+        background: #f8f9fa;
+        padding: 12px;
+        border-radius: 4px;
+        resize: none;
+        min-height: 40px;
+        font-family: inherit;
+        color: #5f6368;
+    }
+
+    .google-mcq-options {
+        margin-top: 12px;
+    }
+
+    .google-mcq-option-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+    }
+
+    .google-option-icon {
+        color: #5f6368;
+        font-size: 16px;
+    }
+
+    .google-correct-radio {
+        width: 18px;
+        height: 18px;
+        accent-color: #673ab7;
+        cursor: pointer;
+    }
+
+    .google-correct-label {
+        font-size: 11px;
+        color: #673ab7;
+        margin-left: 4px;
+        font-weight: 500;
+    }
+
+    .google-option-input {
+        flex: 1;
+        border: none;
+        border-bottom: 1px solid transparent;
+        padding: 8px 0;
+        font-size: 14px;
+        background: transparent;
+        transition: border-color 0.2s;
+    }
+
+    .google-option-input:focus {
+        outline: none;
+        border-bottom-color: #673ab7;
+    }
+
+    .google-option-input::placeholder {
+        color: #9e9e9e;
+    }
+
+    .google-remove-option {
+        background: transparent;
+        border: none;
+        color: #5f6368;
+        cursor: pointer;
+        font-size: 20px;
+        padding: 4px;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .google-mcq-option-row:hover .google-remove-option {
+        opacity: 1;
+    }
+
+    .google-add-option {
+        background: transparent;
+        border: none;
+        color: #673ab7;
+        cursor: pointer;
+        font-size: 14px;
+        padding: 8px 0;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .google-add-option:hover {
+        color: #5e35b1;
+    }
+
+    .google-points-input {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .google-points-input label {
+        font-size: 14px;
+        color: #5f6368;
+        font-weight: 500;
+    }
+
+    .google-points-input input {
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+    }
+
+    .google-add-question {
+        width: 100%;
+        background: transparent;
+        border: none;
+        color: #673ab7;
+        cursor: pointer;
+        padding: 16px;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border-radius: 8px;
+        transition: background 0.2s;
+        border: 1px dashed #e0e0e0;
+        margin-top: 16px;
+    }
+
+    .google-add-question:hover {
+        background: #f5f5f5;
+        border-color: #673ab7;
+    }
+
+    .hidden {
+        display: none !important;
     }
 
     .form-control::placeholder {
@@ -432,38 +647,71 @@
                 <div id="questions-container">
                     @if(old('questions'))
                         @foreach(old('questions') as $index => $question)
-                            <div class="question-item" data-index="{{ $index }}">
-                                <div class="question-header">
-                                    <span class="question-number">Question {{ $index + 1 }}</span>
-                                    <button type="button" class="btn-remove-question" onclick="removeQuestion({{ $index }})">Remove</button>
-                                </div>
-                                <div class="form-group">
-                                    <label>Question Text <span class="required">*</span></label>
-                                    <textarea name="questions[{{ $index }}][question_text]" class="form-control" rows="3" required>{{ $question['question_text'] ?? '' }}</textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label>Answer Key (Correct Answer) <span class="required">*</span></label>
-                                    <textarea name="questions[{{ $index }}][answer_key]" class="form-control" rows="2" placeholder="Enter the correct answer for auto-grading">{{ $question['answer_key'] ?? '' }}</textarea>
-                                    <small style="color: #6b7280;">This will be used to automatically grade student answers</small>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label>Question Type</label>
-                                        <select name="questions[{{ $index }}][question_type]" class="form-control">
-                                            <option value="short_answer" {{ ($question['question_type'] ?? '') == 'short_answer' ? 'selected' : '' }}>Short Answer</option>
-                                            <option value="long_answer" {{ ($question['question_type'] ?? '') == 'long_answer' ? 'selected' : '' }}>Long Answer</option>
+                            @php
+                                $questionType = $question['question_type'] ?? 'short_answer';
+                                $options = [];
+                                if ($questionType === 'multiple_choice' && !empty($question['answer_key'])) {
+                                    $options = array_map('trim', explode('|', $question['answer_key']));
+                                }
+                            @endphp
+                            <div class="google-question-card" data-index="{{ $index }}" data-type="{{ $questionType }}">
+                                <div class="google-question-header">
+                                    <input type="text" name="questions[{{ $index }}][question_text]" class="google-question-input" placeholder="Question" value="{{ $question['question_text'] ?? '' }}" required>
+                                    <div class="google-question-actions">
+                                        <select name="questions[{{ $index }}][question_type]" class="google-type-select" onchange="toggleQuestionType({{ $index }}, this.value)">
+                                            <option value="short_answer" {{ $questionType == 'short_answer' ? 'selected' : '' }}>Short answer</option>
+                                            <option value="long_answer" {{ $questionType == 'long_answer' ? 'selected' : '' }}>Paragraph</option>
+                                            <option value="multiple_choice" {{ $questionType == 'multiple_choice' ? 'selected' : '' }}>Multiple choice</option>
                                         </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Points</label>
-                                        <input type="number" name="questions[{{ $index }}][points]" class="form-control" value="{{ $question['points'] ?? 1 }}" min="1">
+                                        <button type="button" class="google-action-btn" onclick="removeQuestion({{ $index }})" title="Delete">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="3 6 5 6 21 6"></polyline>
+                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                            </svg>
+                                        </button>
                                     </div>
                                 </div>
+
+                                <!-- Short/Long Answer Input -->
+                                <div class="google-answer-area {{ $questionType === 'multiple_choice' ? 'hidden' : '' }}" data-area="text-answer-{{ $index }}">
+                                    <textarea class="google-answer-preview" readonly placeholder="Short answer text"></textarea>
+                                    <div class="google-points-input">
+                                        <label>Points:</label>
+                                        <input type="number" name="questions[{{ $index }}][points]" value="{{ $question['points'] ?? 1 }}" min="1" style="width: 60px; padding: 4px 8px;">
+                                    </div>
+                                </div>
+
+                                <!-- Multiple Choice Options -->
+                                <div class="google-mcq-options {{ $questionType !== 'multiple_choice' ? 'hidden' : '' }}" data-area="mcq-options-{{ $index }}">
+                                    <div style="font-size: 12px; color: #6b7280; margin-bottom: 8px;">Click the radio button to mark the correct answer:</div>
+                                    @foreach($options as $optIndex => $option)
+                                        <div class="google-mcq-option-row">
+                                            <input type="radio" name="correct-answer-{{ $index }}" class="google-correct-radio" {{ $optIndex === 0 ? 'checked' : '' }} onchange="updateCorrectAnswer({{ $index }})">
+                                            <input type="text" class="google-option-input" value="{{ $option }}" placeholder="Option {{ $optIndex + 1 }}">
+                                            <button type="button" class="google-remove-option" onclick="removeOption({{ $index }}, this)">×</button>
+                                        </div>
+                                    @endforeach
+                                    <button type="button" class="google-add-option" onclick="addOption({{ $index }})">Add option</button>
+                                    <div class="google-points-input">
+                                        <label>Points:</label>
+                                        <input type="number" name="questions[{{ $index }}][points]" value="{{ $question['points'] ?? 1 }}" min="1" style="width: 60px; padding: 4px 8px;">
+                                    </div>
+                                </div>
+
+                                <!-- Hidden field to store MCQ options -->
+                                <input type="hidden" name="questions[{{ $index }}][answer_key]" class="google-answer-key" value="{{ $question['answer_key'] ?? '' }}">
                             </div>
                         @endforeach
                     @endif
                 </div>
-                <button type="button" class="btn btn-outline" onclick="addQuestion()" style="margin-top: 16px;">+ Add Question</button>
+                <button type="button" class="google-add-question" id="add-question-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="16"></line>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
+                    Add question
+                </button>
                 @error('questions')
                     <div class="error-message">{{ $message }}</div>
                 @enderror
@@ -484,9 +732,30 @@ const selectedModuleId = {{ $selectedModuleId ?? 'null' }};
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize question count if there are existing questions
-    const existingQuestions = document.querySelectorAll('.question-item');
+    const existingQuestions = document.querySelectorAll('.google-question-card');
     if (existingQuestions.length > 0) {
         questionCount = existingQuestions.length;
+        
+        // Add input event listeners for MCQ options
+        existingQuestions.forEach((question, index) => {
+            const typeSelect = question.querySelector('select[name*="[question_type]"]');
+            if (typeSelect && typeSelect.value === 'multiple_choice') {
+                // Add event listeners to option inputs
+                const optionInputs = question.querySelectorAll('.google-option-input');
+                optionInputs.forEach(input => {
+                    input.addEventListener('input', () => updateCorrectAnswer(index));
+                });
+                
+                // Add event listeners to correct answer radio buttons
+                const radioButtons = question.querySelectorAll('.google-correct-radio');
+                radioButtons.forEach(radio => {
+                    radio.addEventListener('change', () => updateCorrectAnswer(index));
+                });
+                
+                // Initialize correct answer
+                updateCorrectAnswer(index);
+            }
+        });
     }
 
     // Load modules for initially selected course
@@ -494,7 +763,16 @@ document.addEventListener('DOMContentLoaded', function() {
     if (courseSelect.value) {
         loadModules(courseSelect.value);
     }
-});
+    
+    // Add event listener for add question button
+    const addQuestionBtn = document.getElementById('add-question-btn');
+    if (addQuestionBtn) {
+        addQuestionBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Button clicked!');
+            addQuestion();
+        });
+        a
 
 function loadModules(courseId) {
     const moduleSelect = document.getElementById('module_id');
@@ -524,45 +802,161 @@ function loadModules(courseId) {
 
 function addQuestion() {
     const container = document.getElementById('questions-container');
-    const questionHtml = `
-        <div class="question-item" data-index="${questionCount}">
-            <div class="question-header">
-                <span class="question-number">Question ${questionCount + 1}</span>
-                <button type="button" class="btn-remove-question" onclick="removeQuestion(${questionCount})">Remove</button>
-            </div>
-            <div class="form-group">
-                <label>Question Text <span class="required">*</span></label>
-                <textarea name="questions[${questionCount}][question_text]" class="form-control" rows="3" required></textarea>
-            </div>
-            <div class="form-group">
-                <label>Answer Key (Correct Answer) <span class="required">*</span></label>
-                <textarea name="questions[${questionCount}][answer_key]" class="form-control" rows="2" placeholder="Enter the correct answer for auto-grading"></textarea>
-                <small style="color: #6b7280;">This will be used to automatically grade student answers</small>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Question Type</label>
-                    <select name="questions[${questionCount}][question_type]" class="form-control">
-                        <option value="short_answer">Short Answer</option>
-                        <option value="long_answer">Long Answer</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Points</label>
-                    <input type="number" name="questions[${questionCount}][points]" class="form-control" value="1" min="1">
-                </div>
-            </div>
-        </div>
-    `;
-
-    container.insertAdjacentHTML('beforeend', questionHtml);
+    
+    if (!container) {
+        console.error('questions-container not found');
+        return;
+    }
+    
+    // Simple test - just add a div
+    const testDiv = document.createElement('div');
+    testDiv.innerHTML = '<h3>Test Question ' + (questionCount + 1) + '</h3>';
+    testDiv.style.padding = '20px';
+    testDiv.style.border = '2px solid red';
+    container.appendChild(testDiv);
+    
     questionCount++;
+    console.log('Question added, count:', questionCount);
 }
 
 function removeQuestion(index) {
-    const questionItem = document.querySelector(`.question-item[data-index="${index}"]`);
+    const questionItem = document.querySelector(`.google-question-card[data-index="${index}"]`);
     if (questionItem) {
         questionItem.remove();
+    }
+}
+
+function toggleQuestionType(index, questionType) {
+    const questionCard = document.querySelector(`.google-question-card[data-index="${index}"]`);
+    if (!questionCard) return;
+
+    questionCard.dataset.type = questionType;
+
+    const textAnswerArea = questionCard.querySelector(`[data-area="text-answer-${index}"]`);
+    const mcqOptionsArea = questionCard.querySelector(`[data-area="mcq-options-${index}"]`);
+    const answerPreview = textAnswerArea.querySelector('.google-answer-preview');
+
+    if (questionType === 'multiple_choice') {
+        textAnswerArea.classList.add('hidden');
+        mcqOptionsArea.classList.remove('hidden');
+        updateAnswerKey(index);
+    } else {
+        textAnswerArea.classList.remove('hidden');
+        mcqOptionsArea.classList.add('hidden');
+        
+        if (questionType === 'long_answer') {
+            answerPreview.placeholder = 'Long answer text';
+            answerPreview.style.minHeight = '120px';
+        } else {
+            answerPreview.placeholder = 'Short answer text';
+            answerPreview.style.minHeight = '40px';
+        }
+        
+        // Clear answer key for text questions
+        const answerKeyInput = questionCard.querySelector('.google-answer-key');
+        if (answerKeyInput) {
+            answerKeyInput.value = '';
+        }
+    }
+}
+
+function addOption(questionIndex) {
+    const questionCard = document.querySelector(`.google-question-card[data-index="${questionIndex}"]`);
+    if (!questionCard) return;
+input tye="radio" name="correct-nswer-${questionIdex}"crrec-rado" hage=udteCorrectAnswer(${questionIdex})"
+    const mcqOptionsArea = questionCard.querySelector(`[data-area="mcq-options-${questionIndex}"]`);
+    const addOptionBtn = mcqOptionsArea.querySelector('.google-add-option');
+    
+    const optionCount = mcqOptionsArea.querySelectorAll('.google-mcq-option-row').length + 1;
+    const optionHtml = `
+        <div class="google-mcq-option-row">
+            <span class="google-option-icon">○</span>
+            <input type="text" class="google-option-input" placeholder="Option ${optionCount}">
+            <button type="button" class="google-remove-option" onclick="removeOption(${questionIndex}, this)">×</button>
+        </div>);
+    updateCorrectAnswer(questionIndex
+    `;
+    
+    addOptionBtn.insertAdjacentHTML('beforebegin', optionHtml);
+    
+    // Add input event listener to update answer key
+    const newOptionInput = mcqOptionsArea.querySelectorAll('.google-option-input')[optionCount - 1];
+    newOptionInput.addEventListener('input', () => updateAnswerKey(questionIndex));
+}
+
+function removeOption(questionIndex, button) {
+    const mcqOptionsArea = button.closest('.google-mcq-options');
+    const optionRow = button.closest('.google-mcq-option-row');
+    
+    // Ensure at least 2 options remain
+    if (mcqOptionsArea.querySelectorAll('.google-mcq-option-row').length <= 2) {
+        alert('Multiple choice questions must have at least 2 options');
+        return;
+    }
+    
+    optionRow.remove();
+    updateCorrectAnswer(questionIndex);
+}
+
+function updateAnswerKey(questionIndex) {
+    const questionCard = document.querySelector(`.google-question-card[data-index="${questionIndex}"]`);
+    if (!questionCard) return;
+
+    const answerKeyInput = questionCard.querySelector('.google-answer-key');
+    const optionInputs = questionCard.querySelectorAll('.google-option-input');
+    
+    const options = [];
+    optionInputs.forEach(input => {
+        const value = input.value.trim();
+        if (value) {
+            options.push(value);
+        }
+    });
+    
+    answerKeyInput.value = options.join('|');
+}
+
+function updateCorrectAnswer(questionIndex) {
+    updateAnswerKey(questionIndex);
+    
+    const questionCard = document.querySelector(`.google-question-card[data-index="${questionIndex}"]`);
+    if (!questionCard) return;
+
+    const answerKeyInput = questionCard.querySelector('.google-answer-key');
+    const correctRadio = questionCard.querySelector('.google-correct-radio:checked');
+    const optionInputs = questionCard.querySelectorAll('.google-option-input');
+    
+    if (!correctRadio || optionInputs.length === 0) return;
+    
+    // Find the index of the selected radio button
+    const radioButtons = questionCard.querySelectorAll('.google-correct-radio');
+    let selectedIndex = -1;
+    radioButtons.forEach((radio, index) => {
+        if (radio === correctRadio) {
+            selectedIndex = index;
+        }
+    });
+    
+    // Get the correct answer value
+    if (selectedIndex >= 0 && selectedIndex < optionInputs.length) {
+        const correctAnswer = optionInputs[selectedIndex].value.trim();
+        
+        // Store the correct answer in a data attribute
+        questionCard.dataset.correctAnswer = correctAnswer;
+        
+        // Update the answer key to store both options and correct answer
+        const allOptions = [];
+        optionInputs.forEach(input => {
+            const value = input.value.trim();
+            if (value) {
+                allOptions.push(value);
+            }
+        });
+        
+        // Format: correct_answer|option1|option2|option3...
+        if (correctAnswer && allOptions.length > 0) {
+            answerKeyInput.value = correctAnswer + '|' + allOptions.join('|');
+        }
     }
 }
 </script>

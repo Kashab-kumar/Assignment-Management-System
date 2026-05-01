@@ -220,6 +220,18 @@ class StudentExamController extends Controller
 
                 // Auto-grade: compare student answer with answer key
                 if ($correctAnswer !== '' && $studentAnswer !== '') {
+                    // For multiple choice, extract the correct answer from the new format
+                    if ($question->question_type === 'multiple_choice') {
+                        $parts = array_map('trim', explode('|', $correctAnswer));
+                        if (count($parts) > 1) {
+                            // New format: correct_answer|option1|option2|option3...
+                            $correctAnswer = $parts[0];
+                        } else {
+                            // Old format: option1|option2|option3... (first is correct)
+                            $correctAnswer = $parts[0] ?? '';
+                        }
+                    }
+
                     // Case-insensitive comparison with trimming
                     $isCorrect = strtolower(trim($studentAnswer)) === strtolower(trim($correctAnswer));
 
