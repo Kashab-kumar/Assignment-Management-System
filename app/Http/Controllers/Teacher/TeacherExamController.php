@@ -52,13 +52,13 @@ class TeacherExamController extends Controller
     public function create(Request $request)
     {
         $selectedCourseId = $request->integer('course_id') ?: null;
-        $moduleId = $request->integer('module_id') ?: null;
+        $selectedModuleId = $request->integer('module_id') ?: null;
         $mode = in_array($request->input('mode'), ['quiz', 'test'], true) ? $request->input('mode') : 'exam';
         $assignedCourseIds = $this->assignedCourseIds();
 
         // If module_id is provided, get the course_id from the module
-        if ($moduleId && !$selectedCourseId) {
-            $module = \App\Models\CourseModule::find($moduleId);
+        if ($selectedModuleId && !$selectedCourseId) {
+            $module = \App\Models\CourseModule::find($selectedModuleId);
             if ($module && in_array($module->course_id, $assignedCourseIds, true)) {
                 $selectedCourseId = $module->course_id;
             }
@@ -86,7 +86,7 @@ class TeacherExamController extends Controller
         $validated = $request->validate([
             'course_id' => ['required', Rule::in($assignedCourseIds)],
             'module_id' => 'nullable|exists:course_modules,id',
-            'type' => 'required|in:exam,test',
+            'type' => 'required|in:exam,quiz,test',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'exam_date' => 'required|date',

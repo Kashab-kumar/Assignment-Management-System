@@ -15,8 +15,8 @@
     
     body { 
         font-family: 'Segoe UI', Arial, sans-serif; 
-        background: #1a1a1a; 
-        color: #ffffff; 
+        background: #f8fafc; 
+        color: #1f2937; 
         overflow: hidden; 
         user-select: none; 
         -webkit-user-select: none; 
@@ -33,19 +33,20 @@
     }
     
     .secure-header { 
-        background: #2d2d2d; 
+        background: #ffffff; 
         padding: 15px 20px; 
-        border-bottom: 2px solid #dc2626; 
+        border-bottom: 2px solid #7c3aed; 
         display: flex; 
         justify-content: space-between; 
         align-items: center; 
         flex-shrink: 0; 
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
     }
     
     .exam-title { 
         font-size: 20px; 
         font-weight: 700; 
-        color: #ffffff; 
+        color: #1f2937; 
     }
     
     .exam-meta { 
@@ -59,23 +60,24 @@
         align-items: center; 
         gap: 8px; 
         padding: 8px 12px; 
-        background: #404040; 
+        background: #f1f5f9; 
         border-radius: 6px; 
         font-size: 14px; 
+        border: 1px solid #e5e7eb; 
     }
     
     .meta-label { 
-        color: #9ca3af; 
+        color: #64748b; 
         font-size: 12px; 
     }
     
     .meta-value { 
         font-weight: 600; 
-        color: #ffffff; 
+        color: #1f2937; 
     }
     
     .timer { 
-        background: #dc2626; 
+        background: #7c3aed; 
         color: #ffffff; 
         padding: 8px 16px; 
         border-radius: 6px; 
@@ -99,15 +101,16 @@
         flex: 1; 
         overflow-y: auto; 
         padding: 20px; 
-        background: #1a1a1a; 
+        background: #f8fafc; 
     }
     
     .question-card { 
-        background: #2d2d2d; 
-        border: 1px solid #404040; 
+        background: #ffffff; 
+        border: 1px solid #e5e7eb; 
         border-radius: 8px; 
         padding: 20px; 
         margin-bottom: 20px; 
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
     }
     
     .question-header { 
@@ -116,11 +119,11 @@
         align-items: center; 
         margin-bottom: 15px; 
         padding-bottom: 10px; 
-        border-bottom: 1px solid #404040; 
+        border-bottom: 1px solid #e5e7eb; 
     }
     
     .question-number { 
-        background: #3b82f6; 
+        background: #7c3aed; 
         color: #ffffff; 
         padding: 6px 12px; 
         border-radius: 4px; 
@@ -129,7 +132,7 @@
     }
     
     .question-points { 
-        color: #9ca3af; 
+        color: #64748b; 
         font-size: 14px; 
     }
     
@@ -137,16 +140,16 @@
         font-size: 16px; 
         line-height: 1.6; 
         margin-bottom: 15px; 
-        color: #ffffff; 
+        color: #1f2937; 
         white-space: pre-wrap; 
     }
     
     .answer-input, .answer-textarea { 
         width: 100%; 
-        background: #404040; 
-        border: 1px solid #555555; 
+        background: #ffffff; 
+        border: 1px solid #d1d5db; 
         border-radius: 6px; 
-        color: #ffffff; 
+        color: #1f2937; 
         padding: 12px; 
         font-size: 15px; 
         transition: border-color 0.2s; 
@@ -154,23 +157,31 @@
     
     .answer-input:focus, .answer-textarea:focus { 
         outline: none; 
-        border-color: #3b82f6; 
-        background: #4a4a4a; 
+        border-color: #7c3aed; 
+        background: #ffffff; 
+        box-shadow: 0 0 0 3px rgba(124,58,237,0.1); 
     }
     
     .answer-textarea { 
-        min-height: 120px; 
+        min-height: 200px; 
         resize: vertical; 
+        font-family: inherit; 
+        line-height: 1.6; 
+    }
+    
+    .answer-input { 
+        height: 48px; 
     }
     
     .secure-footer { 
-        background: #2d2d2d; 
+        background: #ffffff; 
         padding: 15px 20px; 
-        border-top: 1px solid #404040; 
+        border-top: 1px solid #e5e7eb; 
         display: flex; 
         justify-content: space-between; 
         align-items: center; 
         flex-shrink: 0; 
+        box-shadow: 0 -1px 3px rgba(0,0,0,0.1); 
     }
     
     .violation-counters { 
@@ -198,7 +209,7 @@
     }
     
     .btn-submit { 
-        background: #dc2626; 
+        background: #7c3aed; 
         color: #ffffff; 
         border: none; 
         padding: 12px 24px; 
@@ -209,7 +220,7 @@
     }
     
     .btn-submit:hover { 
-        background: #b91c1c; 
+        background: #6d28d9; 
     }
     
     .btn-submit:disabled { 
@@ -245,10 +256,18 @@
         justify-content: center; 
         align-items: center; 
         height: 100vh; 
-        background: #1a1a1a; 
-        color: #ffffff; 
+        background: #f8fafc; 
+        color: #1f2937; 
         font-size: 18px; 
     }
+
+    /* Multiple choice options */
+    .mcq-options { display: grid; gap: 10px; margin-top: 12px; }
+    .mcq-option { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #f8fafc; border: 2px solid #e5e7eb; border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+    .mcq-option:hover { border-color: #7c3aed; background: #f5f3ff; }
+    .mcq-option input[type="radio"] { width: 18px; height: 18px; accent-color: #7c3aed; cursor: pointer; }
+    .mcq-option label { cursor: pointer; flex: 1; color: #1f2937; font-size: 15px; }
+    .mcq-option.selected { border-color: #7c3aed; background: #ede9fe; }
 </style>
 
 <div class="secure-exam-container">
@@ -292,21 +311,43 @@
                         @php
                             $savedAnswer = old('answers.' . $question->id, $answers->get($question->id)?->answer_text);
                             $isLongAnswer = $question->question_type === 'long_answer';
+                            $isMultipleChoice = $question->question_type === 'multiple_choice';
+
+                            // Parse multiple choice options if available
+                            $options = [];
+                            if ($isMultipleChoice && !empty($question->answer_key)) {
+                                $options = array_map('trim', explode('|', $question->answer_key));
+                            }
                         @endphp
                         
                         <div class="question-card">
                             <div class="question-header">
                                 <div class="question-number">Question {{ $question->position }}</div>
-                                <div class="question-points">{{ $question->points }} point{{ $question->points === 1 ? '' : 's' }} · {{ $isLongAnswer ? 'Long answer' : 'Short answer' }}</div>
+                                <div class="question-points">{{ $question->points }} point{{ $question->points === 1 ? '' : 's' }} · {{ $isLongAnswer ? 'Long answer' : ($isMultipleChoice ? 'Multiple choice' : 'Short answer') }}</div>
                             </div>
                             
                             <div class="question-text">{{ $question->question_text }}</div>
 
-                            @if($isLongAnswer)
+                            @if($isMultipleChoice && !empty($options))
+                                <div class="mcq-options">
+                                    @foreach($options as $index => $option)
+                                        <label class="mcq-option {{ $savedAnswer === $option ? 'selected' : '' }}">
+                                            <input
+                                                type="radio"
+                                                name="answers[{{ $question->id }}]"
+                                                value="{{ $option }}"
+                                                {{ $savedAnswer === $option ? 'checked' : '' }}
+                                                id="answer-{{ $question->id }}-{{ $index }}"
+                                            >
+                                            <span>{{ $option }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            @elseif($isLongAnswer)
                                 <textarea
                                     name="answers[{{ $question->id }}]"
                                     class="answer-textarea"
-                                    placeholder="Type your answer here..."
+                                    placeholder="Type your answer here... (Press Enter for new line)"
                                     id="answer-{{ $question->id }}"
                                 >{{ $savedAnswer }}</textarea>
                             @else

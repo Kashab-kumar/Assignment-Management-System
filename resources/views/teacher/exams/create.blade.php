@@ -281,6 +281,7 @@
                     <select class="form-control" id="type" name="type" required>
                         <option value="">Select assessment type</option>
                         <option value="exam" {{ old('type', $mode) == 'exam' ? 'selected' : '' }}>Exam</option>
+                        <option value="quiz" {{ old('type', $mode) == 'quiz' ? 'selected' : '' }}>Quiz</option>
                         <option value="test" {{ old('type', $mode) == 'test' ? 'selected' : '' }}>Test</option>
                     </select>
                     <div class="help-text">Choose the type of assessment you want to create</div>

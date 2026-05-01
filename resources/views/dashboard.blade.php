@@ -65,7 +65,7 @@
     .badge { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; display: inline-block; }
     .badge-pending, .badge-not-submitted { background: rgba(245,158,11,0.18); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
     .badge-graded, .badge-submitted { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
-    .badge-late { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
+    .badge-late, .badge-overdue { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
 
     .btn {
         padding: 7px 16px;
@@ -117,15 +117,20 @@
         </thead>
         <tbody>
             @forelse($assignments->take(5) as $assignment)
+            @php
+                $isOverdue = $assignment->due_date->isPast() && $assignment->submissions->isEmpty();
+            @endphp
             <tr>
                 <td>{{ $assignment->title }}</td>
                 <td>{{ ucfirst($assignment->type) }}</td>
-                <td>{{ $assignment->due_date->format('M d, Y') }}</td>
+                <td>{{ $assignment->due_date->format('M d, Y') }} @if($isOverdue) <span style="color: #ef4444; font-weight: 600; font-size: 11px;">(OVERDUE)</span> @endif</td>
                 <td>
                     @if($assignment->submissions->first())
                         <span class="badge badge-{{ $assignment->submissions->first()->status }}">
                             {{ ucfirst($assignment->submissions->first()->status) }}
                         </span>
+                    @elseif($isOverdue)
+                        <span class="badge badge-overdue">Overdue</span>
                     @else
                         <span class="badge badge-pending">Not Submitted</span>
                     @endif

@@ -17,9 +17,11 @@
     .breadcrumb span { color: #6b7280; }
     .cards-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
     .card-link { text-decoration: none; display: block; }
-    .card { background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%); color: white; padding: 32px; border-radius: 16px; cursor: pointer; transition: all 0.3s; }
-    .card:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 24px rgba(124,58,237,0.3); }
-    .card h3 { margin: 0 0 8px; font-size: 24px; font-weight: 700; }
+    .card { background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%); color: white; padding: 32px; border-radius: 16px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(124,58,237,0.2); border: 2px solid transparent; position: relative; }
+    .card:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 28px rgba(124,58,237,0.4); border-color: rgba(255,255,255,0.3); }
+    .card h3 { margin: 0 0 8px; font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+    .card h3::after { content: '→'; font-size: 20px; opacity: 0; transition: opacity 0.3s ease; }
+    .card:hover h3::after { opacity: 1; }
     .card .count { font-size: 48px; font-weight: 800; }
     .card .icon { font-size: 32px; opacity: 0.8; }
     @media (max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } }

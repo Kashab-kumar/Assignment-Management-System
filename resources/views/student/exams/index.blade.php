@@ -404,7 +404,9 @@
             </div>
 
             <div class="detail-footer">
-                @if(!$hasStarted)
+                @if($isOverdue)
+                    <a href="javascript:void(0)" class="btn-begin" style="background: #ef4444; cursor: not-allowed;" aria-disabled="true">Assessment Expired</a>
+                @elseif(!$hasStarted)
                     <a href="javascript:void(0)" class="btn-begin" aria-disabled="true">Assessment Not Started</a>
                 @elseif($selectedExam->questions_count === 0)
                     <a href="javascript:void(0)" class="btn-begin" aria-disabled="true">No Questions Added</a>
@@ -417,4 +419,8 @@
         @endif
     </section>
 </div>
+@endsection
+    </section>
+</div>
+@endsection
 @endsection

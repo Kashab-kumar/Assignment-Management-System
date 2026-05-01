@@ -15,6 +15,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'secure.exam' => \App\Http\Middleware\SecureExamMiddleware::class,
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'login',
+            'login.post',
+            'register',
+            'register.admin',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

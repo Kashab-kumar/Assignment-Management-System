@@ -113,11 +113,21 @@ class StudentExamController extends Controller
         $answers = $exam->answers->keyBy('exam_question_id');
         $existingResult = $exam->results->first();
 
+        // Check if exam is expired for all exam types
+        $examStartsAt = $this->getExamStartDateTime($exam);
+        $examEndsAt = $examStartsAt->copy()->addMinutes($exam->duration_minutes);
+        $now = now();
+
+        // Allow access if student has already submitted answers
+        $hasSubmittedAnswers = $exam->answers->isNotEmpty();
+
+        if (!$hasSubmittedAnswers && $now->gt($examEndsAt)) {
+            return redirect()->route('student.exams.index')
+                ->withErrors(['error' => 'This assessment has expired and is no longer available.']);
+        }
+
         // Check if this is a secure exam
         if ($exam->secure_mode) {
-            $now = now();
-            $examStartsAt = $this->getExamStartDateTime($exam);
-
             if ($now->lt($examStartsAt)) {
                 return view('student.exams.secure-waiting', compact('exam', 'student', 'examStartsAt'));
             }
