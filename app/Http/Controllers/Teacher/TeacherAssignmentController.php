@@ -81,6 +81,7 @@ class TeacherAssignmentController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'instructions' => 'nullable|string',
+            'instruction_file' => 'nullable|file|max:10240|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,jpg,jpeg,png,webp',
             'type' => 'required|in:essay,project,quiz,presentation,homework,lab,other',
             'due_date' => 'required|date',
             'max_score' => 'required|integer|min:1',
@@ -93,8 +94,14 @@ class TeacherAssignmentController extends Controller
             abort(403, 'Unauthorized access to this module');
         }
 
+        if ($request->hasFile('instruction_file')) {
+            $file = $request->file('instruction_file');
+            $validated['instruction_file_path'] = $file->store('assignment-instructions', 'public');
+            $validated['instruction_file_name'] = $file->getClientOriginalName();
+        }
+
         $validated['teacher_id'] = $teacher->id;
-        
+
         $assignment = Assignment::create($validated);
 
         return redirect()->route('teacher.modules.show', $validated['module_id'])

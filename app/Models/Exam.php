@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Exam extends Model
 {
-    protected $fillable = ['course_id', 'type', 'title', 'description', 'exam_date', 'exam_time', 'duration_minutes', 'max_score', 'secure_mode', 'secure_instructions', 'max_violations', 'max_warnings'];
+    protected $fillable = ['course_id', 'module_id', 'type', 'title', 'description', 'exam_date', 'exam_time', 'duration_minutes', 'max_score', 'secure_mode', 'secure_instructions', 'max_violations', 'max_warnings'];
 
     protected $casts = [
         'exam_date' => 'date',
@@ -31,6 +31,11 @@ class Exam extends Model
     public function course()
     {
         return $this->belongsTo(Course::class);
+    }
+
+    public function module()
+    {
+        return $this->belongsTo(CourseModule::class);
     }
 
     public function sessions()
@@ -62,7 +67,7 @@ class Exam extends Model
     public function isLive(): bool
     {
         $now = now();
-        return $now->greaterThanOrEqualTo($this->start_datetime) && 
+        return $now->greaterThanOrEqualTo($this->start_datetime) &&
                (!$this->end_datetime || $now->lessThanOrEqualTo($this->end_datetime));
     }
 

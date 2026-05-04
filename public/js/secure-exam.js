@@ -70,7 +70,7 @@ class SecureExamBrowser {
 
     async requestFullscreen() {
         const element = document.documentElement;
-        
+
         if (element.requestFullscreen) {
             await element.requestFullscreen();
         } else if (element.webkitRequestFullscreen) {
@@ -181,7 +181,7 @@ class SecureExamBrowser {
         const threshold = 160;
 
         setInterval(() => {
-            if (window.outerHeight - window.innerHeight > threshold || 
+            if (window.outerHeight - window.innerHeight > threshold ||
                 window.outerWidth - window.innerWidth > threshold) {
                 if (!devtools.open) {
                     devtools.open = true;
@@ -281,7 +281,7 @@ class SecureExamBrowser {
                 this.violations = data.violations;
                 this.warnings = data.warnings;
                 this.updateViolationCounters(data.violations, data.warnings);
-                
+
                 const message = this.getViolationMessage(type);
                 const level = data.violations >= this.maxViolations - 1 ? 'error' : 'warning';
                 this.showNotification(message, level);
@@ -309,7 +309,7 @@ class SecureExamBrowser {
     handleTermination(reason) {
         this.isActive = false;
         this.cleanup();
-        
+
         // Show termination message
         document.body.innerHTML = `
             <div style="
@@ -404,9 +404,9 @@ class SecureExamBrowser {
             const hours = Math.floor(remainingSeconds / 3600);
             const minutes = Math.floor((remainingSeconds % 3600) / 60);
             const seconds = remainingSeconds % 60;
-            
+
             timerElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            
+
             if (remainingSeconds < 300) { // Less than 5 minutes
                 timerElement.style.color = '#ef4444';
             }
@@ -416,7 +416,7 @@ class SecureExamBrowser {
     updateViolationCounters(violations, warnings) {
         const violationsElement = document.getElementById('violations-count');
         const warningsElement = document.getElementById('warnings-count');
-        
+
         if (violationsElement) violationsElement.textContent = violations;
         if (warningsElement) warningsElement.textContent = warnings;
     }
@@ -425,19 +425,12 @@ class SecureExamBrowser {
         if (!this.isActive) return;
 
         try {
-            const response = await fetch(`/secure-exam/${this.examId}/end`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-                }
-            });
+            const form = document.getElementById('exam-form');
 
-            if (response.ok) {
+            if (form) {
+                form.submit();
                 this.isActive = false;
                 this.cleanup();
-                // Redirect to exam results page
-                window.location.href = `/student/exams/${this.examId}`;
             }
 
         } catch (error) {
@@ -449,7 +442,7 @@ class SecureExamBrowser {
         if (this.heartbeatInterval) {
             clearInterval(this.heartbeatInterval);
         }
-        
+
         if (this.fullscreenInterval) {
             clearInterval(this.fullscreenInterval);
         }

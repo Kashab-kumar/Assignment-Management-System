@@ -164,6 +164,56 @@
         margin-top: 4px;
     }
 
+    .upload-box {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        border: 2px dashed #d1d5db;
+        border-radius: 14px;
+        background: linear-gradient(180deg, #fbfbff 0%, #ffffff 100%);
+        padding: 28px 18px;
+        text-align: center;
+        transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+        cursor: pointer;
+    }
+
+    .upload-box:hover {
+        border-color: #7c3aed;
+        background: #faf5ff;
+        transform: translateY(-1px);
+    }
+
+    .upload-icon {
+        width: 54px;
+        height: 54px;
+        margin: 0 auto 14px;
+        border-radius: 16px;
+        display: grid;
+        place-items: center;
+        background: rgba(124, 58, 237, 0.12);
+        color: #7c3aed;
+        font-size: 24px;
+    }
+
+    .upload-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 4px;
+    }
+
+    .upload-subtitle {
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .file-name {
+        margin-top: 12px;
+        font-size: 14px;
+        color: #4b5563;
+        font-weight: 600;
+    }
+
     .error {
         color: #dc2626;
         font-size: 14px;
@@ -241,7 +291,7 @@
         @endif
     @endif
 
-    <form class="assignment-form" method="POST" action="{{ route('teacher.assignments.store') }}">
+    <form class="assignment-form" method="POST" action="{{ route('teacher.assignments.store') }}" enctype="multipart/form-data">
         @csrf
 
         @if(request('module_id'))
@@ -305,6 +355,21 @@
             <textarea class="form-textarea" id="instructions" name="instructions" rows="6">{{ old('instructions') }}</textarea>
             <div class="help-text">Detailed instructions for students on how to complete the assignment</div>
             @error('instructions')
+                <div class="error">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="form-group">
+            <div class="form-label">Instruction File</div>
+            <label class="upload-box" for="instruction_file">
+                <div class="upload-icon">☁</div>
+                <div class="upload-title">Click to upload or drag and drop</div>
+                <div class="upload-subtitle">PDF, Word, PowerPoint, Excel, or image files up to 10MB</div>
+                <div id="instruction-file-name" class="file-name">No file selected</div>
+            </label>
+            <input type="file" id="instruction_file" name="instruction_file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.webp" style="display:none;">
+            <div class="help-text">Upload a file containing the assignment brief, rubric, or supporting material.</div>
+            @error('instruction_file')
                 <div class="error">{{ $message }}</div>
             @enderror
         </div>
@@ -422,6 +487,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.value = this.value.substring(0, maxLength);
             }
         });
+    });
+
+    // Instruction file picker
+    const instructionFileInput = document.getElementById('instruction_file');
+    const instructionFileName = document.getElementById('instruction-file-name');
+
+    instructionFileInput.addEventListener('change', function() {
+        instructionFileName.textContent = this.files.length ? this.files[0].name : 'No file selected';
     });
 });
 </script>

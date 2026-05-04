@@ -14,7 +14,7 @@ class TeacherModuleController extends Controller
     public function index()
     {
         $teacher = auth()->user()->teacher;
-        
+
         // Only show modules where this teacher is explicitly assigned as the instructor
         $modules = CourseModule::with(['course', 'assignments', 'exams'])
             ->where('teacher_id', $teacher->id)
@@ -44,7 +44,7 @@ class TeacherModuleController extends Controller
     {
         $teacher = auth()->user()->teacher;
         $courses = Course::whereHas('teachers', function($query) use ($teacher) {
-            $query->where('teacher_id', $teacher->id);
+            $query->where('course_teacher.teacher_id', $teacher->id);
         })->get();
 
         return view('teacher.modules.create', compact('courses'));
@@ -86,7 +86,7 @@ class TeacherModuleController extends Controller
         }
 
         $courses = Course::whereHas('teachers', function($query) use ($teacher) {
-            $query->where('teacher_id', $teacher->id);
+            $query->where('course_teacher.teacher_id', $teacher->id);
         })->get();
 
         return view('teacher.modules.edit', compact('module', 'courses'));
@@ -166,7 +166,7 @@ class TeacherModuleController extends Controller
     private function getAssignmentStatus($assignment)
     {
         $now = now();
-        
+
         if ($assignment->due_date && $now->gt($assignment->due_date)) {
             return 'overdue';
         } elseif ($assignment->due_date && $now->diffInDays($assignment->due_date) <= 3) {
@@ -179,7 +179,7 @@ class TeacherModuleController extends Controller
     private function getExamStatus($exam)
     {
         $now = now();
-        
+
         if ($exam->exam_date && $now->gt($exam->exam_date)) {
             return 'completed';
         } elseif ($exam->exam_date && $now->diffInDays($exam->exam_date) <= 3) {

@@ -17,6 +17,8 @@ use App\Http\Controllers\Teacher\TeacherStudentController;
 use App\Http\Controllers\Teacher\TeacherGradeController;
 use App\Http\Controllers\Teacher\TeacherReportController;
 use App\Http\Controllers\Teacher\TeacherCourseController;
+use App\Http\Controllers\Teacher\TeacherModuleController;
+use App\Http\Controllers\Teacher\UnitController;
 use App\Http\Controllers\Student\StudentExamController;
 use App\Http\Controllers\Student\StudentGradeController;
 use App\Http\Controllers\Student\StudentModuleController;

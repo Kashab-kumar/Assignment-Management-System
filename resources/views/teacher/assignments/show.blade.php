@@ -26,6 +26,7 @@
     .score-display { font-weight: bold; color: #4CAF50; }
     .file-link { color: #2196F3; text-decoration: none; }
     .file-link:hover { text-decoration: underline; }
+    .instruction-card { margin-top: 12px; padding: 14px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; }
 </style>
 
 @if(session('success'))
@@ -41,11 +42,20 @@
         <span class="meta-item"><strong>Total Submissions:</strong> {{ $submissions->count() }}</span>
     </div>
     <p style="line-height: 1.6; color: #555;">{{ $assignment->description }}</p>
+
+    @if($assignment->instruction_file_path)
+        <div class="instruction-card">
+            <strong>Instruction File:</strong>
+            <a class="file-link" href="{{ asset('storage/' . $assignment->instruction_file_path) }}" target="_blank" rel="noopener">
+                {{ $assignment->instruction_file_name ?? basename($assignment->instruction_file_path) }}
+            </a>
+        </div>
+    @endif
 </div>
 
 <div class="card">
     <h2>Student Submissions</h2>
-    
+
     @if($submissions->count() > 0)
     <table>
         <thead>

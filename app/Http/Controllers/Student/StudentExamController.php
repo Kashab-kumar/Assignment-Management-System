@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\ExamAnswer;
+use App\Models\ExamResult;
 use App\Models\Exam;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -142,7 +143,7 @@ class StudentExamController extends Controller
                 ->where('student_id', $student->id)
                 ->first();
 
-            if ($existingSession && $existingSession->isTerminated()) {
+            if ($existingSession && $existingSession->isTerminated() && $exam->answers()->where('student_id', $student->id)->doesntExist()) {
                 return redirect()->route('student.exams.index')
                     ->withErrors(['error' => 'Your exam session was terminated: ' . $existingSession->termination_reason]);
             }
@@ -252,6 +253,18 @@ class StudentExamController extends Controller
                     'remarks' => 'Auto-graded',
                 ]
             );
+
+            if ($exam->secure_mode) {
+                $session = \App\Models\ExamSession::where('exam_id', $exam->id)
+                    ->where('student_id', $student->id)
+                    ->first();
+
+                if ($session && !$session->isTerminated()) {
+                    $session->ended_at = now();
+                    $session->termination_reason = 'Student submitted exam';
+                    $session->save();
+                }
+            }
         });
 
         return redirect()->route('student.exams.show', $exam)

@@ -50,6 +50,35 @@
     .instructions-box .label { font-size: 13px; font-weight: 600; color: #000000; margin-bottom: 10px; }
     .instructions-box p { font-size: 14px; color: #000000; line-height: 1.7; }
 
+    .instruction-file-box {
+        margin-top: 16px;
+        padding: 16px 18px;
+        background: rgba(124,58,237,0.06);
+        border: 1px solid rgba(124,58,237,0.18);
+        border-radius: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    .instruction-file-box .label { font-size: 13px; font-weight: 600; color: #000000; margin-bottom: 6px; }
+    .instruction-file-box .meta { font-size: 13px; color: #475569; }
+    .instruction-file-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        background: #7c3aed;
+        color: #ffffff;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    .instruction-file-link:hover { background: #6d28d9; }
+
     .submit-section { padding: 0 28px 28px; }
     .submit-section h3 { font-size: 16px; font-weight: 600; color: #000000; margin: 0 0 16px; padding-top: 20px; }
 
@@ -213,6 +242,25 @@
     <div class="instructions-box">
         <div class="label">Instructions:</div>
         <p>{{ $assignment->description }}</p>
+    </div>
+    @endif
+
+    @if($assignment->instructions)
+    <div class="instructions-box">
+        <div class="label">Detailed Instructions:</div>
+        <p>{{ $assignment->instructions }}</p>
+    </div>
+    @endif
+
+    @if($assignment->instruction_file_path)
+    <div class="instruction-file-box">
+        <div>
+            <div class="label">Instruction File</div>
+            <div class="meta">{{ $assignment->instruction_file_name ?? basename($assignment->instruction_file_path) }}</div>
+        </div>
+        <a href="{{ asset('storage/' . $assignment->instruction_file_path) }}" target="_blank" rel="noopener" class="instruction-file-link">
+            Open File
+        </a>
     </div>
     @endif
 
