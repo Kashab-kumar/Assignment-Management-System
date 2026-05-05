@@ -5,8 +5,116 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Teacher Dashboard') - Assignment Management</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        /* Dark Mode Support */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --sidebar-bg: #ffffff;
+            --sidebar-text: #1f2937;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --sidebar-bg: #1f2937;
+            --sidebar-text: #f3f4f6;
+        }
+
+        body {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        [data-theme="dark"] body {
+            background-color: #111827;
+        }
+
+        [data-theme="dark"] aside {
+            background-color: var(--sidebar-bg) !important;
+            border-color: #374151 !important;
+        }
+
+        [data-theme="dark"] aside * {
+            color: var(--sidebar-text);
+        }
+
+        [data-theme="dark"] main {
+            background-color: #111827;
+        }
+
+        [data-theme="dark"] .card,
+        [data-theme="dark"] .panel,
+        [data-theme="dark"] .section,
+        [data-theme="dark"] .container,
+        [data-theme="dark"] .table-container,
+        [data-theme="dark"] .grades-container,
+        [data-theme="dark"] .reports-container,
+        [data-theme="dark"] .course-container,
+        [data-theme="dark"] .courses-container,
+        [data-theme="dark"] .stat-card,
+        [data-theme="dark"] .stats-card,
+        [data-theme="dark"] .filters,
+        [data-theme="dark"] .export-options,
+        [data-theme="dark"] .assignment-card,
+        [data-theme="dark"] .submission-card {
+            background-color: #1f2937 !important;
+            color: #f3f4f6 !important;
+            border-color: #374151 !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35) !important;
+        }
+
+        [data-theme="dark"] table {
+            color: #e5e7eb !important;
+        }
+
+        [data-theme="dark"] thead {
+            background-color: #111827 !important;
+        }
+
+        [data-theme="dark"] th {
+            background-color: #111827 !important;
+            color: #d1d5db !important;
+            border-color: #374151 !important;
+        }
+
+        [data-theme="dark"] td {
+            border-color: #374151 !important;
+            color: #e5e7eb !important;
+        }
+
+        [data-theme="dark"] tbody tr:hover {
+            background-color: #111827 !important;
+        }
+
+        [data-theme="dark"] select,
+        [data-theme="dark"] input,
+        [data-theme="dark"] textarea {
+            background-color: #111827 !important;
+            color: #f3f4f6 !important;
+            border-color: #374151 !important;
+        }
+
+        [data-theme="dark"] .btn,
+        [data-theme="dark"] .btn-secondary,
+        [data-theme="dark"] .btn-primary,
+        [data-theme="dark"] .btn-add,
+        [data-theme="dark"] .btn-filter,
+        [data-theme="dark"] .filter-btn {
+            color: #ffffff !important;
+        }
+
+
+    </style>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans">
+<body class="bg-gray-50 text-gray-900 font-sans" data-theme="light">
     <div class="flex min-h-screen">
         <!-- Sidebar -->
         <aside class="w-64 bg-white border-r border-gray-200 fixed h-full flex flex-col overflow-y-auto z-10">
@@ -101,22 +209,24 @@
             <!-- Account Section -->
             <div class="p-4 border-t border-gray-200">
                 @php($sidebarAvatarUrl = auth()->user()->avatar_path ? url('/storage/' . auth()->user()->avatar_path) : null)
-                <a href="{{ route('teacher.settings') }}" class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-900">
-                    <div class="w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold flex-shrink-0 border-2 border-primary-300">
-                        @if($sidebarAvatarUrl)
-                            <img src="{{ $sidebarAvatarUrl }}" alt="{{ auth()->user()->name }}" class="w-full h-full rounded-full object-cover">
-                        @else
-                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                        @endif
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <div class="text-sm font-semibold truncate text-gray-900">{{ auth()->user()->name }}</div>
-                        <div class="text-xs text-gray-500">Teacher</div>
-                    </div>
-                    <svg class="w-4 h-4 text-primary-600 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.58.23-1.12.54-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.31.6.22l2.39-.96c.5.4 1.05.72 1.63.94l.36 2.54c.04.24.25.42.5.42h3.84c.25 0 .46-.18.5-.42l.36-2.54c.58-.23 1.12-.54 1.63-.94l2.39.96c.22.09.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5z"/>
-                    </svg>
-                </a>
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('teacher.settings') }}" class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-900 flex-1 min-w-0">
+                        <div class="w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold flex-shrink-0 border-2 border-primary-300">
+                            @if($sidebarAvatarUrl)
+                                <img src="{{ $sidebarAvatarUrl }}" alt="{{ auth()->user()->name }}" class="w-full h-full rounded-full object-cover">
+                            @else
+                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                            @endif
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-sm font-semibold truncate text-gray-900">{{ auth()->user()->name }}</div>
+                            <div class="text-xs text-gray-500">Teacher</div>
+                        </div>
+                        <svg class="w-4 h-4 text-primary-600 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.58.23-1.12.54-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.31.6.22l2.39-.96c.5.4 1.05.72 1.63.94l.36 2.54c.04.24.25.42.5.42h3.84c.25 0 .46-.18.5-.42l.36-2.54c.58-.23 1.12-.54 1.63-.94l2.39.96c.22.09.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5z"/>
+                        </svg>
+                    </a>
+                </div>
             </div>
         </aside>
 

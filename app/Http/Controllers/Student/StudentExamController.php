@@ -25,6 +25,7 @@ class StudentExamController extends Controller
 
         $studentCourseId = Schema::hasColumn('students', 'course_id') ? $student->course_id : null;
         $activeFilter = $request->query('filter', 'all');
+        $moduleId = $request->integer('module_id') ?: null;
 
         $exams = Exam::with([
             'results' => function ($query) use ($student) {
@@ -49,6 +50,9 @@ class StudentExamController extends Controller
                     }
                 }
             )
+            ->when($moduleId, function ($query) use ($moduleId) {
+                $query->where('module_id', $moduleId);
+            })
             ->when($activeFilter !== 'all', function ($query) use ($activeFilter) {
                 $query->where('type', $activeFilter);
             })
@@ -79,15 +83,34 @@ class StudentExamController extends Controller
             ?? $activeList->first()
             ?? $exams->first();
 
+        $module = $moduleId ? \App\Models\CourseModule::find($moduleId) : null;
+
         return view('student.exams.index', compact(
             'student',
             'activeTab',
             'activeFilter',
             'selectedExam',
             'upcomingExams',
-            'completedExams'
+            'completedExams',
+            'module',
+            'moduleId'
         ));
     }
+            private function normalizeAnswer(string $text): string
+            {
+                $t = mb_strtolower($text);
+                // Remove punctuation, collapse whitespace, and ascii-fy
+                $t = preg_replace('/[^\p{L}\p{N}\s]+/u', '', $t);
+                $t = preg_replace('/\s+/u', ' ', $t);
+                $t = trim($t);
+
+                // Convert to ASCII where possible
+                if (function_exists('transliterator_transliterate')) {
+                    $t = transliterator_transliterate('Any-Latin; Latin-ASCII;', $t);
+                }
+
+                return $t;
+            }
 
     public function show(Exam $exam)
     {
@@ -211,35 +234,46 @@ class StudentExamController extends Controller
             foreach ($exam->questions as $question) {
                 $studentAnswer = trim((string) $submittedAnswers[$question->id]);
                 $correctAnswer = trim((string) ($question->answer_key ?? ''));
+                // Determine correctness using fuzzy matching for short answers
+                $isCorrect = null;
+
+                if ($correctAnswer !== '' && $studentAnswer !== '') {
+                    if ($question->question_type === 'multiple_choice') {
+                        $parts = array_map('trim', explode('|', $correctAnswer));
+                        if (count($parts) > 1) {
+                            $correctAnswer = $parts[0];
+                        } else {
+                            $correctAnswer = $parts[0] ?? '';
+                        }
+
+                        $isCorrect = strcasecmp($studentAnswer, $correctAnswer) === 0;
+                    } else {
+                        // Short/long answer: normalize and apply fuzzy similarity
+                        $normalizedStudent = $this->normalizeAnswer($studentAnswer);
+                        $normalizedCorrect = $this->normalizeAnswer($correctAnswer);
+
+                        if ($normalizedStudent === '' || $normalizedCorrect === '') {
+                            $isCorrect = false;
+                        } else {
+                            $lev = levenshtein($normalizedStudent, $normalizedCorrect);
+                            $maxLen = max(strlen($normalizedStudent), strlen($normalizedCorrect));
+                            $similarity = $maxLen > 0 ? (1 - ($lev / $maxLen)) : 0;
+                            $isCorrect = $similarity >= 0.75 || $lev <= 1;
+                        }
+                    }
+
+                    if ($isCorrect) {
+                        $totalScore += $question->points;
+                    }
+                }
 
                 ExamAnswer::create([
                     'exam_question_id' => $question->id,
                     'student_id' => $student->id,
                     'exam_id' => $exam->id,
                     'answer_text' => $studentAnswer,
+                    'is_correct' => $isCorrect,
                 ]);
-
-                // Auto-grade: compare student answer with answer key
-                if ($correctAnswer !== '' && $studentAnswer !== '') {
-                    // For multiple choice, extract the correct answer from the new format
-                    if ($question->question_type === 'multiple_choice') {
-                        $parts = array_map('trim', explode('|', $correctAnswer));
-                        if (count($parts) > 1) {
-                            // New format: correct_answer|option1|option2|option3...
-                            $correctAnswer = $parts[0];
-                        } else {
-                            // Old format: option1|option2|option3... (first is correct)
-                            $correctAnswer = $parts[0] ?? '';
-                        }
-                    }
-
-                    // Case-insensitive comparison with trimming
-                    $isCorrect = strtolower(trim($studentAnswer)) === strtolower(trim($correctAnswer));
-
-                    if ($isCorrect) {
-                        $totalScore += $question->points;
-                    }
-                }
             }
 
             // Save the auto-calculated score
@@ -267,7 +301,7 @@ class StudentExamController extends Controller
             }
         });
 
-        return redirect()->route('student.exams.show', $exam)
+        return redirect()->route('student.exams.index')
             ->with('success', 'Your answers have been submitted and auto-graded successfully.');
     }
 

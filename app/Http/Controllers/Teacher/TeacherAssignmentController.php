@@ -104,7 +104,11 @@ class TeacherAssignmentController extends Controller
 
         $assignment = Assignment::create($validated);
 
-        return redirect()->route('teacher.modules.show', $validated['module_id'])
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Assignment created successfully!'], 201);
+        }
+
+        return redirect()->route('teacher.assignments.index')
             ->with('success', 'Assignment created successfully!');
     }
 

@@ -296,7 +296,7 @@
         .module-stats {
             grid-template-columns: 1fr;
         }
-        
+
         .activity-meta {
             flex-direction: column;
             align-items: flex-start;
@@ -410,7 +410,7 @@
         <div class="section-header">
             <h2 class="section-title">Module Activities</h2>
             <div>
-                <a href="{{ route('teacher.assignments.create', ['module_id' => $module->id]) }}" class="btn btn-primary">+ Assignment</a>
+                <button onclick="openAssignmentModal()" class="btn btn-primary">+ Assignment</button>
                 <a href="{{ route('teacher.exams.create', ['module_id' => $module->id]) }}" class="btn btn-success">+ Exam</a>
             </div>
         </div>
@@ -428,11 +428,11 @@
                                 <div class="activity-type">{{ $activity['type'] }}</div>
                             </div>
                         </div>
-                        
+
                         <div class="activity-description">
                             {{ Str::limit($activity['description'], 150) }}
                         </div>
-                        
+
                         <div class="activity-meta">
                             <div class="activity-weightage">Weightage: {{ $activity['weightage'] }}%</div>
                             <div class="activity-date">
@@ -443,20 +443,18 @@
                                 @endif
                             </div>
                         </div>
-                        
+
                         <div class="activity-status status-{{ $activity['status'] }}">
                             {{ ucfirst(str_replace('_', ' ', $activity['status'])) }}
                         </div>
-                        
+
                         <div class="activity-actions">
                             @if($activity['type'] == 'assignment')
-                                <a href="{{ route('teacher.assignments.show', $activity['id']) }}" class="btn btn-primary">View</a>
-                                <a href="{{ route('teacher.assignments.edit', $activity['id']) }}" class="btn btn-secondary">Edit</a>
-                                <a href="{{ route('teacher.assignments.grading', $activity['id']) }}" class="btn btn-success">Grade</a>
+                                <a href="{{ route('teacher.assignments.show', $activity['id']) }}" class="btn btn-primary">View & Grade</a>
                             @else
                                 <a href="{{ route('teacher.exams.show', $activity['id']) }}" class="btn btn-primary">View</a>
                                 <a href="{{ route('teacher.exams.edit', $activity['id']) }}" class="btn btn-secondary">Edit</a>
-                                <a href="{{ route('teacher.exams.results', $activity['id']) }}" class="btn btn-success">Results</a>
+                                <a href="{{ route('teacher.exams.show', $activity['id']) }}" class="btn btn-success">Results</a>
                             @endif
                         </div>
                     </div>
@@ -464,15 +462,232 @@
             </div>
         @else
             <div class="empty-activities">
-                <div class="empty-activities-icon">{$module->title[0]}</div>
+                <div class="empty-activities-icon">📚</div>
                 <h3>No Activities Yet</h3>
                 <p>Create assignments and exams for this module to get started</p>
                 <div>
-                    <a href="{{ route('teacher.assignments.create', ['module_id' => $module->id]) }}" class="btn btn-primary">Create Assignment</a>
+                    <button onclick="openAssignmentModal()" class="btn btn-primary">Create Assignment</button>
                     <a href="{{ route('teacher.exams.create', ['module_id' => $module->id]) }}" class="btn btn-success">Create Exam</a>
                 </div>
             </div>
         @endif
+    </div>
+
+    <!-- Assignment Modal -->
+    <style>
+        .assignment-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .assignment-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: #1f2937;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+
+    <div id="assignmentModal" class="assignment-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Create New Assignment</span>
+                <button class="modal-close" onclick="closeAssignmentModal()">✕</button>
+            </div>
+
+            <form id="assignmentForm" onsubmit="submitAssignmentForm(event)">
+                @csrf
+                <input type="hidden" name="module_id" value="{{ $module->id }}">
+
+                <div class="form-group">
+                    <label for="course_id">Course *</label>
+                    <select id="course_id" name="course_id" required>
+                        <option value="{{ $module->course_id }}">{{ $module->course->name }}</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="title">Title *</label>
+                    <input type="text" id="title" name="title" placeholder="Assignment title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description *</label>
+                    <textarea id="description" name="description" placeholder="Describe the assignment" rows="3" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="instructions">Instructions</label>
+                    <textarea id="instructions" name="instructions" placeholder="Special instructions for students" rows="2"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="type">Type *</label>
+                        <select id="type" name="type" required>
+                            <option value="">Select type</option>
+                            <option value="essay">Essay</option>
+                            <option value="project">Project</option>
+                            <option value="quiz">Quiz</option>
+                            <option value="presentation">Presentation</option>
+                            <option value="homework">Homework</option>
+                            <option value="lab">Lab</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="due_date">Due Date *</label>
+                        <input type="datetime-local" id="due_date" name="due_date" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="max_score">Max Score *</label>
+                        <input type="number" id="max_score" name="max_score" value="100" min="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="weightage">Weightage (%)</label>
+                        <input type="number" id="weightage" name="weightage" value="0" min="0" max="100" step="0.01">
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAssignmentModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Assignment</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -480,12 +695,12 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Activity card interactions
         const activityCards = document.querySelectorAll('.activity-card');
-        
+
         activityCards.forEach(card => {
             card.addEventListener('mouseenter', function() {
                 this.style.transform = 'translateY(-2px)';
             });
-            
+
             card.addEventListener('mouseleave', function() {
                 this.style.transform = 'translateY(0)';
             });
@@ -537,5 +752,99 @@ function editUnit(unitId, title, description, order) {
 function cancelEditUnit(unitId, originalContent) {
     document.getElementById('unit-' + unitId).innerHTML = originalContent;
 }
-</script>
-@endpush
+
+function openAssignmentModal() {
+    document.getElementById('assignmentModal').style.display = 'flex';
+}
+
+function closeAssignmentModal() {
+    document.getElementById('assignmentModal').style.display = 'none';
+    document.getElementById('assignmentForm').reset();
+}
+
+function submitAssignmentForm(e) {
+    e.preventDefault();
+
+    const form = document.getElementById('assignmentForm');
+    const formData = new FormData(form);
+
+    fetch('{{ route("teacher.assignments.store") }}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            closeAssignmentModal();
+            showSuccessMessage('Assignment created successfully!');
+            setTimeout(() => window.location.href = '{{ route("teacher.assignments.index") }}', 1500);
+        } else {
+            return response.json().then(data => {
+                showErrorMessage(data.message || 'Failed to create assignment');
+            });
+        }
+    })
+    .catch(error => {
+        showErrorMessage('Error creating assignment: ' + error.message);
+    });
+}
+
+function showSuccessMessage(message) {
+    const notification = document.createElement('div');
+    notification.className = 'success-notification';
+    notification.textContent = '✓ ' + message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #10b981;
+        color: white;
+        padding: 16px 24px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 9999;
+        animation: slideIn 0.3s ease;
+    `;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+
+function showErrorMessage(message) {
+    const notification = document.createElement('div');
+    notification.className = 'error-notification';
+    notification.textContent = '✗ ' + message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #ef4444;
+        color: white;
+        padding: 16px 24px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 9999;
+        animation: slideIn 0.3s ease;
+    `;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+
+// Close modal when clicking outside
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('assignmentModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeAssignmentModal();
+            }
+        });
+    }
+});
+
+function openAssignmentModal() {
+    document.getElementById('assignmentModal').style.display = 'flex';
+}
+

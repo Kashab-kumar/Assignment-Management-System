@@ -59,41 +59,17 @@
     <div class="panel">
         <h3 class="section-title">Assignments</h3>
         <div class="actions">
-            <a class="btn btn-muted" href="{{ route('student.assignments.index') }}">Open All Assignments</a>
+            <a class="btn btn-primary" href="{{ route('student.assignments.index', ['module_id' => $module->id]) }}">View All Assignments for This Module</a>
         </div>
-        <div class="list" style="margin-top:10px;">
-            @forelse($assignments as $assignment)
-                <div class="item">
-                    <h4>{{ $assignment->title }}</h4>
-                    <p>Due {{ $assignment->due_date?->format('M d, Y') ?: '-' }} | {{ ucfirst($assignment->type) }}</p>
-                    <div class="actions">
-                        <a class="btn btn-primary" href="{{ route('student.assignments.show', $assignment) }}">Open Assignment</a>
-                    </div>
-                </div>
-            @empty
-                <div class="empty">No assignments found for this module's course.</div>
-            @endforelse
-        </div>
+        <p style="margin-top: 10px; color: #64748b;">Open the dedicated page for a cleaner assignments table view.</p>
     </div>
 
     <div class="panel">
         <h3 class="section-title">Exams</h3>
         <div class="actions">
-            <a class="btn btn-muted" href="{{ route('student.exams.index') }}">Open All Exams</a>
+            <a class="btn btn-primary" href="{{ route('student.exams.index', ['module_id' => $module->id]) }}">View All Exams for This Module</a>
         </div>
-        <div class="list" style="margin-top:10px;">
-            @forelse($exams as $exam)
-                <div class="item">
-                    <h4>{{ $exam->title }}</h4>
-                    <p>{{ ucfirst($exam->type) }} on {{ $exam->exam_date?->format('M d, Y') ?: '-' }} | Max {{ $exam->max_score }}</p>
-                    <div class="actions">
-                        <a class="btn btn-primary" href="{{ route('student.exams.show', $exam) }}">Open Exam</a>
-                    </div>
-                </div>
-            @empty
-                <div class="empty">No exams found for this module's course.</div>
-            @endforelse
-        </div>
+        <p style="margin-top: 10px; color: #64748b;">Open the dedicated page for a cleaner exams table view.</p>
     </div>
 
     <div class="panel">

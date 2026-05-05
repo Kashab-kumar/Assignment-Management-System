@@ -274,23 +274,23 @@
     }
 
     .course-footer {
-        padding: 20px;
+        padding: 16px;
         border-top: 1px solid #e5e7eb;
         background: #f9fafb;
     }
 
     .course-actions {
-        display: flex;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         gap: 8px;
     }
 
     .btn {
-        flex: 1;
-        padding: 10px 16px;
+        padding: 10px 12px;
         border-radius: 8px;
         text-decoration: none;
         text-align: center;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 600;
         transition: all 0.3s ease;
         border: none;
@@ -321,6 +321,7 @@
     .btn-danger {
         background: #ef4444;
         color: white;
+        grid-column: 1 / -1;
     }
 
     .btn-danger:hover {
@@ -373,22 +374,22 @@
         .courses-grid {
             grid-template-columns: 1fr;
         }
-        
+
         .courses-header {
             padding: 24px;
             text-align: center;
         }
-        
+
         .courses-header h1 {
             font-size: 24px;
         }
-        
+
         .btn-add {
             position: static;
             margin-top: 16px;
             display: inline-block;
         }
-        
+
         .filters-grid {
             grid-template-columns: 1fr;
         }
@@ -416,7 +417,7 @@
                     @endforeach
                 </select>
             </div>
-            
+
             <div class="filter-group">
                 <label for="class_name">Class</label>
                 <select id="class_name" name="class_name" class="filter-select" onchange="this.form.submit()">
@@ -426,7 +427,7 @@
                     @endforeach
                 </select>
             </div>
-            
+
             <div class="filter-group">
                 <label>&nbsp;</label>
                 <div class="filter-actions">
@@ -447,13 +448,13 @@
                         <div class="course-title">{{ $course->name }}</div>
                         <div class="course-code">{{ $course->code ?? 'COURSE-' . $course->id }}</div>
                     </div>
-                    
+
                     <div class="course-body">
                         <div class="course-meta">
                             <div class="meta-item category">{{ $course->category_name ?: 'Uncategorized' }}</div>
                             <div class="meta-item class">{{ $course->class_name ?: 'Unassigned' }}</div>
                         </div>
-                        
+
                         <div class="course-stats">
                             <div class="stat-item">
                                 <div class="stat-value">{{ $course->students_count ?? 0 }}</div>
@@ -468,19 +469,19 @@
                                 <div class="stat-label">Assignments</div>
                             </div>
                         </div>
-                        
+
                         <div class="course-description">
                             {{ $course->description ?: 'No description available for this course.' }}
                         </div>
                     </div>
-                    
+
                     <div class="course-footer">
                         <div class="course-actions">
                             <a href="{{ route('admin.courses.show', $course) }}" class="btn btn-primary">Manage</a>
                             <a href="{{ route('admin.courses.edit', $course) }}" class="btn btn-secondary">Edit</a>
                             <a href="{{ route('admin.invitations.create', ['role' => 'teacher', 'course_id' => $course->id]) }}" class="btn btn-invite-teacher">Invite Teacher</a>
                             <a href="{{ route('admin.invitations.create', ['role' => 'student', 'course_id' => $course->id]) }}" class="btn btn-invite-student">Invite Student</a>
-                            <form method="POST" action="{{ route('admin.courses.destroy', $course) }}" style="display: inline;">
+                            <form method="POST" action="{{ route('admin.courses.destroy', $course) }}" style="display: contents;">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this course?')">Delete</button>

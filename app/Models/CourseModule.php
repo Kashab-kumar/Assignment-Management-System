@@ -45,4 +45,14 @@ class CourseModule extends Model
     {
         return $this->hasMany(Unit::class, 'module_id')->orderBy('order')->orderBy('id');
     }
+
+    public function assignments()
+    {
+        return $this->hasMany(Assignment::class, 'module_id');
+    }
+
+    public function exams()
+    {
+        return $this->hasMany(Exam::class, 'module_id');
+    }
 }

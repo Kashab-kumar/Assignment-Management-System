@@ -11,6 +11,11 @@ class ExamAnswer extends Model
         'exam_question_id',
         'student_id',
         'answer_text',
+        'is_correct',
+    ];
+
+    protected $casts = [
+        'is_correct' => 'boolean',
     ];
 
     public function exam()

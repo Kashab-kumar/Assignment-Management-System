@@ -60,7 +60,7 @@
                 <td>{{ $assignment->due_date?->format('M d, Y') ?: '-' }}</td>
                 <td>{{ $assignment->submissions_count }} submission(s)</td>
                 <td>
-                    <a href="{{ route('teacher.assignments.show', $assignment) }}" class="btn">Open</a>
+                    <a href="{{ route('teacher.submissions.index') }}" class="btn">View Submissions</a>
                 </td>
             </tr>
             @endforeach

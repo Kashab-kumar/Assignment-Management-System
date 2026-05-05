@@ -107,6 +107,7 @@ Route::post('/submissions/{submission}/grade-ai', [TeacherAssignmentController::
     Route::put('/exams/{exam}', [TeacherExamController::class, 'update'])->name('exams.update');
     Route::get('/exams/{exam}', [TeacherExamController::class, 'show'])->name('exams.show');
     Route::post('/exams/{exam}/results', [TeacherExamController::class, 'upsertResult'])->name('exams.results.upsert');
+    Route::post('/exam-answers/{answer}/verify', [TeacherExamController::class, 'verifyAnswer'])->name('exam-answers.verify');
 
     // Modules
     Route::get('/modules', [TeacherModuleController::class, 'index'])->name('modules.index');

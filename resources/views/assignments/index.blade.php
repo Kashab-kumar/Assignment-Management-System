@@ -1,7 +1,7 @@
 @extends('layouts.student')
 
-@section('title', 'Assignments')
-@section('page-title', 'Assignments')
+@section('title', $module ? $module->title . ' - Assignments' : 'Assignments')
+@section('page-title', $module ? $module->title . ' Assignments' : 'Assignments')
 
 @section('content')
 <style>
@@ -62,14 +62,22 @@
     .empty-state p  { color: #475569; font-size: 14px; }
 </style>
 
+@if($module)
+    <div style="margin-bottom: 20px;">
+        <a href="{{ route('student.modules.show', $module) }}" style="color: #7c3aed; text-decoration: none; font-weight: 500;">
+            ← Back to {{ $module->title }}
+        </a>
+    </div>
+@endif
+
 <div class="tabs">
-    <a href="{{ route('student.assignments.index', ['tab' => 'pending']) }}" class="tab-link {{ $activeTab === 'pending' ? 'active' : '' }}">
+    <a href="{{ route('student.assignments.index', array_filter(['module_id' => $moduleId, 'tab' => 'pending'])) }}" class="tab-link {{ $activeTab === 'pending' ? 'active' : '' }}">
         Pending ({{ $pending->count() }})
     </a>
-    <a href="{{ route('student.assignments.index', ['tab' => 'submitted']) }}" class="tab-link {{ $activeTab === 'submitted' ? 'active' : '' }}">
+    <a href="{{ route('student.assignments.index', array_filter(['module_id' => $moduleId, 'tab' => 'submitted'])) }}" class="tab-link {{ $activeTab === 'submitted' ? 'active' : '' }}">
         Submitted ({{ $submitted->count() }})
     </a>
-    <a href="{{ route('student.assignments.index', ['tab' => 'graded']) }}" class="tab-link {{ $activeTab === 'graded' ? 'active' : '' }}">
+    <a href="{{ route('student.assignments.index', array_filter(['module_id' => $moduleId, 'tab' => 'graded'])) }}" class="tab-link {{ $activeTab === 'graded' ? 'active' : '' }}">
         Graded ({{ $graded->count() }})
     </a>
 </div>

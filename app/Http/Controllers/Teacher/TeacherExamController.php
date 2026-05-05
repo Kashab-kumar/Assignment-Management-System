@@ -247,6 +247,42 @@ class TeacherExamController extends Controller
         return back()->with('success', 'Exam result saved successfully.');
     }
 
+    public function verifyAnswer(Request $request, \App\Models\ExamAnswer $answer)
+    {
+        $assigned = $this->assignedCourseIds();
+        $exam = Exam::find($answer->exam_id);
+        if (!$exam || !in_array($exam->course_id, $assigned, true)) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'is_correct' => 'required|boolean',
+        ]);
+
+        $answer->is_correct = (bool) $validated['is_correct'];
+        $answer->save();
+
+        // Recalculate total score for this student on this exam
+        $answers = ExamAnswer::with('question')
+            ->where('exam_id', $answer->exam_id)
+            ->where('student_id', $answer->student_id)
+            ->get();
+
+        $score = 0;
+        foreach ($answers as $a) {
+            if ($a->is_correct && $a->question) {
+                $score += (int) $a->question->points;
+            }
+        }
+
+        \App\Models\ExamResult::updateOrCreate(
+            ['exam_id' => $answer->exam_id, 'student_id' => $answer->student_id],
+            ['score' => $score]
+        );
+
+        return back()->with('success', 'Answer correctness updated.');
+    }
+
     private function assignedCourseIds(): array
     {
         $teacher = auth()->user()->teacher;

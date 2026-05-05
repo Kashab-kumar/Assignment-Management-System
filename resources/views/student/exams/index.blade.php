@@ -1,7 +1,7 @@
 @extends('layouts.student')
 
-@section('title', 'Tests & Exams')
-@section('page-title', 'Tests & Exams')
+@section('title', $module ? $module->title . ' - Exams' : 'Tests & Exams')
+@section('page-title', $module ? $module->title . ' Exams' : 'Tests & Exams')
 
 @section('content')
 <style>

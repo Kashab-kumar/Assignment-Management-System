@@ -48,10 +48,10 @@
 
     <div class="filter-section">
         <div class="filter-buttons">
-            <a href="{{ route('teacher.exams.index', array_filter(['course_id' => $selectedCourseId, 'module_id' => $selectedModuleId])) }}?filter=all" class="filter-btn {{ $activeFilter === 'all' ? 'active' : '' }}">All</a>
-            <a href="{{ route('teacher.exams.index', array_filter(['course_id' => $selectedCourseId, 'module_id' => $selectedModuleId])) }}?filter=exam" class="filter-btn {{ $activeFilter === 'exam' ? 'active' : '' }}">Exam</a>
-            <a href="{{ route('teacher.exams.index', array_filter(['course_id' => $selectedCourseId, 'module_id' => $selectedModuleId])) }}?filter=quiz" class="filter-btn {{ $activeFilter === 'quiz' ? 'active' : '' }}">Quiz</a>
-            <a href="{{ route('teacher.exams.index', array_filter(['course_id' => $selectedCourseId, 'module_id' => $selectedModuleId])) }}?filter=test" class="filter-btn {{ $activeFilter === 'test' ? 'active' : '' }}">Test</a>
+            <a href="{{ route('teacher.exams.index', array_filter(['course_id' => $selectedCourseId, 'module_id' => $selectedModuleId, 'filter' => 'all'])) }}" class="filter-btn {{ $activeFilter === 'all' ? 'active' : '' }}">All</a>
+            <a href="{{ route('teacher.exams.index', array_filter(['course_id' => $selectedCourseId, 'module_id' => $selectedModuleId, 'filter' => 'exam'])) }}" class="filter-btn {{ $activeFilter === 'exam' ? 'active' : '' }}">Exam</a>
+            <a href="{{ route('teacher.exams.index', array_filter(['course_id' => $selectedCourseId, 'module_id' => $selectedModuleId, 'filter' => 'quiz'])) }}" class="filter-btn {{ $activeFilter === 'quiz' ? 'active' : '' }}">Quiz</a>
+            <a href="{{ route('teacher.exams.index', array_filter(['course_id' => $selectedCourseId, 'module_id' => $selectedModuleId, 'filter' => 'test'])) }}" class="filter-btn {{ $activeFilter === 'test' ? 'active' : '' }}">Test</a>
         </div>
         <a href="{{ route('teacher.exams.create', array_filter(['course_id' => $selectedCourseId, 'module_id' => $selectedModuleId])) }}" class="create-btn">+ Create Exam</a>
     </div>

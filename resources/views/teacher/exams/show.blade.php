@@ -123,31 +123,102 @@
 <div class="card">
     <h2 style="margin-bottom: 12px;">Submitted Answers</h2>
 
-    @forelse($answerSheets as $answers)
-        @php
-            $firstAnswer = $answers->first();
-            $student = $firstAnswer?->student;
-        @endphp
-        <div class="answer-sheet">
-            <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:10px;">
-                <div>
-                    <strong>{{ $student?->name }}</strong>
-                    <div style="color:#334155;">{{ $student?->student_id }}</div>
-                </div>
-                <div style="color:#334155;">{{ $answers->count() }} answer{{ $answers->count() === 1 ? '' : 's' }} submitted</div>
-            </div>
-
-            @foreach($answers->sortBy('question.position') as $answer)
-                <div style="margin-top:12px;">
-                    <div style="font-weight:700; margin-bottom:6px;">Question {{ $answer->question?->position }}: {{ $answer->question?->question_text }}</div>
-                    <div class="answer-body">{{ $answer->answer_text }}</div>
-                </div>
-            @endforeach
-        </div>
-    @empty
-        <p style="color:#334155; margin:0;">No student answers have been submitted yet.</p>
-    @endforelse
+    <table style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr>
+                <th style="padding:10px; text-align:left; border-bottom:2px solid #e5e7eb; background:#f8fafc;">Student</th>
+                <th style="padding:10px; text-align:left; border-bottom:2px solid #e5e7eb; background:#f8fafc;">Student ID</th>
+                <th style="padding:10px; text-align:left; border-bottom:2px solid #e5e7eb; background:#f8fafc;">Answers</th>
+                <th style="padding:10px; text-align:left; border-bottom:2px solid #e5e7eb; background:#f8fafc;">Status</th>
+                <th style="padding:10px; text-align:center; border-bottom:2px solid #e5e7eb; background:#f8fafc;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($answerSheets as $answers)
+                @php
+                    $firstAnswer = $answers->first();
+                    $student = $firstAnswer?->student;
+                    $unverifiedCount = $answers->filter(fn($a) => $a->is_correct === null)->count();
+                    $correctCount = $answers->filter(fn($a) => $a->is_correct === true)->count();
+                    $incorrectCount = $answers->filter(fn($a) => $a->is_correct === false)->count();
+                    $studentId = 'student-' . $student?->id . '-' . md5($exam->id);
+                @endphp
+                <tr style="border-bottom:1px solid #e5e7eb;">
+                    <td style="padding:12px; color:var(--text-strong);">{{ $student?->name }}</td>
+                    <td style="padding:12px; color:var(--text-strong);">{{ $student?->student_id }}</td>
+                    <td style="padding:12px; color:var(--text-strong);">{{ $answers->count() }}/{{ $exam->questions->count() }}</td>
+                    <td style="padding:12px;">
+                        @if($unverifiedCount > 0)
+                            <span style="color:#ea580c; font-weight:700;">{{ $unverifiedCount }} Unverified</span>
+                        @elseif($incorrectCount > 0)
+                            <span style="color:#dc2626; font-weight:700;">{{ $incorrectCount }} Incorrect</span>
+                        @else
+                            <span style="color:#16a34a; font-weight:700;">All Verified</span>
+                        @endif
+                    </td>
+                    <td style="padding:12px; text-align:center;">
+                        <button type="button" onclick="toggleAnswers('{{ $studentId }}')" style="padding:6px 12px; background:#2196F3; color:#fff; border:0; border-radius:4px; cursor:pointer; font-size:14px;">
+                            View
+                        </button>
+                    </td>
+                </tr>
+                <tr style="display:none;" id="details-{{ $studentId }}">
+                    <td colspan="5" style="padding:20px; background:#f8fafc; border-bottom:1px solid #e5e7eb;">
+                        <div style="margin-bottom:16px;">
+                            <h4 style="margin:0 0 12px 0; color:var(--text-strong);">Answers for {{ $student?->name }}</h4>
+                            @foreach($answers->sortBy('question.position') as $answer)
+                                <div style="margin-bottom:16px; padding:12px; background:#fff; border-radius:8px; border:1px solid #e5e7eb; display:flex; gap:12px; align-items:flex-start;">
+                                    <div style="flex:1;">
+                                        <div style="font-weight:700; margin-bottom:8px; color:var(--text-strong);">Question {{ $answer->question?->position }}: {{ $answer->question?->question_text }}</div>
+                                        <div style="padding:10px; background:#f8fafc; border-radius:6px; border-left:3px solid #2196F3; white-space:pre-wrap; color:var(--text-strong);">{{ $answer->answer_text }}</div>
+                                    </div>
+                                    <div style="width:220px; flex-shrink:0;">
+                                        <div style="margin-bottom:10px;">
+                                            <div style="font-size:12px; color:#6b7280; font-weight:700; margin-bottom:4px;">CORRECTNESS</div>
+                                            <div>
+                                                @if($answer->is_correct === true)
+                                                    <span style="color:#16a34a; font-weight:700;">✓ Correct</span>
+                                                @elseif($answer->is_correct === false)
+                                                    <span style="color:#dc2626; font-weight:700;">✗ Incorrect</span>
+                                                @else
+                                                    <span style="color:#6b7280; font-weight:700;">○ Unverified</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div style="display:flex; gap:4px; flex-direction:column;">
+                                            <form method="POST" action="{{ route('teacher.exam-answers.verify', $answer) }}" style="margin:0;">
+                                                @csrf
+                                                <input type="hidden" name="is_correct" value="1">
+                                                <button type="submit" style="width:100%; padding:6px 8px; background:#10b981; color:#fff; border:0; border-radius:4px; cursor:pointer; font-weight:600; font-size:12px;">✓ Mark Correct</button>
+                                            </form>
+                                            <form method="POST" action="{{ route('teacher.exam-answers.verify', $answer) }}" style="margin:0;">
+                                                @csrf
+                                                <input type="hidden" name="is_correct" value="0">
+                                                <button type="submit" style="width:100%; padding:6px 8px; background:#ef4444; color:#fff; border:0; border-radius:4px; cursor:pointer; font-weight:600; font-size:12px;">✗ Mark Incorrect</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </td>
+                </tr>
+            @empty
+                <tr><td colspan="5" style="padding:12px; text-align:center; color:#6b7280;">No student answers have been submitted yet.</td></tr>
+            @endforelse
+        </tbody>
+    </table>
 </div>
+
+<script>
+    function toggleAnswers(studentId) {
+        const detailRow = document.getElementById('details-' + studentId);
+        if (detailRow) {
+            const isHidden = detailRow.style.display === 'none';
+            detailRow.style.display = isHidden ? 'table-row' : 'none';
+        }
+    }
+</script>
 
 <div class="card">
     <h2 style="margin-bottom: 12px;">Assessment Results</h2>
