@@ -11,7 +11,7 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         padding: 30px;
     }
-    
+
     .report-header {
         display: flex;
         justify-content: space-between;
@@ -20,12 +20,12 @@
         padding-bottom: 20px;
         border-bottom: 1px solid #eee;
     }
-    
+
     .report-table {
         width: 100%;
         border-collapse: collapse;
     }
-    
+
     .report-table th {
         background: #f8f9fa;
         padding: 12px 15px;
@@ -34,16 +34,16 @@
         color: #555;
         border-bottom: 2px solid #dee2e6;
     }
-    
+
     .report-table td {
         padding: 12px 15px;
         border-bottom: 1px solid #eee;
     }
-    
+
     .report-table tr:hover {
         background: #f8f9fa;
     }
-    
+
     .role-badge {
         padding: 4px 8px;
         border-radius: 4px;
@@ -51,11 +51,11 @@
         font-weight: 600;
         text-transform: uppercase;
     }
-    
+
     .role-admin { background: #9C27B0; color: white; }
     .role-teacher { background: #2196F3; color: white; }
     .role-student { background: #4CAF50; color: white; }
-    
+
     .btn {
         padding: 8px 16px;
         border-radius: 4px;
@@ -63,7 +63,7 @@
         font-size: 14px;
         margin-right: 10px;
     }
-    
+
     .btn-back { background: #666; color: white; }
     .btn-export { background: #4CAF50; color: white; }
 </style>
@@ -80,7 +80,7 @@
             </form>
         </div>
     </div>
-    
+
     <table class="report-table">
         <thead>
             <tr>
@@ -118,13 +118,13 @@
                         N/A
                     @endif
                 </td>
-                <td>{{ $user->created_at->format('M d, Y') }}</td>
+                <td>{{ $user->created_at->format('d/m/Y') }}</td>
                 <td><span style="color: #4CAF50;">● Active</span></td>
             </tr>
             @endforeach
         </tbody>
     </table>
-    
+
     <div style="margin-top: 20px;">
         {{ $users->links() }}
     </div>

@@ -626,7 +626,7 @@
                                     </a>
                                 </td>
                                 <td>{{ $exam->course?->name ?? 'General Course' }}</td>
-                                <td>{{ $exam->exam_date->format('Y-m-d') }}</td>
+                                <td>{{ $exam->exam_date->format('d/m/Y') }}</td>
                                 <td>{{ $exam->exam_time ? \Illuminate\Support\Carbon::createFromFormat('H:i:s', strlen($exam->exam_time) === 5 ? $exam->exam_time . ':00' : $exam->exam_time)->format('h:i A') : '12:00 AM' }}</td>
                                 <td>{{ $durationMinutes }}m</td>
                                 <td><span class="pill pill-type">{{ $typeLabel }}</span></td>
@@ -646,4 +646,4 @@
         </div>
     </div>
 </div>
-@endsection
+

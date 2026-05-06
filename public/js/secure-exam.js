@@ -7,6 +7,8 @@ class SecureExamBrowser {
         this.duration = options.duration || null;
         this.heartbeatInterval = null;
         this.fullscreenInterval = null;
+        this.countdownInterval = null;
+        this.autoSaveInterval = null;
         this.isActive = false;
         this.violations = 0;
         this.warnings = 0;
@@ -246,7 +248,7 @@ class SecureExamBrowser {
 
     startCountdown() {
         // Update timer every second
-        setInterval(() => {
+        this.countdownInterval = setInterval(() => {
             if (this.remainingTime !== null && this.remainingTime > 0) {
                 this.remainingTime--;
                 this.updateTimer(this.remainingTime);
@@ -428,13 +430,34 @@ class SecureExamBrowser {
             const form = document.getElementById('exam-form');
 
             if (form) {
-                form.submit();
-                this.isActive = false;
-                this.cleanup();
+                // Submit via fetch so we can replace history and control the redirect
+                const fd = new FormData(form);
+
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                    },
+                    body: fd,
+                    credentials: 'same-origin'
+                });
+
+                if (response.ok) {
+                    this.isActive = false;
+                    this.cleanup();
+                    // Redirect to the exam review page (show) using replace to avoid history issues
+                    window.location.replace(`/student/exams/${this.examId}`);
+                } else {
+                    let text = '';
+                    try { text = await response.text(); } catch (e) {}
+                    console.error('Submit failed:', response.status, text);
+                    this.showNotification('Failed to submit exam. Please try again.', 'error');
+                }
             }
 
         } catch (error) {
             console.error('Failed to submit exam:', error);
+            this.showNotification('Failed to submit exam. Please try again.', 'error');
         }
     }
 
@@ -445,6 +468,22 @@ class SecureExamBrowser {
 
         if (this.fullscreenInterval) {
             clearInterval(this.fullscreenInterval);
+        }
+
+        if (this.countdownInterval) {
+            clearInterval(this.countdownInterval);
+            this.countdownInterval = null;
+        }
+
+        if (this.autoSaveInterval) {
+            clearInterval(this.autoSaveInterval);
+            this.autoSaveInterval = null;
+        }
+
+        // Also clear any autosave interval set on the window by the blade view
+        if (window.__secureAutoSaveInterval) {
+            clearInterval(window.__secureAutoSaveInterval);
+            window.__secureAutoSaveInterval = null;
         }
 
         // Remove event listeners

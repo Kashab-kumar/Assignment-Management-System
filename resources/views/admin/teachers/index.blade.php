@@ -11,7 +11,7 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         padding: 20px;
     }
-    
+
     .teachers-header {
         display: flex;
         justify-content: space-between;
@@ -25,12 +25,12 @@
         display: flex;
         gap: 10px;
     }
-    
+
     .teachers-table {
         width: 100%;
         border-collapse: collapse;
     }
-    
+
     .teachers-table th {
         background: #f8f9fa;
         padding: 12px 15px;
@@ -39,16 +39,16 @@
         color: #555;
         border-bottom: 2px solid #dee2e6;
     }
-    
+
     .teachers-table td {
         padding: 12px 15px;
         border-bottom: 1px solid #eee;
     }
-    
+
     .teachers-table tr:hover {
         background: #f8f9fa;
     }
-    
+
     .teacher-id {
         font-family: monospace;
         background: #f0f0f0;
@@ -56,7 +56,7 @@
         border-radius: 3px;
         font-size: 12px;
     }
-    
+
     .subject-badge {
         background: #2196F3;
         color: white;
@@ -64,7 +64,7 @@
         border-radius: 4px;
         font-size: 12px;
     }
-    
+
     .btn {
         padding: 6px 12px;
         border-radius: 4px;
@@ -72,7 +72,7 @@
         font-size: 13px;
         margin-right: 5px;
     }
-    
+
     .btn-view { background: #4CAF50; color: white; }
     .btn-edit { background: #2196F3; color: white; }
     .btn-delete { background: #f44336; color: white; }
@@ -88,13 +88,13 @@
             <a href="{{ route('admin.teachers.create') }}" class="btn btn-add">+ Add New Teacher</a>
         </div>
     </div>
-    
+
     @if(session('success'))
         <div style="background: #d4edda; color: #155724; padding: 12px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
             {{ session('success') }}
         </div>
     @endif
-    
+
     @if($teachers->count() > 0)
         <table class="teachers-table">
             <thead>
@@ -118,8 +118,23 @@
                         @endif
                     </td>
                     <td>{{ $teacher->email }}</td>
-                    <td><span class="subject-badge">{{ $teacher->subject }}</span></td>
-                    <td>{{ $teacher->created_at->format('M d, Y') }}</td>
+                    <td>
+                        @php
+                            $assignedModules = $teacher->modules->pluck('title')->filter()->values();
+                            $subjectText = trim((string) ($teacher->subject ?? ''));
+                        @endphp
+
+                        @if($subjectText !== '')
+                            <span class="subject-badge">{{ $subjectText }}</span>
+                        @elseif($assignedModules->isNotEmpty())
+                            <span class="subject-badge" title="{{ $assignedModules->implode(', ') }}">
+                                {{ $assignedModules->take(2)->implode(', ') }}{{ $assignedModules->count() > 2 ? ' +' . ($assignedModules->count() - 2) . ' more' : '' }}
+                            </span>
+                        @else
+                            <span class="subject-badge">Not set</span>
+                        @endif
+                    </td>
+                    <td>{{ $teacher->created_at->format('d/m/Y') }}</td>
                     <td>
                         <a href="{{ route('admin.teachers.show', $teacher) }}" class="btn btn-view">View</a>
                         <a href="{{ route('admin.teachers.edit', $teacher) }}" class="btn btn-edit">Edit</a>
@@ -133,7 +148,7 @@
                 @endforeach
             </tbody>
         </table>
-        
+
         <div style="margin-top: 20px;">
             {{ $teachers->links() }}
         </div>

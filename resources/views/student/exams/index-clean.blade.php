@@ -27,12 +27,12 @@
         border-bottom: 1px solid rgba(255,255,255,0.06);
         gap: 12px;
     }
-    
+
     .filter-buttons {
         display: flex;
         gap: 8px;
     }
-    
+
     .filter-btn {
         padding: 8px 16px;
         border: 1px solid rgba(0,0,0,0.1);
@@ -45,19 +45,19 @@
         transition: all 0.2s;
         cursor: pointer;
     }
-    
+
     .filter-btn:hover {
         background: rgba(124,58,237,0.05);
         border-color: rgba(124,58,237,0.2);
         color: #4338ca;
     }
-    
+
     .filter-btn.active {
         background: #7c3aed;
         color: #ffffff;
         border-color: #7c3aed;
     }
-    
+
     .create-btn {
         background: #10b981;
         color: #ffffff;
@@ -70,7 +70,7 @@
         transition: background 0.2s;
         cursor: pointer;
     }
-    
+
     .create-btn:hover {
         background: #059669;
     }
@@ -217,7 +217,7 @@
     $studentCourseId = Schema::hasColumn('students', 'course_id') ? $student->course_id : null;
     $activeFilter = request()->query('filter', 'all');
     $activeTab = request()->query('tab', 'upcoming');
-    
+
     // Filter exams by type
     $allExams = Exam::with([
             'results' => function ($query) use ($student) {
@@ -284,7 +284,7 @@
             </div>
             <a href="#" class="create-btn" onclick="alert('Create functionality not available for students. Teachers can create exams from their dashboard.')">+ Create</a>
         </div>
-        
+
         <div class="tabs">
             <a href="{{ route('student.exams.index') }}?filter={{ $activeFilter }}&tab=upcoming" class="tab-link {{ $activeTab === 'upcoming' ? 'active' : '' }}">Upcoming ({{ $upcomingExams->count() }})</a>
             <a href="{{ route('student.exams.index') }}?filter={{ $activeFilter }}&tab=completed" class="tab-link {{ $activeTab === 'completed' ? 'active' : '' }}">Completed ({{ $completedExams->count() }})</a>
@@ -317,7 +317,7 @@
                         @endif
                     </div>
                     <div class="exam-meta">
-                        <span>{{ $exam->exam_date->format('M d, Y') }}</span>
+                        <span>{{ $exam->exam_date->format('d/m/Y') }}</span>
                         <span>{{ $durationMinutes }}m</span>
                     </div>
                 </a>
@@ -369,7 +369,7 @@
                 <div class="stats">
                     <div>
                         <div class="stat-label">Date</div>
-                        <div class="stat-value">{{ $selectedExam->exam_date->format('M d, Y') }}</div>
+                        <div class="stat-value">{{ $selectedExam->exam_date->format('d/m/Y') }}</div>
                     </div>
                     <div>
                         <div class="stat-label">Start Time</div>

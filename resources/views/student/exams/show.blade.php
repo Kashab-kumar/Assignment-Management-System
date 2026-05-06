@@ -35,6 +35,14 @@
     .notice-success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
     .notice-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
     .readonly-note { color: #64748b; margin-top: 14px; font-size: 14px; }
+    .review-grid { display: grid; gap: 14px; }
+    .review-card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 18px; background: #f8fafc; }
+    .review-row { display: grid; gap: 10px; margin-top: 12px; }
+    .review-item { padding: 12px 14px; border-radius: 10px; background: #ffffff; border: 1px solid #e5e7eb; }
+    .review-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 6px; font-weight: 700; }
+    .review-value { color: #1f2937; font-size: 15px; line-height: 1.6; white-space: pre-wrap; }
+    .review-correct { border-color: #86efac; background: #f0fdf4; }
+    .review-wrong { border-color: #fca5a5; background: #fef2f2; }
 
     /* Multiple choice options */
     .mcq-options { display: grid; gap: 10px; margin-top: 12px; }
@@ -67,6 +75,7 @@
         ? \Illuminate\Support\Carbon::createFromFormat('H:i:s', strlen($exam->exam_time) === 5 ? $exam->exam_time . ':00' : $exam->exam_time)->format('h:i A')
         : '12:00 AM';
     $hasSubmittedAnswers = $answers->isNotEmpty();
+    $canReviewAnswers = $hasSubmittedAnswers || $existingResult !== null || now()->greaterThan($examStartsAt->copy()->addMinutes($exam->duration_minutes));
 @endphp
 
 <div class="assessment-shell">
@@ -88,7 +97,7 @@
     <div class="card">
         <div style="display:flex; justify-content:space-between; gap:14px; align-items:flex-start; flex-wrap:wrap;">
             <div>
-                <a href="{{ route('student.exams.index') }}" class="btn btn-secondary" style="margin-bottom:12px;">← Back to Assessments</a>
+                <a href="{{ route('student.modules.show', $exam->module_id) }}?tab=exams" class="btn btn-secondary" style="margin-bottom:12px;">← Back to Exams</a>
                 <h2 style="margin:0 0 8px 0; color:#1f2937;">{{ $exam->title }}</h2>
                 <div style="color: #64748b; font-size:18px;">{{ $exam->course?->name ?? 'General Course' }}</div>
             </div>
@@ -98,7 +107,7 @@
         <div class="meta-grid">
             <div class="meta-item">
                 <div class="meta-label">Date</div>
-                <div class="meta-value">{{ $exam->exam_date->format('M d, Y') }}</div>
+                <div class="meta-value">{{ $exam->exam_date->format('d/m/Y') }}</div>
             </div>
             <div class="meta-item">
                 <div class="meta-label">Start Time</div>
@@ -127,7 +136,7 @@
         @if($exam->questions->isEmpty())
             <p style="margin:0; color: #64748b;">Your teacher has not added any questions yet.</p>
         @else
-            <form method="POST" action="{{ route('student.exams.submit', $exam) }}">
+            <form id="examSubmitForm" method="POST" action="{{ route('student.exams.submit', $exam) }}" onsubmit="handleExamSubmit(event)">
                 @csrf
 
                 <div class="question-list">
@@ -214,5 +223,108 @@
             </form>
         @endif
     </div>
+
+    @if($canReviewAnswers)
+    <div class="card">
+        <h3 style="margin:0 0 14px 0; color:#1f2937;">Review Answers</h3>
+
+        <div class="review-grid">
+            @foreach($exam->questions as $question)
+                @php
+                    $studentAnswer = $answers->get($question->id)?->answer_text;
+                    $isMultipleChoice = $question->question_type === 'multiple_choice';
+                    $correctAnswer = trim((string) ($question->answer_key ?? ''));
+                    $displayCorrectAnswer = $correctAnswer;
+                    $options = [];
+
+                    if ($isMultipleChoice && $correctAnswer !== '') {
+                        $parts = array_map('trim', explode('|', $correctAnswer));
+                        if (count($parts) > 1) {
+                            $displayCorrectAnswer = $parts[0] ?? '';
+                            $options = array_slice($parts, 1);
+                        }
+                    }
+
+                    $isCorrect = $answers->get($question->id)?->is_correct;
+                @endphp
+
+                <div class="review-card">
+                    <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:flex-start;">
+                        <div>
+                            <div class="question-number">Question {{ $question->position }}</div>
+                            <div class="question-points" style="margin-top:6px;">{{ $question->points }} point{{ $question->points === 1 ? '' : 's' }}</div>
+                        </div>
+                        @if($isCorrect === true)
+                            <span class="badge" style="background:#dcfce7; color:#166534; border:1px solid #86efac;">Correct</span>
+                        @elseif($isCorrect === false)
+                            <span class="badge" style="background:#fee2e2; color:#991b1b; border:1px solid #fca5a5;">Incorrect</span>
+                        @endif
+                    </div>
+
+                    <div class="question-text" style="margin-top:12px; margin-bottom:0;">{{ $question->question_text }}</div>
+
+                    <div class="review-row">
+                        <div class="review-item {{ $isCorrect === true ? 'review-correct' : ($isCorrect === false ? 'review-wrong' : '') }}">
+                            <div class="review-label">Your Answer</div>
+                            <div class="review-value">{{ filled($studentAnswer) ? $studentAnswer : 'No answer submitted' }}</div>
+                        </div>
+
+                        <div class="review-item review-correct">
+                            <div class="review-label">Correct Answer</div>
+                            <div class="review-value">
+                                @if($isMultipleChoice && !empty($options))
+                                    {{ $displayCorrectAnswer }}
+                                @else
+                                    {{ $displayCorrectAnswer !== '' ? $displayCorrectAnswer : 'No answer key provided' }}
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
 </div>
+
+<script>
+    async function handleExamSubmit(event) {
+        event.preventDefault();
+
+        const form = document.getElementById('examSubmitForm');
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (response.ok) {
+                // Use window.location.replace() instead of navigate() to avoid adding to history
+                // This prevents the exam detail page from appearing in browser back button
+                window.location.replace('{{ route("student.modules.show", $exam->module_id) }}?tab=exams&success=submitted');
+            } else {
+                // If there's an error, do a normal form submission (adds to history)
+                form.submit();
+            }
+        } catch (error) {
+            console.error('Submission error:', error);
+            // On error, do a normal form submission
+            form.submit();
+        }
+    }
+
+    // Also replace history on page load to prevent back button issues
+    document.addEventListener('DOMContentLoaded', function() {
+        window.history.replaceState(
+            { page: 'exam_detail', exam_id: {{ $exam->id }} },
+            document.title,
+            window.location.href
+        );
+    });
+</script>
 @endsection

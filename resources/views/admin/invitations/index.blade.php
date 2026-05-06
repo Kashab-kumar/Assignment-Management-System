@@ -57,8 +57,8 @@
                         <span class="badge badge-active">Active</span>
                     @endif
                 </td>
-                <td>{{ $invitation->created_at->format('M d, Y') }}</td>
-                <td>{{ $invitation->expires_at->format('M d, Y') }}</td>
+                <td>{{ $invitation->created_at->format('d/m/Y') }}</td>
+                <td>{{ $invitation->expires_at->format('d/m/Y') }}</td>
                 <td>
                     @if(!$invitation->used && !$invitation->isExpired())
                         <a href="{{ route('admin.invitations.show', $invitation) }}" class="btn" style="padding: 6px 12px; font-size: 13px; margin-right: 5px;">Share</a>

@@ -485,7 +485,7 @@
     @endif
 
     <div class="assessment-body">
-        <form method="POST" action="{{ route('teacher.exams.store') }}">
+        <form method="POST" action="{{ route('teacher.exams.store') }}" id="assessment-form">
             @csrf
 
             <!-- Assessment Type -->
@@ -675,6 +675,18 @@
                                 <!-- Short/Long Answer Input -->
                                 <div class="google-answer-area {{ $questionType === 'multiple_choice' ? 'hidden' : '' }}" data-area="text-answer-{{ $index }}">
                                     <textarea class="google-answer-preview" readonly placeholder="Short answer text"></textarea>
+                                    <div style="margin-top: 10px;">
+                                        <label style="display:block; font-size:12px; color:#6b7280; margin-bottom:6px;">Correct answer <span class="required">*</span></label>
+                                        <input
+                                            type="text"
+                                            name="questions[{{ $index }}][answer_key]"
+                                            class="google-text-answer-key"
+                                            value="{{ $question['answer_key'] ?? '' }}"
+                                            placeholder="Enter the correct answer"
+                                            required
+                                            style="width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 8px;"
+                                        >
+                                    </div>
                                     <div class="google-points-input">
                                         <label>Points:</label>
                                         <input type="number" name="questions[{{ $index }}][points]" value="{{ $question['points'] ?? 1 }}" min="1" style="width: 60px; padding: 4px 8px;">
@@ -698,8 +710,10 @@
                                     </div>
                                 </div>
 
-                                <!-- Hidden field to store MCQ options -->
-                                <input type="hidden" name="questions[{{ $index }}][answer_key]" class="google-answer-key" value="{{ $question['answer_key'] ?? '' }}">
+                                <!-- Hidden field to store MCQ correct answer + options -->
+                                @if($questionType === 'multiple_choice')
+                                    <input type="hidden" name="questions[{{ $index }}][answer_key]" class="google-answer-key" value="{{ $question['answer_key'] ?? '' }}">
+                                @endif
                             </div>
                         @endforeach
                     @endif
@@ -731,6 +745,15 @@ let questionCount = 0;
 const selectedModuleId = {{ $selectedModuleId ?? 'null' }};
 
 document.addEventListener('DOMContentLoaded', function() {
+    const assessmentForm = document.getElementById('assessment-form');
+    if (assessmentForm) {
+        assessmentForm.addEventListener('submit', function(event) {
+            if (!validateQuestions()) {
+                event.preventDefault();
+            }
+        });
+    }
+
     const existingQuestions = document.querySelectorAll('.google-question-card');
 
     if (existingQuestions.length > 0) {
@@ -745,8 +768,11 @@ document.addEventListener('DOMContentLoaded', function() {
             bindQuestionEvents(index);
 
             const typeSelect = question.querySelector('select[name*="[question_type]"]');
-            if (typeSelect && typeSelect.value === 'multiple_choice') {
-                updateCorrectAnswer(index);
+            if (typeSelect) {
+                syncQuestionAnswerRequirements(question, typeSelect.value);
+                if (typeSelect.value === 'multiple_choice') {
+                    updateCorrectAnswer(index);
+                }
             }
         });
 
@@ -828,6 +854,17 @@ function addQuestion() {
 
             <div class="google-answer-area" data-area="text-answer-${questionIndex}">
                 <textarea class="google-answer-preview" readonly placeholder="Short answer text"></textarea>
+                <div style="margin-top: 10px;">
+                    <label style="display:block; font-size:12px; color:#6b7280; margin-bottom:6px;">Correct answer <span class="required">*</span></label>
+                    <input
+                        type="text"
+                        name="questions[${questionIndex}][answer_key]"
+                        class="google-text-answer-key"
+                        placeholder="Enter the correct answer"
+                        required
+                        style="width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 8px;"
+                    >
+                </div>
                 <div class="google-points-input">
                     <label>Points:</label>
                     <input type="number" name="questions[${questionIndex}][points]" value="1" min="1" style="width: 60px; padding: 4px 8px;">
@@ -853,7 +890,7 @@ function addQuestion() {
                 </div>
             </div>
 
-            <input type="hidden" name="questions[${questionIndex}][answer_key]" class="google-answer-key" value="">
+            <input type="hidden" name="questions[${questionIndex}][answer_key]" class="google-answer-key hidden-mcq-answer-key" value="">
         </div>
     `;
 
@@ -904,6 +941,17 @@ function toggleQuestionType(index, questionType) {
     if (questionType === 'multiple_choice') {
         textAnswerArea.classList.add('hidden');
         mcqOptionsArea.classList.remove('hidden');
+
+        let mcqAnswerKey = questionCard.querySelector('.google-answer-key');
+        if (!mcqAnswerKey) {
+            mcqAnswerKey = document.createElement('input');
+            mcqAnswerKey.type = 'hidden';
+            mcqAnswerKey.name = `questions[${index}][answer_key]`;
+            mcqAnswerKey.className = 'google-answer-key';
+            mcqOptionsArea.insertAdjacentElement('afterend', mcqAnswerKey);
+        }
+
+        syncQuestionAnswerRequirements(questionCard, questionType);
         updateCorrectAnswer(index);
     } else {
         textAnswerArea.classList.remove('hidden');
@@ -917,14 +965,82 @@ function toggleQuestionType(index, questionType) {
             answerPreview.style.minHeight = '40px';
         }
 
-        // Clear answer key for text questions
-        const answerKeyInput = questionCard.querySelector('.google-answer-key');
+        // Clear the hidden MCQ answer key for text questions; text questions use the visible input.
+        const answerKeyInput = questionCard.querySelector('input[type="hidden"][name$="[answer_key]"]');
         if (answerKeyInput) {
             answerKeyInput.value = '';
         }
 
-                delete questionCard.dataset.correctAnswer;
+        syncQuestionAnswerRequirements(questionCard, questionType);
+        delete questionCard.dataset.correctAnswer;
     }
+}
+
+function syncQuestionAnswerRequirements(questionCard, questionType) {
+    const textAnswerKey = questionCard.querySelector('.google-text-answer-key');
+    const mcqAnswerKey = questionCard.querySelector('.google-answer-key');
+
+    if (textAnswerKey) {
+        textAnswerKey.required = questionType !== 'multiple_choice';
+    }
+
+    if (mcqAnswerKey) {
+        mcqAnswerKey.required = false;
+    }
+}
+
+function validateQuestions() {
+    const questionCards = document.querySelectorAll('.google-question-card');
+
+    for (const questionCard of questionCards) {
+        const index = questionCard.dataset.index;
+        const questionType = questionCard.dataset.type || 'short_answer';
+        const questionText = questionCard.querySelector(`input[name="questions[${index}][question_text]"]`);
+        const pointsInput = questionCard.querySelector(`input[name="questions[${index}][points]"]`);
+        const textAnswerKey = questionCard.querySelector('.google-text-answer-key');
+        const mcqAnswerKey = questionCard.querySelector('.google-answer-key');
+        const optionInputs = questionCard.querySelectorAll('.google-option-input');
+
+        if (!questionText || !questionText.value.trim()) {
+            alert(`Question ${Number(index) + 1} needs a question text.`);
+            questionText?.focus();
+            return false;
+        }
+
+        if (!pointsInput || !pointsInput.value || Number(pointsInput.value) < 1) {
+            alert(`Question ${Number(index) + 1} needs a valid points value.`);
+            pointsInput?.focus();
+            return false;
+        }
+
+        if (questionType === 'multiple_choice') {
+            const options = Array.from(optionInputs).map(input => input.value.trim()).filter(Boolean);
+            const selectedRadio = questionCard.querySelector('.google-correct-radio:checked');
+
+            if (options.length < 2) {
+                alert(`Question ${Number(index) + 1} needs at least 2 options.`);
+                return false;
+            }
+
+            if (!selectedRadio) {
+                alert(`Question ${Number(index) + 1} needs a correct option selected.`);
+                return false;
+            }
+
+            if (!mcqAnswerKey || !mcqAnswerKey.value.trim()) {
+                alert(`Question ${Number(index) + 1} needs a correct answer.`);
+                return false;
+            }
+        } else {
+            if (!textAnswerKey || !textAnswerKey.value.trim()) {
+                alert(`Question ${Number(index) + 1} needs a correct answer.`);
+                textAnswerKey?.focus();
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 function addOption(questionIndex) {

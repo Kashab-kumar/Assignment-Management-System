@@ -31,6 +31,15 @@
     .badge-answer { background: #e0f2fe; color: #0369a1; }
     .answer-sheet { border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; margin-bottom: 14px; color: var(--text-strong); }
     .answer-body { margin-top: 10px; padding: 12px; background: #f8fafc; border-radius: 8px; white-space: pre-wrap; color: var(--text-strong); }
+    .answer-review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+    .answer-review-item { padding: 12px; border-radius: 8px; border: 1px solid #e5e7eb; background: #ffffff; }
+    .answer-review-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 700; margin-bottom: 6px; }
+    .answer-review-value { color: var(--text-strong); line-height: 1.6; white-space: pre-wrap; }
+    .answer-review-correct { border-color: #86efac; background: #f0fdf4; }
+    .answer-review-status { margin-top: 12px; font-weight: 700; }
+    .answer-review-status.correct { color: #16a34a; }
+    .answer-review-status.incorrect { color: #dc2626; }
+    .answer-review-status.unverified { color: #ea580c; }
     label { color: var(--text-strong); }
     input, select { color: var(--text-strong); background: #fff; }
     input::placeholder { color: var(--text-muted); }
@@ -64,7 +73,7 @@
         </div>
         <div class="meta-item">
             <strong>Date</strong>
-            <span>{{ $exam->exam_date->format('F d, Y') }}</span>
+            <span>{{ $exam->exam_date->format('d/m/Y') }}</span>
         </div>
         <div class="meta-item">
             <strong>Max Score</strong>
@@ -167,21 +176,59 @@
                         <div style="margin-bottom:16px;">
                             <h4 style="margin:0 0 12px 0; color:var(--text-strong);">Answers for {{ $student?->name }}</h4>
                             @foreach($answers->sortBy('question.position') as $answer)
+                                @php
+                                    $question = $answer->question;
+                                    $correctAnswer = trim((string) ($question?->answer_key ?? ''));
+                                    $displayCorrectAnswer = $correctAnswer !== '' ? $correctAnswer : 'No answer key provided';
+                                    $multipleChoiceOptions = [];
+
+                                    if ($question && $question->question_type === 'multiple_choice' && $correctAnswer !== '') {
+                                        $parts = array_map('trim', explode('|', $correctAnswer));
+                                        if (count($parts) > 1) {
+                                            $displayCorrectAnswer = $parts[0] ?? '';
+                                            $multipleChoiceOptions = array_slice($parts, 1);
+                                        }
+                                    }
+                                @endphp
                                 <div style="margin-bottom:16px; padding:12px; background:#fff; border-radius:8px; border:1px solid #e5e7eb; display:flex; gap:12px; align-items:flex-start;">
                                     <div style="flex:1;">
                                         <div style="font-weight:700; margin-bottom:8px; color:var(--text-strong);">Question {{ $answer->question?->position }}: {{ $answer->question?->question_text }}</div>
                                         <div style="padding:10px; background:#f8fafc; border-radius:6px; border-left:3px solid #2196F3; white-space:pre-wrap; color:var(--text-strong);">{{ $answer->answer_text }}</div>
+
+                                        <div class="answer-review-grid">
+                                            <div class="answer-review-item">
+                                                <div class="answer-review-label">Student Answer</div>
+                                                <div class="answer-review-value">{{ $answer->answer_text ?: 'No answer submitted' }}</div>
+                                            </div>
+                                            <div class="answer-review-item answer-review-correct">
+                                                <div class="answer-review-label">Correct Answer</div>
+                                                <div class="answer-review-value">
+                                                    @if(!empty($multipleChoiceOptions))
+                                                        {{ $displayCorrectAnswer }}
+                                                    @else
+                                                        {{ $displayCorrectAnswer }}
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        @if(!empty($multipleChoiceOptions))
+                                            <div style="margin-top:10px; padding:10px; background:#f8fafc; border-radius:6px; border:1px dashed #cbd5e1;">
+                                                <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:#64748b; font-weight:700; margin-bottom:6px;">Multiple Choice Options</div>
+                                                <div style="color:var(--text-strong); line-height:1.7; white-space:pre-wrap;">{{ implode("\n", $multipleChoiceOptions) }}</div>
+                                            </div>
+                                        @endif
                                     </div>
                                     <div style="width:220px; flex-shrink:0;">
                                         <div style="margin-bottom:10px;">
                                             <div style="font-size:12px; color:#6b7280; font-weight:700; margin-bottom:4px;">CORRECTNESS</div>
                                             <div>
                                                 @if($answer->is_correct === true)
-                                                    <span style="color:#16a34a; font-weight:700;">✓ Correct</span>
+                                                    <span class="answer-review-status correct">✓ Correct</span>
                                                 @elseif($answer->is_correct === false)
-                                                    <span style="color:#dc2626; font-weight:700;">✗ Incorrect</span>
+                                                    <span class="answer-review-status incorrect">✗ Incorrect</span>
                                                 @else
-                                                    <span style="color:#6b7280; font-weight:700;">○ Unverified</span>
+                                                    <span class="answer-review-status unverified">○ Unverified</span>
                                                 @endif
                                             </div>
                                         </div>

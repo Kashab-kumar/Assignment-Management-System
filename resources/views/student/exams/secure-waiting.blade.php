@@ -167,7 +167,7 @@
         </div>
 
         <div class="start-time">
-            Exam starts at: {{ $examStartsAt->format('h:i A') }} on {{ $examStartsAt->format('M d, Y') }}
+            Exam starts at: {{ $examStartsAt->format('h:i A') }} on {{ $examStartsAt->format('d/m/Y') }}
         </div>
 
         @if($exam->secure_instructions)
@@ -201,6 +201,21 @@
 </div>
 
 <script>
+    function stopPageMedia() {
+        document.querySelectorAll('audio, video').forEach((media) => {
+            try {
+                media.pause();
+                media.currentTime = 0;
+                media.muted = true;
+                media.autoplay = false;
+            } catch (error) {
+                console.warn('Unable to stop media element:', error);
+            }
+        });
+    }
+
+    stopPageMedia();
+
     function updateCountdown() {
         const startTime = new Date('{{ $examStartsAt->toISOString() }}');
         const now = new Date();

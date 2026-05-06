@@ -142,16 +142,22 @@ class StudentExamController extends Controller
         $examEndsAt = $examStartsAt->copy()->addMinutes($exam->duration_minutes);
         $now = now();
 
-        // Allow access if student has already submitted answers
+        // Treat the exam as completed if either answers or a result record exists
         $hasSubmittedAnswers = $exam->answers->isNotEmpty();
+        $hasCompletedAttempt = $hasSubmittedAnswers || $existingResult !== null;
 
-        if (!$hasSubmittedAnswers && $now->gt($examEndsAt)) {
+        if (!$hasCompletedAttempt && $now->gt($examEndsAt)) {
             return redirect()->route('student.exams.index')
                 ->withErrors(['error' => 'This assessment has expired and is no longer available.']);
         }
 
         // Check if this is a secure exam
         if ($exam->secure_mode) {
+            // If student has already submitted answers, show the regular exam detail page with review
+            if ($hasCompletedAttempt) {
+                return view('student.exams.show', compact('exam', 'student', 'answers', 'existingResult'));
+            }
+
             if ($now->lt($examStartsAt)) {
                 return view('student.exams.secure-waiting', compact('exam', 'student', 'examStartsAt'));
             }

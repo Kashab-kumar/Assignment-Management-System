@@ -22,12 +22,19 @@
     .assignment-link { color: #2196F3; text-decoration: none; font-weight: 500; }
     .assignment-link:hover { text-decoration: underline; }
     .student-name { font-weight: 600; color: #1f2937; }
-    .view-content-btn { background: #6c757d; color: white; padding: 4px 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; }
-    .view-content-btn:hover { background: #5a6268; }
+    .file-link { color: #2196F3; text-decoration: none; font-weight: 500; }
+    .file-link:hover { text-decoration: underline; }
+    .file-name { display: block; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .assignment-link { display: inline-block; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>
 
 <div class="section">
-    <h2 style="margin-bottom: 20px; color: #1f2937;">All Student Submissions</h2>
+    @if($assignment)
+        <div style="margin-bottom: 15px;">
+            <a href="{{ route('teacher.assignments.show', $assignment) }}" style="color: #7c3aed; text-decoration: none; font-size: 14px;">← Back to Assignment</a>
+        </div>
+    @endif
+    <h2 style="margin-bottom: 20px; color: #1f2937;">{{ $pageTitle }}</h2>
 
     @if($submissions->count() > 0)
     <table>
@@ -36,6 +43,7 @@
                 <th>Student</th>
                 <th>Assignment</th>
                 <th>Submitted</th>
+                <th>File</th>
                 <th>Status</th>
                 <th>Score</th>
                 <th>Action</th>
@@ -46,11 +54,20 @@
                 <tr>
                     <td class="student-name">{{ $submission->student->name }}</td>
                     <td>
-                        <a href="#" class="assignment-link" onclick="return false;" title="{{ $submission->assignment->title }}">
+                        <a href="{{ route('teacher.assignments.show', $submission->assignment) }}" class="assignment-link" title="{{ $submission->assignment->title }}">
                             {{ Str::limit($submission->assignment->title, 30) }}
                         </a>
                     </td>
                     <td style="font-size: 13px;">{{ $submission->submitted_at->format('M d, Y h:i A') }}</td>
+                    <td>
+                        @if($submission->file_path)
+                            <a href="{{ asset('storage/' . $submission->file_path) }}" target="_blank" rel="noopener" class="file-link" title="Open submitted file">
+                                <span class="file-name">{{ basename($submission->file_path) }}</span>
+                            </a>
+                        @else
+                            <span style="color: #999;">No file</span>
+                        @endif
+                    </td>
                     <td><span class="badge badge-{{ $submission->status }}">{{ ucfirst($submission->status) }}</span></td>
                     <td>
                         @if($submission->status === 'graded')
@@ -60,15 +77,11 @@
                         @endif
                     </td>
                     <td>
-                        @if($submission->status === 'pending')
-                            <form action="{{ route('teacher.submissions.grade', $submission) }}" method="POST" class="grade-form">
-                                @csrf
-                                <input type="number" name="score" class="score-input" min="0" max="{{ $submission->assignment->max_score }}" placeholder="Score" required>
-                                <button type="submit" class="btn-grade">Grade</button>
-                            </form>
-                        @else
-                            <span style="color: #999; font-size: 13px;">Graded</span>
-                        @endif
+                        <form action="{{ route('teacher.submissions.grade', $submission) }}" method="POST" class="grade-form">
+                            @csrf
+                            <input type="number" name="score" class="score-input" min="0" max="{{ $submission->assignment->max_score }}" placeholder="Score" value="{{ $submission->score }}" required>
+                            <button type="submit" class="btn-grade">{{ $submission->status === 'graded' ? 'Update' : 'Grade' }}</button>
+                        </form>
                     </td>
                 </tr>
             @endforeach

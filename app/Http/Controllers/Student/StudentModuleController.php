@@ -23,8 +23,7 @@ class StudentModuleController extends Controller
         if (!Schema::hasTable('course_modules')) {
             return view('student.modules.index', [
                 'student' => $student,
-                'course' => $student->course,
-                'moduleCards' => collect(),
+                'courses' => collect(),
                 'moduleItemsEnabled' => false,
                 'modulesEnabled' => false,
             ]);
@@ -36,8 +35,7 @@ class StudentModuleController extends Controller
         if (!$course) {
             return view('student.modules.index', [
                 'student' => $student,
-                'course' => null,
-                'moduleCards' => collect(),
+                'courses' => collect(),
                 'moduleItemsEnabled' => $moduleItemsEnabled,
                 'modulesEnabled' => true,
             ]);
@@ -57,61 +55,110 @@ class StudentModuleController extends Controller
                 ->get();
         }
 
-        $moduleCards = $coursesForStudent
-            ->flatMap(function ($studentCourse) use ($moduleItemsEnabled) {
-                $teacherNames = $studentCourse->teachers
-                    ->pluck('name')
-                    ->filter()
-                    ->unique()
-                    ->values();
+        $courses = $coursesForStudent->map(function ($studentCourse) {
+            $teacherNames = $studentCourse->teachers
+                ->pluck('name')
+                ->filter()
+                ->unique()
+                ->values();
 
-                $modules = $studentCourse->modules()
-                    ->with('teacher')
-                    ->when($moduleItemsEnabled, fn ($query) => $query->with('items'))
-                    ->get();
-
-                return $modules->map(function ($module) use ($studentCourse, $teacherNames, $moduleItemsEnabled) {
-                    $moduleTeacherNames = collect();
-
-                    if ($module->teacher) {
-                        $moduleTeacherNames = collect([$module->teacher->name]);
-                    } elseif ($teacherNames->isNotEmpty()) {
-                        $moduleTeacherNames = $teacherNames;
-                    }
-
-                    return [
-                        'id' => $module->id,
-                        'course_id' => $studentCourse->id,
-                        'course_name' => $studentCourse->name,
-                        'course_code' => $studentCourse->code,
-                        'class_name' => $studentCourse->class_name,
-                        'position' => (int) $module->position,
-                        'title' => $module->title,
-                        'description' => $module->description,
-                        'lesson_count' => (int) $module->lesson_count,
-                        'assignment_count' => (int) $module->assignment_count,
-                        'quiz_count' => (int) $module->quiz_count,
-                        'item_count' => $moduleItemsEnabled ? $module->items->count() : 0,
-                        'is_active' => (bool) data_get($module, 'is_active', true),
-                        'teachers' => $moduleTeacherNames,
-                    ];
-                });
-            })
+            return [
+                'id' => $studentCourse->id,
+                'code' => $studentCourse->code,
+                'name' => $studentCourse->name,
+                'category_name' => $studentCourse->category_name,
+                'class_name' => $studentCourse->class_name,
+                'description' => $studentCourse->description,
+                'teachers' => $teacherNames,
+            ];
+        })
             ->sortBy([
                 ['class_name', 'asc'],
-                ['course_name', 'asc'],
-                ['position', 'asc'],
-                ['id', 'asc'],
+                ['name', 'asc'],
             ])
             ->values();
 
         return view('student.modules.index', [
             'student' => $student,
-            'course' => $course,
-            'coursesCount' => $coursesForStudent->count(),
-            'moduleCards' => $moduleCards,
+            'courses' => $courses,
             'moduleItemsEnabled' => $moduleItemsEnabled,
             'modulesEnabled' => true,
+        ]);
+    }
+
+    public function showCourse(Course $course)
+    {
+        $student = auth()->user()->student;
+
+        if (!$student) {
+            return redirect()->route('dashboard')
+                ->withErrors(['error' => 'Student profile not found. Please contact administrator.']);
+        }
+
+        // Verify student has access to this course
+        $allowedCourseIds = [];
+        if ($student->course_id) {
+            $allowedCourseIds[] = $student->course_id;
+            if (!empty($student->course?->class_name)) {
+                $allowedCourseIds = Course::query()
+                    ->where('class_name', $student->course->class_name)
+                    ->where('is_active', true)
+                    ->pluck('id')
+                    ->all();
+            }
+        }
+
+        abort_unless(in_array($course->id, $allowedCourseIds, true), 404);
+
+        $moduleItemsEnabled = Schema::hasTable('course_module_items');
+
+        $teacherNames = $course->teachers
+            ->pluck('name')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $modules = $course->modules()
+            ->with('teacher')
+            ->when($moduleItemsEnabled, fn ($query) => $query->with('items'))
+            ->get();
+
+        $moduleCards = $modules->map(function ($module) use ($course, $teacherNames, $moduleItemsEnabled) {
+            $moduleTeacherNames = collect();
+
+            if ($module->teacher) {
+                $moduleTeacherNames = collect([$module->teacher->name]);
+            } elseif ($teacherNames->isNotEmpty()) {
+                $moduleTeacherNames = $teacherNames;
+            }
+
+            return [
+                'id' => $module->id,
+                'course_id' => $course->id,
+                'course_name' => $course->name,
+                'position' => (int) $module->position,
+                'title' => $module->title,
+                'description' => $module->description,
+                'lesson_count' => (int) $module->lesson_count,
+                'assignment_count' => (int) $module->assignment_count,
+                'quiz_count' => (int) $module->quiz_count,
+                'item_count' => $moduleItemsEnabled ? $module->items->count() : 0,
+                'is_active' => (bool) data_get($module, 'is_active', true),
+                'teachers' => $moduleTeacherNames,
+            ];
+        })
+            ->sortBy([
+                ['position', 'asc'],
+                ['id', 'asc'],
+            ])
+            ->values();
+
+        return view('student.courses.show', [
+            'student' => $student,
+            'course' => $course,
+            'modules' => $moduleCards,
+            'teachers' => $teacherNames,
+            'moduleItemsEnabled' => $moduleItemsEnabled,
         ]);
     }
 

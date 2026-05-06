@@ -57,9 +57,9 @@
 
             <div class="info-box">
                 <p><strong>Role:</strong> <span class="badge badge-{{ $invitation->role }}">{{ ucfirst($invitation->role) }}</span></p>
-                <p><strong>Created:</strong> {{ $invitation->created_at->format('F d, Y') }}</p>
-                <p><strong>Expires:</strong> {{ $invitation->expires_at->format('F d, Y') }} ({{ $invitation->expires_at->diffForHumans() }})</p>
-                <p><strong>Status:</strong> 
+                <p><strong>Created:</strong> {{ $invitation->created_at->format('d/m/Y') }}</p>
+                <p><strong>Expires:</strong> {{ $invitation->expires_at->format('d/m/Y') }} ({{ $invitation->expires_at->diffForHumans() }})</p>
+                <p><strong>Status:</strong>
                     @if($invitation->used)
                         <span class="badge badge-used">Used</span>
                     @else
@@ -144,10 +144,10 @@
             navigator.clipboard.writeText(inviteLink).then(() => {
                 const btn = document.getElementById('copyBtn');
                 const text = document.getElementById('copyText');
-                
+
                 btn.classList.add('copied');
                 text.textContent = 'Copied!';
-                
+
                 setTimeout(() => {
                     btn.classList.remove('copied');
                     text.textContent = 'Copy Link';

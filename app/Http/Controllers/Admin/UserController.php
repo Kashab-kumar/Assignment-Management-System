@@ -19,6 +19,45 @@ class UserController extends Controller
         return view('admin.users.index', compact('users'));
     }
 
+    public function create()
+    {
+        return view('admin.users.create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8|confirmed',
+            'role' => 'required|in:admin,teacher,student',
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => bcrypt($validated['password']),
+            'role' => $validated['role'],
+            'email_verified_at' => now(),
+        ]);
+
+        // Create role-specific records
+        if ($validated['role'] === 'student') {
+            Student::create([
+                'user_id' => $user->id,
+                'student_id' => 'STU' . str_pad($user->id, 5, '0', STR_PAD_LEFT),
+            ]);
+        } elseif ($validated['role'] === 'teacher') {
+            Teacher::create([
+                'user_id' => $user->id,
+                'teacher_id' => 'TCH' . str_pad($user->id, 5, '0', STR_PAD_LEFT),
+            ]);
+        }
+
+        return redirect()->route('admin.users.show', $user)
+            ->with('success', 'User created successfully!');
+    }
+
     public function show(User $user)
     {
         $user->load(['student', 'teacher']);

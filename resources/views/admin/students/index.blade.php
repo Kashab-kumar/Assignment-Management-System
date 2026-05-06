@@ -11,7 +11,7 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         padding: 20px;
     }
-    
+
     .students-header {
         display: flex;
         justify-content: space-between;
@@ -25,12 +25,12 @@
         display: flex;
         gap: 10px;
     }
-    
+
     .students-table {
         width: 100%;
         border-collapse: collapse;
     }
-    
+
     .students-table th {
         background: #f8f9fa;
         padding: 12px 15px;
@@ -39,16 +39,16 @@
         color: #555;
         border-bottom: 2px solid #dee2e6;
     }
-    
+
     .students-table td {
         padding: 12px 15px;
         border-bottom: 1px solid #eee;
     }
-    
+
     .students-table tr:hover {
         background: #f8f9fa;
     }
-    
+
     .student-id {
         font-family: monospace;
         background: #f0f0f0;
@@ -56,7 +56,7 @@
         border-radius: 3px;
         font-size: 12px;
     }
-    
+
     .course-badge {
         background: #4CAF50;
         color: white;
@@ -64,7 +64,7 @@
         border-radius: 4px;
         font-size: 12px;
     }
-    
+
     .btn {
         padding: 6px 12px;
         border-radius: 4px;
@@ -72,26 +72,26 @@
         font-size: 13px;
         margin-right: 5px;
     }
-    
+
     .btn-view { background: #4CAF50; color: white; }
     .btn-edit { background: #2196F3; color: white; }
     .btn-delete { background: #f44336; color: white; }
     .btn-add { background: #9C27B0; color: white; padding: 8px 16px; }
     .btn-invite { background: #03A9F4; color: white; }
-    
+
     .filters {
         background: #f8f9fa;
         padding: 15px;
         border-radius: 4px;
         margin-bottom: 20px;
     }
-    
+
     .filter-group {
         display: flex;
         gap: 15px;
         align-items: center;
     }
-    
+
     .filter-group select {
         padding: 8px 12px;
         border: 1px solid #ddd;
@@ -108,13 +108,13 @@
             <a href="{{ route('admin.students.create') }}" class="btn btn-add">+ Add New Student</a>
         </div>
     </div>
-    
+
     @if(session('success'))
         <div style="background: #d4edda; color: #155724; padding: 12px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
             {{ session('success') }}
         </div>
     @endif
-    
+
     <div class="filters">
         <form method="GET" action="{{ route('admin.students.index') }}">
             <div class="filter-group">
@@ -131,7 +131,7 @@
             </div>
         </form>
     </div>
-    
+
     @if($students->count() > 0)
         <table class="students-table">
             <thead>
@@ -162,7 +162,7 @@
                             <span style="color: #999; font-size: 12px;">Not Assigned</span>
                         @endif
                     </td>
-                    <td>{{ $student->created_at->format('M d, Y') }}</td>
+                    <td>{{ $student->created_at->format('d/m/Y') }}</td>
                     <td>
                         <a href="{{ route('admin.students.show', $student) }}" class="btn btn-view">View</a>
                         <a href="{{ route('admin.students.edit', $student) }}" class="btn btn-edit">Edit</a>
@@ -176,7 +176,7 @@
                 @endforeach
             </tbody>
         </table>
-        
+
         <div style="margin-top: 20px;">
             {{ $students->links() }}
         </div>

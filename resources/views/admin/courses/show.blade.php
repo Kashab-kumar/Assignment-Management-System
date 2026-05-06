@@ -190,26 +190,6 @@
                             <div class="module-desc" style="margin-top: 10px; margin-bottom: 2px;">
                                 Teacher: <strong>{{ $module->teacher?->name ?? 'Not assigned' }}</strong>
                             </div>
-                            <div class="module-actions">
-                                <form action="{{ route('admin.courses.modules.update-teacher', [$course, $module]) }}" method="POST" style="display: flex; gap: 8px; align-items: center; flex: 1;">
-                                    @csrf
-                                    @method('PUT')
-                                    <select name="teacher_id" style="padding: 6px; border-radius: 4px; border: 1px solid #ddd; flex: 1;">
-                                        <option value="">Assign Teacher</option>
-                                        @foreach($availableTeachers as $teacher)
-                                            <option value="{{ $teacher->id }}" {{ $module->teacher_id == $teacher->id ? 'selected' : '' }}>
-                                                {{ $teacher->name }}{{ $teacher->teacher_id ? ' (' . $teacher->teacher_id . ')' : '' }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <button type="submit" class="btn btn-edit" style="padding: 6px 12px; font-size: 12px;">Update</button>
-                                </form>
-                                <form action="{{ route('admin.courses.modules.destroy', [$course, $module]) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-delete" style="padding: 6px 12px; font-size: 12px;" onclick="return confirm('Delete this module?')">Delete</button>
-                                </form>
-                            </div>
 
                             @if($moduleItemsEnabled)
                                 @if($module->items->isEmpty())

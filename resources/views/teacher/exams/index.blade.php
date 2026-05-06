@@ -72,7 +72,7 @@
                 <tr>
                     <td><strong>{{ $exam->title }}</strong></td>
                     <td><span class="type-pill type-{{ $exam->type }}">{{ $typeLabels[$exam->type] ?? ucfirst($exam->type) }}</span></td>
-                    <td>{{ $exam->exam_date?->format('M d, Y') ?: '-' }}</td>
+                    <td>{{ $exam->exam_date?->format('d/m/Y') ?: '-' }}</td>
                     <td>{{ $exam->results_count }} result(s)</td>
                     <td>
                         <a href="{{ route('teacher.exams.show', $exam) }}" class="create-btn">Open</a>

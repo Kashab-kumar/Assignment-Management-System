@@ -37,7 +37,7 @@
     <h2>Assignment Details</h2>
     <div class="meta">
         <span class="meta-item"><strong>Type:</strong> {{ ucfirst($assignment->type) }}</span>
-        <span class="meta-item"><strong>Due Date:</strong> {{ $assignment->due_date->format('F d, Y') }}</span>
+        <span class="meta-item"><strong>Due Date:</strong> {{ $assignment->due_date->format('d/m/Y') }}</span>
         <span class="meta-item"><strong>Max Score:</strong> {{ $assignment->max_score }} points</span>
         <span class="meta-item"><strong>Total Submissions:</strong> {{ $submissions->count() }}</span>
     </div>
@@ -54,9 +54,10 @@
 </div>
 
 <div class="card">
-    <h2>Student Submissions</h2>
+    <h2>Student Submissions ({{ $submissions->count() }}/{{ $allStudents->count() }})</h2>
 
     @if($submissions->count() > 0)
+    <h3 style="margin-top: 20px; margin-bottom: 15px; color: #1f2937; font-size: 16px;">Submitted</h3>
     <table>
         <thead>
             <tr>
@@ -110,11 +111,43 @@
             @endforeach
         </tbody>
     </table>
-    @else
+    @endif
+
+    @if($nonSubmittedStudents->count() > 0)
+    <h3 style="margin-top: 30px; margin-bottom: 15px; color: #d32f2f; font-size: 16px;">Not Submitted ({{ $nonSubmittedStudents->count() }})</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Student Name</th>
+                <th>Enrollment No.</th>
+                <th>Status</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($nonSubmittedStudents as $student)
+            <tr style="background: #fff5f5;">
+                <td><strong>{{ $student->user->name }}</strong></td>
+                <td>{{ $student->student_id }}</td>
+                <td><span class="badge" style="background: #f44336; color: white;">Not Submitted</span></td>
+                <td style="color: #999; font-size: 13px;">
+                    @if(\Carbon\Carbon::now()->isAfter($assignment->due_date))
+                        <strong style="color: #d32f2f;">Overdue</strong>
+                    @else
+                        Pending
+                    @endif
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+    @endif
+
+    @if($submissions->count() === 0 && $nonSubmittedStudents->count() === 0)
     <div class="empty-state">
         <svg viewBox="0 0 24 24" style="width: 60px; height: 60px; fill: #ddd; margin-bottom: 15px;"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-        <h3>No Submissions Yet</h3>
-        <p>Students haven't submitted their work yet.</p>
+        <h3>No Students Enrolled</h3>
+        <p>No students are enrolled in this course.</p>
     </div>
     @endif
 </div>

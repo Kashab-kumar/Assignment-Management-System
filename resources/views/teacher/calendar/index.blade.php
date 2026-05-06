@@ -126,7 +126,7 @@
             <tbody>
                 @foreach($events as $event)
                     <tr>
-                        <td>{{ $event['date']->format('M d, Y') }}</td>
+                        <td>{{ $event['date']->format('d/m/Y') }}</td>
                         <td>{{ $event['title'] }}</td>
                         <td>{{ $event['course'] ?? '-' }}</td>
                         <td><span class="badge badge-{{ $event['type'] }}">{{ ucfirst($event['type']) }}</span></td>

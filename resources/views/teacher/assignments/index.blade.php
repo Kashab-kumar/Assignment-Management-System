@@ -57,10 +57,10 @@
             <tr>
                 <td><strong>{{ $assignment->title }}</strong></td>
                 <td><span class="badge badge-{{ $assignment->type }}">{{ ucfirst($assignment->type) }}</span></td>
-                <td>{{ $assignment->due_date?->format('M d, Y') ?: '-' }}</td>
+                <td>{{ $assignment->due_date?->format('d/m/Y') ?: '-' }}</td>
                 <td>{{ $assignment->submissions_count }} submission(s)</td>
                 <td>
-                    <a href="{{ route('teacher.submissions.index') }}" class="btn">View Submissions</a>
+                    <a href="{{ route('teacher.assignments.submissions.index', $assignment) }}" class="btn">View Submissions</a>
                 </td>
             </tr>
             @endforeach

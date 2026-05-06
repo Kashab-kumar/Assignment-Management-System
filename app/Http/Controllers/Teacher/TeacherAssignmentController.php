@@ -116,8 +116,19 @@ class TeacherAssignmentController extends Controller
     {
         abort_unless(in_array($assignment->course_id, $this->assignedCourseIds(), true), 403);
 
-        $submissions = $assignment->submissions()->with('student')->get();
-        return view('teacher.assignments.show', compact('assignment', 'submissions'));
+        // Get all students in the course
+        $allStudents = $assignment->course->students()->with('user')->get();
+
+        // Get submissions with their students
+        $submissions = $assignment->submissions()->with('student.user')->get();
+        $submittedStudentIds = $submissions->pluck('student_id')->toArray();
+
+        // Get students who haven't submitted
+        $nonSubmittedStudents = $allStudents->filter(function ($student) use ($submittedStudentIds) {
+            return !in_array($student->id, $submittedStudentIds, true);
+        });
+
+        return view('teacher.assignments.show', compact('assignment', 'submissions', 'nonSubmittedStudents', 'allStudents'));
     }
 
     public function gradeSubmission(Request $request, Submission $submission)

@@ -415,62 +415,159 @@
             </div>
         </div>
 
-        @if($activities->count() > 0)
-            <div class="activities-grid">
-                @foreach($activities as $activity)
-                    <div class="activity-card">
-                        <div class="activity-header">
-                            <div class="activity-icon {{ $activity['type'] }}">
-                                {{ $activity['type'] == 'assignment' ? 'A' : 'E' }}
+        <!-- Tabs Container -->
+        <div style="margin-top: 24px;">
+            <div style="display: flex; gap: 8px; border-bottom: 2px solid #e5e7eb; background: #f9fafb; padding: 0;">
+                <button class="activity-tab-btn active" onclick="switchActivityTab(event, 'assignments')" style="flex: 1; padding: 16px; text-align: center; border: none; background: none; cursor: pointer; font-size: 15px; font-weight: 600; color: #64748b; border-bottom: 4px solid transparent; margin-bottom: -2px;">
+                    📝 Assignments ({{ $activities->where('type', 'assignment')->count() }})
+                </button>
+                <button class="activity-tab-btn" onclick="switchActivityTab(event, 'exams')" style="flex: 1; padding: 16px; text-align: center; border: none; background: none; cursor: pointer; font-size: 15px; font-weight: 600; color: #64748b; border-bottom: 4px solid transparent; margin-bottom: -2px;">
+                    🧪 Exams ({{ $activities->where('type', 'exam')->count() }})
+                </button>
+                <button class="activity-tab-btn" onclick="switchActivityTab(event, 'recent')" style="flex: 1; padding: 16px; text-align: center; border: none; background: none; cursor: pointer; font-size: 15px; font-weight: 600; color: #64748b; border-bottom: 4px solid transparent; margin-bottom: -2px;">
+                    📅 Recent Activity
+                </button>
+            </div>
+
+            <style>
+                .activity-tab-btn.active {
+                    color: #667eea !important;
+                    border-bottom-color: #667eea !important;
+                    background: white !important;
+                }
+                .activity-tab-btn:hover {
+                    color: #667eea;
+                    background: #f0f4ff;
+                }
+                .activity-tab-pane {
+                    display: none;
+                    padding: 24px;
+                }
+                .activity-tab-pane.active {
+                    display: block;
+                }
+            </style>
+
+            <!-- Assignments Tab -->
+            <div id="assignments" class="activity-tab-pane active">
+                @php
+                    $assignments = $activities->where('type', 'assignment');
+                @endphp
+                @if($assignments->count() > 0)
+                    <div class="activities-grid">
+                        @foreach($assignments as $activity)
+                            <div class="activity-card">
+                                <div class="activity-header">
+                                    <div class="activity-icon assignment">A</div>
+                                    <div>
+                                        <div class="activity-title">{{ $activity['title'] }}</div>
+                                        <div class="activity-type">{{ ucfirst($activity['type']) }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="activity-description">
+                                    {{ Str::limit($activity['description'], 150) }}
+                                </div>
+
+                                <div class="activity-meta">
+                                    <div class="activity-weightage">Weightage: {{ $activity['weightage'] }}%</div>
+                                    <div class="activity-date">
+                                        Due: {{ $activity['due_date'] ? \Carbon\Carbon::parse($activity['due_date'])->format('d/m/Y') : 'No due date' }}
+                                    </div>
+                                </div>
+
+                                <div class="activity-status status-{{ $activity['status'] }}">
+                                    {{ ucfirst(str_replace('_', ' ', $activity['status'])) }}
+                                </div>
+
+                                <div class="activity-actions">
+                                    <a href="{{ route('teacher.assignments.show', $activity['id']) }}" class="btn btn-primary">View & Grade</a>
+                                </div>
                             </div>
-                            <div>
-                                <div class="activity-title">{{ $activity['title'] }}</div>
-                                <div class="activity-type">{{ $activity['type'] }}</div>
-                            </div>
-                        </div>
-
-                        <div class="activity-description">
-                            {{ Str::limit($activity['description'], 150) }}
-                        </div>
-
-                        <div class="activity-meta">
-                            <div class="activity-weightage">Weightage: {{ $activity['weightage'] }}%</div>
-                            <div class="activity-date">
-                                @if($activity['type'] == 'assignment')
-                                    Due: {{ $activity['due_date'] ? \Carbon\Carbon::parse($activity['due_date'])->format('M d, Y') : 'No due date' }}
-                                @else
-                                    Date: {{ $activity['exam_date'] ? \Carbon\Carbon::parse($activity['exam_date'])->format('M d, Y') : 'No date set' }}
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="activity-status status-{{ $activity['status'] }}">
-                            {{ ucfirst(str_replace('_', ' ', $activity['status'])) }}
-                        </div>
-
-                        <div class="activity-actions">
-                            @if($activity['type'] == 'assignment')
-                                <a href="{{ route('teacher.assignments.show', $activity['id']) }}" class="btn btn-primary">View & Grade</a>
-                            @else
-                                <a href="{{ route('teacher.exams.show', $activity['id']) }}" class="btn btn-primary">View</a>
-                                <a href="{{ route('teacher.exams.edit', $activity['id']) }}" class="btn btn-secondary">Edit</a>
-                                <a href="{{ route('teacher.exams.show', $activity['id']) }}" class="btn btn-success">Results</a>
-                            @endif
-                        </div>
+                        @endforeach
                     </div>
-                @endforeach
+                @else
+                    <div class="empty-activities">
+                        <div class="empty-activities-icon">📝</div>
+                        <p>No assignments yet. Click "+ Assignment" to create one.</p>
+                    </div>
+                @endif
             </div>
-        @else
-            <div class="empty-activities">
-                <div class="empty-activities-icon">📚</div>
-                <h3>No Activities Yet</h3>
-                <p>Create assignments and exams for this module to get started</p>
-                <div>
-                    <button onclick="openAssignmentModal()" class="btn btn-primary">Create Assignment</button>
-                    <a href="{{ route('teacher.exams.create', ['module_id' => $module->id]) }}" class="btn btn-success">Create Exam</a>
-                </div>
+
+            <!-- Exams Tab -->
+            <div id="exams" class="activity-tab-pane">
+                @php
+                    $exams = $activities->where('type', 'exam');
+                @endphp
+                @if($exams->count() > 0)
+                    <div class="activities-grid">
+                        @foreach($exams as $activity)
+                            <div class="activity-card">
+                                <div class="activity-header">
+                                    <div class="activity-icon exam">E</div>
+                                    <div>
+                                        <div class="activity-title">{{ $activity['title'] }}</div>
+                                        <div class="activity-type">{{ ucfirst($activity['type']) }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="activity-description">
+                                    {{ Str::limit($activity['description'], 150) }}
+                                </div>
+
+                                <div class="activity-meta">
+                                    <div class="activity-weightage">Weightage: {{ $activity['weightage'] }}%</div>
+                                    <div class="activity-date">
+                                        Date: {{ $activity['exam_date'] ? \Carbon\Carbon::parse($activity['exam_date'])->format('d/m/Y') : 'No date set' }}
+                                    </div>
+                                </div>
+
+                                <div class="activity-status status-{{ $activity['status'] }}">
+                                    {{ ucfirst(str_replace('_', ' ', $activity['status'])) }}
+                                </div>
+
+                                <div class="activity-actions">
+                                    <a href="{{ route('teacher.exams.show', $activity['id']) }}" class="btn btn-primary">View</a>
+                                    <a href="{{ route('teacher.exams.edit', $activity['id']) }}" class="btn btn-secondary">Edit</a>
+                                    <a href="{{ route('teacher.exams.show', $activity['id']) }}" class="btn btn-success">Results</a>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="empty-activities">
+                        <div class="empty-activities-icon">🧪</div>
+                        <p>No exams yet. Click "+ Exam" to create one.</p>
+                    </div>
+                @endif
             </div>
-        @endif
+
+            <!-- Recent Activity Tab -->
+            <div id="recent" class="activity-tab-pane">
+                @if($activities->count() > 0)
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        @foreach($activities->sortByDesc('created_at')->take(10) as $activity)
+                            <div class="activity-card" style="padding: 16px; margin-bottom: 0;">
+                                <div class="activity-header">
+                                    <div class="activity-icon {{ $activity['type'] }}" style="width: 36px; height: 36px; font-size: 16px;">
+                                        {{ $activity['type'] == 'assignment' ? '📝' : '🧪' }}
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <div class="activity-title" style="margin-bottom: 2px;">{{ $activity['title'] }}</div>
+                                        <div class="activity-type">{{ ucfirst($activity['type']) }} created {{ $activity['created_at']->diffForHumans() }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="empty-activities">
+                        <div class="empty-activities-icon">📅</div>
+                        <p>No activity yet.</p>
+                    </div>
+                @endif
+            </div>
+        </div>
     </div>
 
     <!-- Assignment Modal -->
@@ -846,5 +943,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function openAssignmentModal() {
     document.getElementById('assignmentModal').style.display = 'flex';
+}
+
+function switchActivityTab(event, tabName) {
+    event.preventDefault();
+
+    // Hide all tab panes
+    const panes = document.querySelectorAll('.activity-tab-pane');
+    panes.forEach(pane => pane.classList.remove('active'));
+
+    // Remove active class from all buttons
+    const buttons = document.querySelectorAll('.activity-tab-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+
+    // Show the selected tab pane
+    const selectedPane = document.getElementById(tabName);
+    if (selectedPane) {
+        selectedPane.classList.add('active');
+    }
+
+    // Add active class to the clicked button
+    event.target.classList.add('active');
 }
 

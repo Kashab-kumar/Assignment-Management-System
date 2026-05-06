@@ -402,7 +402,22 @@
 <script>
     let secureExam = null;
 
+    function stopPageMedia() {
+        document.querySelectorAll('audio, video').forEach((media) => {
+            try {
+                media.pause();
+                media.currentTime = 0;
+                media.muted = true;
+                media.autoplay = false;
+            } catch (error) {
+                console.warn('Unable to stop media element:', error);
+            }
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', async function() {
+        stopPageMedia();
+
         // Show start button instead of auto-starting
         document.getElementById('loading-screen').innerHTML = `
             <div style="text-align: center; padding: 40px;">
@@ -417,6 +432,7 @@
 
     async function startSecureExam() {
         try {
+            stopPageMedia();
             // Start secure exam session
             const response = await fetch('/secure-exam/{{ $exam->id }}/start', {
                 method: 'POST',
@@ -458,8 +474,8 @@
             document.getElementById('loading-screen').style.display = 'none';
             document.getElementById('exam-interface').style.display = 'block';
 
-            // Auto-save answers every 30 seconds
-            setInterval(autoSaveAnswers, 30000);
+            // Auto-save answers every 30 seconds (store interval so it can be cleared)
+            window.__secureAutoSaveInterval = setInterval(autoSaveAnswers, 30000);
 
         } catch (error) {
             console.error('Failed to start secure exam:', error);
@@ -494,7 +510,12 @@
         }
 
         if (confirm('Are you sure you want to submit your exam? This action cannot be undone.')) {
-            document.getElementById('exam-form').submit();
+            try {
+                await secureExam.submitExam();
+            } catch (e) {
+                console.error('Submission error:', e);
+                alert('Failed to submit exam. Please try again.');
+            }
         }
     }
 

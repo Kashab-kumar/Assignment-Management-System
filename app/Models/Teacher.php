@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Teacher extends Model
 {
-    protected $fillable = ['user_id', 'teacher_id', 'name', 'email'];
+    protected $fillable = ['user_id', 'teacher_id', 'name', 'email', 'subject'];
 
     public function user()
     {
@@ -21,5 +21,10 @@ class Teacher extends Model
     public function subjects()
     {
         return $this->hasMany(TeacherSubject::class);
+    }
+
+    public function modules()
+    {
+        return $this->hasMany(CourseModule::class, 'teacher_id');
     }
 }

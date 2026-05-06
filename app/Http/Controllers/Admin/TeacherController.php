@@ -12,10 +12,10 @@ class TeacherController extends Controller
 {
     public function index()
     {
-        $teachers = Teacher::with('user')
+        $teachers = Teacher::with(['user', 'modules:id,teacher_id,title'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
-        
+
         return view('admin.teachers.index', compact('teachers'));
     }
 

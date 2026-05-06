@@ -100,6 +100,59 @@
         <h3>Pending Submissions</h3>
         <div class="value white">{{ $assignments->filter(fn($a) => $a->submissions->isEmpty())->count() }}</div>
     </div>
+    <div class="stat-card">
+        <h3>Upcoming Tasks</h3>
+        <div class="value white">{{ $upcomingTasks->count() }}</div>
+    </div>
+</div>
+
+<div class="section">
+    <h2>📋 All Upcoming Tasks</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Title</th>
+                <th>Due/Exam Date</th>
+                <th>Days Left</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($upcomingTasks->take(10) as $task)
+            @php
+                $daysLeft = $task['due_date']->diffInDays(now());
+                $isUrgent = $daysLeft <= 3;
+                $dateFormat = $task['due_date']->format('d/m/Y');
+            @endphp
+            <tr>
+                <td>
+                    @if($task['type'] === 'assignment')
+                        <span class="badge" style="background: #e0ecff; color: #2459ff; border: 1px solid #bfdbfe;">📝 Assignment</span>
+                    @else
+                        <span class="badge" style="background: #f3e8ff; color: #7c3aed; border: 1px solid #e9d5ff;">🧪 Exam</span>
+                    @endif
+                </td>
+                <td><strong>{{ $task['title'] }}</strong></td>
+                <td>{{ $dateFormat }}</td>
+                <td>
+                    <span style="font-weight: 600; color: {{ $isUrgent ? '#ef4444' : '#10b981' }};">
+                        {{ $daysLeft }} day{{ $daysLeft !== 1 ? 's' : '' }}
+                    </span>
+                </td>
+                <td>
+                    @if($task['type'] === 'assignment')
+                        <a href="{{ route('student.assignments.show', $task['model']) }}" class="btn">Start</a>
+                    @else
+                        <a href="{{ route('student.exams.show', $task['model']) }}" class="btn">Start</a>
+                    @endif
+                </td>
+            </tr>
+            @empty
+            <tr><td colspan="5" style="color:#64748b; text-align:center; padding:20px;">No upcoming tasks! You're all caught up 🎉</td></tr>
+            @endforelse
+        </tbody>
+    </table>
 </div>
 
 <div class="section">
@@ -123,7 +176,7 @@
             <tr>
                 <td>{{ $assignment->title }}</td>
                 <td>{{ ucfirst($assignment->type) }}</td>
-                <td>{{ $assignment->due_date->format('M d, Y') }} @if($isOverdue) <span style="color: #ef4444; font-weight: 600; font-size: 11px;">(OVERDUE)</span> @endif</td>
+                <td>{{ $assignment->due_date->format('d/m/Y') }} @if($isOverdue) <span style="color: #ef4444; font-weight: 600; font-size: 11px;">(OVERDUE)</span> @endif</td>
                 <td>
                     @if($assignment->submissions->first())
                         <span class="badge badge-{{ $assignment->submissions->first()->status }}">

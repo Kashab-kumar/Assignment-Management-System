@@ -71,6 +71,7 @@ Route::middleware(['auth:student'])->group(function () {
         Route::get('/exams/{exam}', [StudentExamController::class, 'show'])->name('exams.show');
         Route::post('/exams/{exam}/submit', [StudentExamController::class, 'submit'])->name('exams.submit');
         Route::get('/modules', [StudentModuleController::class, 'index'])->name('modules.index');
+        Route::get('/courses/{course}', [StudentModuleController::class, 'showCourse'])->name('courses.show');
         Route::get('/modules/{module}', [StudentModuleController::class, 'show'])->name('modules.show');
         Route::get('/grades', [StudentGradeController::class, 'index'])->name('grades.index');
         Route::get('/rankings', [StudentRankingController::class, 'index'])->name('rankings');
@@ -98,6 +99,7 @@ Route::post('/submissions/{submission}/grade-ai', [TeacherAssignmentController::
 
     // Submissions
     Route::get('/submissions', [TeacherSubmissionController::class, 'index'])->name('submissions.index');
+    Route::get('/assignments/{assignment}/submissions', [TeacherSubmissionController::class, 'index'])->name('assignments.submissions.index');
 
     // Exams
     Route::get('/exams', [TeacherExamController::class, 'index'])->name('exams.index');
@@ -155,6 +157,8 @@ Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(functi
 
     // Users Management
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');

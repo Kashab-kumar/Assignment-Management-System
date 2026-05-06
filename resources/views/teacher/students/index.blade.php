@@ -115,7 +115,7 @@
                             <span class="badge badge-active">Active</span>
                         @endif
                     </td>
-                    <td>{{ $invitation->created_at->format('M d, Y') }}</td>
+                    <td>{{ $invitation->created_at->format('d/m/Y') }}</td>
                     <td><a href="{{ route('teacher.students.invitations.show', $invitation) }}" style="color:#2196F3; text-decoration:none;">View Link</a></td>
                 </tr>
             @empty

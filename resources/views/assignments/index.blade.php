@@ -114,7 +114,7 @@
             @endif
             <span class="meta-item">
                 <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5C3.89 4 3 4.9 3 6v14c0 1.1.89 2 2 2h14a2 2 0 0 0 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
-                Due: {{ $assignment->due_date->format('M d, Y') }}
+                Due: {{ $assignment->due_date->format('d/m/Y') }}
                 @if($assignment->due_date->isPast() && !$sub)
                     <span style="color:#ef4444;"> (Overdue)</span>
                 @elseif(!$sub && $assignment->due_date->diffInDays() <= 3)

@@ -148,32 +148,11 @@
 
                 <div class="pt-4 pb-2 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Academics</div>
 
-                <a href="{{ route('student.assignments.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('student.assignments.*') ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
-                    </svg>
-                    <span>Assignments</span>
-                </a>
-
-                <a href="{{ route('student.calendar') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('student.calendar') ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5C3.89 4 3 4.9 3 6v14c0 1.1.89 2 2 2h14a2 2 0 0 0 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"/>
-                    </svg>
-                    <span>Recent</span>
-                </a>
-
-                <a href="{{ route('student.exams.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('student.exams.*') ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
-                    </svg>
-                    <span>Tests & Exams</span>
-                </a>
-
                 <a href="{{ route('student.modules.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('student.modules.*') ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
                     <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M4 6c0-1.1.9-2 2-2h6v16H6a2 2 0 0 1-2-2V6zm10-2h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4V4zM8 8h2v2H8V8zm0 4h2v2H8v-2z"/>
                     </svg>
-                    <span>Modules</span>
+                    <span>Courses</span>
                 </a>
 
                 <a href="{{ route('student.grades.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('student.grades.*') ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">

@@ -11,7 +11,7 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         padding: 30px;
     }
-    
+
     .report-header {
         display: flex;
         justify-content: space-between;
@@ -20,23 +20,23 @@
         padding-bottom: 20px;
         border-bottom: 1px solid #eee;
     }
-    
+
     .section {
         margin-bottom: 40px;
     }
-    
+
     .section h3 {
         color: #333;
         margin-bottom: 20px;
         padding-bottom: 10px;
         border-bottom: 1px solid #eee;
     }
-    
+
     .report-table {
         width: 100%;
         border-collapse: collapse;
     }
-    
+
     .report-table th {
         background: #f8f9fa;
         padding: 12px 15px;
@@ -45,16 +45,16 @@
         color: #555;
         border-bottom: 2px solid #dee2e6;
     }
-    
+
     .report-table td {
         padding: 12px 15px;
         border-bottom: 1px solid #eee;
     }
-    
+
     .report-table tr:hover {
         background: #f8f9fa;
     }
-    
+
     .btn {
         padding: 8px 16px;
         border-radius: 4px;
@@ -62,7 +62,7 @@
         font-size: 14px;
         margin-right: 10px;
     }
-    
+
     .btn-back { background: #666; color: white; }
     .btn-export { background: #4CAF50; color: white; }
 </style>
@@ -74,7 +74,7 @@
             <a href="{{ route('admin.reports.index') }}" class="btn btn-back">← Back to Reports</a>
         </div>
     </div>
-    
+
     <div class="section">
         <h3>Assignments</h3>
         <table class="report-table">
@@ -93,20 +93,20 @@
                 <tr>
                     <td>{{ $assignment->title }}</td>
                     <td>{{ ucfirst($assignment->type) }}</td>
-                    <td>{{ $assignment->due_date->format('M d, Y') }}</td>
+                    <td>{{ $assignment->due_date->format('d/m/Y') }}</td>
                     <td>{{ $assignment->max_score }}</td>
                     <td>{{ $assignment->submissions_count }}</td>
-                    <td>{{ $assignment->created_at->format('M d, Y') }}</td>
+                    <td>{{ $assignment->created_at->format('d/m/Y') }}</td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
-        
+
         <div style="margin-top: 20px;">
             {{ $assignments->links() }}
         </div>
     </div>
-    
+
     <div class="section">
         <h3>Courses</h3>
         <table class="report-table">
@@ -132,12 +132,12 @@
                         @endif
                     </td>
                     <td>{{ $course->students_count }}</td>
-                    <td>{{ $course->created_at->format('M d, Y') }}</td>
+                    <td>{{ $course->created_at->format('d/m/Y') }}</td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
-        
+
         <div style="margin-top: 20px;">
             {{ $courses->links() }}
         </div>
