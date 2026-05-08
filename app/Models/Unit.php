@@ -13,6 +13,11 @@ class Unit extends Model
         'file_path',
         'extracted_content',
         'order',
+        'max_marks',
+        'content_type',
+        'grading_criteria',
+        'grade_scale',
+        'ai_options',
     ];
 
     public function module()

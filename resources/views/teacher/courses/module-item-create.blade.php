@@ -6,7 +6,7 @@
 @section('content')
 <style>
     .container {
-        max-width: 800px;
+        max-width: 1100px;
         margin: 0 auto;
         background: #ffffff;
         border-radius: 12px;
@@ -246,8 +246,8 @@
 
             <div class="form-group">
                 <label for="title">Topic/Title <span class="required">*</span></label>
-                <input type="text" id="title" name="title" class="form-control" 
-                       value="{{ old('title') }}" 
+                <input type="text" id="title" name="title" class="form-control"
+                       value="{{ old('title') }}"
                        placeholder="e.g., Introduction to Photosynthesis" required>
                 @error('title')
                     <div class="error-message">{{ $message }}</div>
@@ -255,79 +255,70 @@
             </div>
 
             <div class="form-group">
-                <label for="file">Upload File (PDF, DOC, DOCX, TXT)</label>
-                <input type="file" id="file" name="file" class="form-control" 
-                       accept=".pdf,.doc,.docx,.txt"
-                       onchange="handleFileUpload(this)">
-                <small style="color: #6b7280; font-size: 12px;">Upload a file and AI will analyze it to generate content</small>
+                <label for="file">Upload unit outline file</label>
+                <label class="upload-box" style="display:block; border:2px dashed #e5e7eb; border-radius:8px; padding:28px; text-align:center; cursor:pointer; margin-top:8px;">
+                    <div style="font-size:24px; color:#6b7280;">📁</div>
+                    <div style="margin-top:8px; font-weight:600;">Upload unit outline file</div>
+                    <div style="font-size:12px; color:#9ca3af; margin-top:6px;">PDF, DOC, DOCX, TXT — AI will use this for auto-grading</div>
+                    <input type="file" id="file" name="file" accept=".pdf,.doc,.docx,.txt" onchange="handleFileUpload(this)" style="display:none">
+                </label>
                 <div id="file-info" style="margin-top: 8px; color: #10b981; font-size: 13px;"></div>
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="type">Content Type <span class="required">*</span></label>
-                    <select id="type" name="type" class="form-control" required>
-                        <option value="">Select content type</option>
-                        <option value="unit_outline" {{ old('type') == 'unit_outline' ? 'selected' : '' }}>Unit Outline</option>
-                        <option value="video" {{ old('type') == 'video' ? 'selected' : '' }}>Video</option>
-                        <option value="note" {{ old('type') == 'note' ? 'selected' : '' }}>Note</option>
-                        <option value="quiz" {{ old('type') == 'quiz' ? 'selected' : '' }}>Quiz</option>
-                        <option value="test" {{ old('type') == 'test' ? 'selected' : '' }}>Test</option>
-                    </select>
-                    @error('type')
-                        <div class="error-message">{{ $message }}</div>
-                    @enderror
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(420px, 520px); gap: 16px; margin-bottom: 16px; align-items: start;">
+                <div>
+                    <div style="background:#fff; border:1px solid #e5e7eb; padding:12px; border-radius:8px; margin-bottom:12px;">
+                        <div style="font-weight:700; margin-bottom:8px;">Grade Scale</div>
+                        <div style="display:grid; grid-template-columns:1fr 80px 80px; gap:8px; align-items:center">
+                            <div>A</div>
+                            <input name="grade_scale[a_min]" type="number" value="80" class="form-control">
+                            <input name="grade_scale[a_max]" type="number" value="100" class="form-control">
+                            <div>B</div>
+                            <input name="grade_scale[b_min]" type="number" value="65" class="form-control">
+                            <input name="grade_scale[b_max]" type="number" value="79" class="form-control">
+                            <div>C</div>
+                            <input name="grade_scale[c_min]" type="number" value="50" class="form-control">
+                            <input name="grade_scale[c_max]" type="number" value="64" class="form-control">
+                            <div>D</div>
+                            <input name="grade_scale[d_min]" type="number" value="40" class="form-control">
+                            <input name="grade_scale[d_max]" type="number" value="49" class="form-control">
+                            <div>E</div>
+                            <input name="grade_scale[e_min]" type="number" value="30" class="form-control">
+                            <input name="grade_scale[e_max]" type="number" value="39" class="form-control">
+                            <div>F</div>
+                            <input name="grade_scale[f_min]" type="number" value="0" class="form-control">
+                            <input name="grade_scale[f_max]" type="number" value="29" class="form-control">
+                        </div>
+                    </div>
+
+                    <div style="background:#fff; border:1px solid #e5e7eb; padding:12px; border-radius:8px;">
+                        <div style="font-weight:700; margin-bottom:8px;">Grading Criteria</div>
+                        <div id="criteria-list">
+                            <div class="criterion-row" data-index="0" style="display:grid; grid-template-columns: 1fr 1fr 80px; gap:8px; margin-bottom:8px; align-items:center;">
+                                <input type="text" class="criterion-name form-control" placeholder="Conceptual understanding" value="Conceptual understanding" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
+                                <input type="text" class="criterion-desc form-control" placeholder="Short description" value="Shows understanding of core concepts" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
+                                <div style="display:flex; gap:8px; align-items:center;"><input type="number" class="criterion-weight form-control" value="30" min="0" style="width:80px; padding:8px; border:1px solid #d1d5db; border-radius:6px;"><button type="button" class="btn btn-outline remove-criterion">×</button></div>
+                            </div>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr 80px; gap:8px; margin-top:8px; align-items:center;">
+                            <input id="new-criterion-name" placeholder="Criterion name" class="form-control" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
+                            <input id="new-criterion-desc" placeholder="Short description (optional)" class="form-control" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
+                            <input id="new-criterion-weight" type="number" min="0" placeholder="Weight" value="10" class="form-control" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
+                        </div>
+                        <div style="display:flex; gap:8px; margin-top:8px; align-items:center;"><button type="button" id="add-criterion-btn" class="btn btn-primary">+ Add Criterion</button></div>
+                        <div style="margin-top:8px;">Total weight: <span id="total-weight">30</span>%</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="ai-section">
-                <h3>Generate AI Content</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="ai_items_count">Number of items to generate</label>
-                        <select id="ai_items_count" class="form-control">
-                            <option value="1">1 item</option>
-                            <option value="2">2 items</option>
-                            <option value="3" selected>3 items</option>
-                            <option value="4">4 items</option>
-                            <option value="5">5 items</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="ai_difficulty">Difficulty level</label>
-                        <select id="ai_difficulty" class="form-control">
-                            <option value="beginner">Beginner</option>
-                            <option value="intermediate" selected>Intermediate</option>
-                            <option value="advanced">Advanced</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="ai-options">
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="ai_examples" checked>
-                        <label for="ai_examples">Include examples</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="ai_summary" checked>
-                        <label for="ai_summary">Include summary</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="ai_key_points">
-                        <label for="ai_key_points">Include key points</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="ai_practice">
-                        <label for="ai_practice">Include practice questions</label>
-                    </div>
-                </div>
-                <div style="margin-top: 16px;">
-                    <button type="button" class="btn btn-ai" onclick="generateAIContent()">🤖 Generate with AI</button>
-                </div>
-            </div>
+            <input type="hidden" name="grading_criteria" id="grading_criteria_input">
+            <input type="hidden" name="grade_scale" id="grade_scale_input">
+
+
 
             <div class="form-group">
                 <label for="description">Description</label>
-                <textarea id="description" name="description" class="form-control" 
+                <textarea id="description" name="description" class="form-control"
                           placeholder="Enter the content description or let AI generate it...">{{ old('description') }}</textarea>
                 @error('description')
                     <div class="error-message">{{ $message }}</div>
@@ -355,73 +346,72 @@ function handleFileUpload(input) {
         fileInfo.textContent = '';
     }
 }
-
-async function generateAIContent() {
-    const title = document.getElementById('title').value;
-    const type = document.getElementById('type').value;
-    const itemsCount = document.getElementById('ai_items_count').value;
-    const difficulty = document.getElementById('ai_difficulty').value;
-    const includeExamples = document.getElementById('ai_examples').checked;
-    const includeSummary = document.getElementById('ai_summary').checked;
-    const includeKeyPoints = document.getElementById('ai_key_points').checked;
-    const includePractice = document.getElementById('ai_practice').checked;
-
-    if (!title && !uploadedFile) {
-        alert('Please enter a topic/title or upload a file first');
-        document.getElementById('title').focus();
-        return;
+// Unit outline helpers for Add Content page
+(function(){
+    function updateTotal(){
+        const weights = Array.from(document.querySelectorAll('.criterion-weight')).map(i=>parseFloat(i.value)||0);
+        const total = weights.reduce((s,v)=>s+v,0);
+        const el = document.getElementById('total-weight'); if(el) el.textContent = total;
     }
 
-    if (!type) {
-        alert('Please select a content type first');
-        document.getElementById('type').focus();
-        return;
+    function serializeCriteria(){
+        const rows = Array.from(document.querySelectorAll('#criteria-list .criterion-row'));
+        const items = rows.map(r=>({
+            name: r.querySelector('.criterion-name').value||'',
+            description: (r.querySelector('.criterion-desc') ? r.querySelector('.criterion-desc').value : ''),
+            weight: parseFloat(r.querySelector('.criterion-weight').value)||0
+        }));
+        const input = document.getElementById('grading_criteria_input'); if(input) input.value = JSON.stringify(items);
     }
 
-    const description = document.getElementById('description');
-    description.value = 'Generating content with AI...';
-    description.disabled = true;
-
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('type', type);
-    formData.append('items_count', itemsCount);
-    formData.append('difficulty', difficulty);
-    formData.append('include_examples', includeExamples);
-    formData.append('include_summary', includeSummary);
-    formData.append('include_key_points', includeKeyPoints);
-    formData.append('include_practice', includePractice);
-    
-    if (uploadedFile) {
-        formData.append('file', uploadedFile);
-    }
-
-    try {
-        const response = await fetch('/api/generate-content', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: formData
+    function serializeGradeScale(){
+        const fields = ['a','b','c','d','e','f'];
+        const scale = {};
+        fields.forEach(f=>{
+            const min = document.querySelector(`[name="grade_scale[${f}_min]"]`);
+            const max = document.querySelector(`[name="grade_scale[${f}_max]"]`);
+            scale[f+'_min'] = min ? min.value : '';
+            scale[f+'_max'] = max ? max.value : '';
         });
-
-        const data = await response.json();
-        
-        if (data.success) {
-            description.value = data.content;
-            if (data.analyzed_content) {
-                alert('✓ AI analyzed your file successfully!\n\n' + data.analyzed_content);
-            }
-        } else {
-            description.value = '';
-            alert('Error generating content: ' + (data.error || 'Unknown error'));
-        }
-    } catch (error) {
-        description.value = '';
-        alert('Error generating content: ' + error.message);
-    } finally {
-        description.disabled = false;
+        const input = document.getElementById('grade_scale_input'); if(input) input.value = JSON.stringify(scale);
     }
-}
+
+    document.addEventListener('click', function(e){
+        if(e.target && e.target.id === 'add-criterion-btn'){
+            const name = document.getElementById('new-criterion-name').value.trim(); if(!name) return;
+            const desc = document.getElementById('new-criterion-desc') ? document.getElementById('new-criterion-desc').value.trim() : '';
+            const weightInput = document.getElementById('new-criterion-weight');
+            const weight = weightInput ? (parseFloat(weightInput.value) || 0) : 0;
+            const list = document.getElementById('criteria-list');
+            const idx = list.children.length;
+            const row = document.createElement('div'); row.className='criterion-row'; row.dataset.index=idx;
+            row.style.display='grid'; row.style.gridTemplateColumns='1fr 1fr 80px'; row.style.gap='8px'; row.style.marginBottom='8px'; row.style.alignItems='center';
+            row.innerHTML = `<input type="text" class="criterion-name form-control" placeholder="${name}" value="${name}" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;"><input type="text" class="criterion-desc form-control" placeholder="Short description" value="${desc}" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;"><div style=\"display:flex; gap:8px; align-items:center;\"><input type=\"number\" class=\"criterion-weight form-control\" value=\"10\" min=\"0\" style=\"width:80px; padding:8px; border:1px solid #d1d5db; border-radius:6px;\"><button type=\"button\" class=\"btn btn-outline remove-criterion\">×</button></div>`;
+            list.appendChild(row);
+            const addedWeightInput = row.querySelector('.criterion-weight');
+            if (addedWeightInput) addedWeightInput.value = weight;
+            document.getElementById('new-criterion-name').value=''; if(document.getElementById('new-criterion-desc')) document.getElementById('new-criterion-desc').value=''; if(weightInput) weightInput.value='10'; updateTotal(); serializeCriteria();
+        }
+
+        if(e.target && e.target.classList && e.target.classList.contains('remove-criterion')){
+            const row = e.target.closest('.criterion-row'); if(row){ row.remove(); updateTotal(); serializeCriteria(); }
+        }
+
+        // content type is fixed to unit_outline on this page
+    });
+
+    document.addEventListener('input', function(e){
+        if(e.target && e.target.classList && e.target.classList.contains('criterion-weight')){ updateTotal(); serializeCriteria(); }
+        if(e.target && e.target.name && e.target.name.startsWith('grade_scale')){ serializeGradeScale(); }
+    });
+
+    // before submit, ensure serialized
+    const form = document.querySelector('form[method="POST"][enctype]');
+    if(form){
+        form.addEventListener('submit', function(){ updateTotal(); serializeCriteria(); serializeGradeScale(); });
+    }
+
+    document.addEventListener('DOMContentLoaded', function(){ updateTotal(); serializeCriteria(); serializeGradeScale(); });
+})();
 </script>
 @endsection
