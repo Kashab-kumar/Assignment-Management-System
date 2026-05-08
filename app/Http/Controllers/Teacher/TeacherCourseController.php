@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\CourseModule;
+use App\Models\CourseModuleItem;
 use App\Models\Exam;
 use App\Models\ExamResult;
 use App\Models\Submission;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 
@@ -131,9 +133,95 @@ class TeacherCourseController extends Controller
             'position' => $nextPosition,
             'created_by' => $request->user()->id,
             'is_active' => true,
+            'grade_scale' => $request->input('grade_scale') ? json_decode($request->input('grade_scale'), true) : null,
+            'grading_criteria' => $request->input('grading_criteria') ? json_decode($request->input('grading_criteria'), true) : null,
         ]);
 
-        return back()->with('success', 'Module content added successfully.');
+        return redirect()->route('teacher.courses.modules.show', [$course, $module])
+            ->with('success', 'Unit outline added successfully.');
+    }
+
+    public function showModuleItem(Course $course, CourseModule $module, CourseModuleItem $item)
+    {
+        abort_unless(in_array($course->id, $this->assignedCourseIds(), true), 403);
+
+        if ($module->course_id !== $course->id || $item->course_module_id !== $module->id) {
+            abort(404);
+        }
+
+        $item->load('creator');
+
+        return view('teacher.courses.module-item-show', compact('course', 'module', 'item'));
+    }
+
+    public function editModuleItem(Course $course, CourseModule $module, CourseModuleItem $item)
+    {
+        abort_unless(in_array($course->id, $this->assignedCourseIds(), true), 403);
+
+        if ($module->course_id !== $course->id || $item->course_module_id !== $module->id) {
+            abort(404);
+        }
+
+        return view('teacher.courses.module-item-edit', compact('course', 'module', 'item'));
+    }
+
+    public function updateModuleItem(Request $request, Course $course, CourseModule $module, CourseModuleItem $item)
+    {
+        abort_unless(in_array($course->id, $this->assignedCourseIds(), true), 403);
+
+        if ($module->course_id !== $course->id || $item->course_module_id !== $module->id) {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string|max:5000',
+            'file' => 'nullable|file|mimes:pdf,doc,docx,txt|max:10240',
+        ]);
+
+        $filePath = $item->file_path;
+        $fileName = $item->file_name;
+        $fileType = $item->file_type;
+
+        if ($request->hasFile('file')) {
+            // Delete old file if exists
+            if ($item->file_path) {
+                Storage::disk('public')->delete($item->file_path);
+            }
+            $file = $request->file('file');
+            $fileName = $file->getClientOriginalName();
+            $fileType = $file->getClientOriginalExtension();
+            $filePath = $file->store('module-files', 'public');
+        }
+
+        $item->update([
+            'title' => $validated['title'],
+            'content' => $validated['description'] ?? null,
+            'file_path' => $filePath,
+            'file_name' => $fileName,
+            'file_type' => $fileType,
+        ]);
+
+        return redirect()->route('teacher.courses.modules.show', [$course, $module])
+            ->with('success', 'Unit outline updated successfully.');
+    }
+
+    public function destroyModuleItem(Course $course, CourseModule $module, CourseModuleItem $item)
+    {
+        abort_unless(in_array($course->id, $this->assignedCourseIds(), true), 403);
+
+        if ($module->course_id !== $course->id || $item->course_module_id !== $module->id) {
+            abort(404);
+        }
+
+        // Delete file if exists
+        if ($item->file_path) {
+            Storage::disk('public')->delete($item->file_path);
+        }
+
+        $item->delete();
+
+        return back()->with('success', 'Unit outline deleted successfully.');
     }
 
     public function showModule(Course $course, CourseModule $module)

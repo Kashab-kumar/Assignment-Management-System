@@ -19,6 +19,7 @@ use App\Http\Controllers\Teacher\TeacherReportController;
 use App\Http\Controllers\Teacher\TeacherCourseController;
 use App\Http\Controllers\Teacher\TeacherModuleController;
 use App\Http\Controllers\Teacher\UnitController;
+use App\Models\CourseModuleItem;
 use App\Http\Controllers\Student\StudentExamController;
 use App\Http\Controllers\Student\StudentGradeController;
 use App\Http\Controllers\Student\StudentModuleController;
@@ -72,6 +73,7 @@ Route::middleware(['auth:student'])->group(function () {
         Route::post('/exams/{exam}/submit', [StudentExamController::class, 'submit'])->name('exams.submit');
         Route::get('/modules', [StudentModuleController::class, 'index'])->name('modules.index');
         Route::get('/courses/{course}', [StudentModuleController::class, 'showCourse'])->name('courses.show');
+        Route::get('/courses/{course}/modules/{module}/unit-outline', [StudentModuleController::class, 'showUnitOutline'])->name('courses.modules.unit-outline');
         Route::get('/modules/{module}', [StudentModuleController::class, 'show'])->name('modules.show');
         Route::get('/grades', [StudentGradeController::class, 'index'])->name('grades.index');
         Route::get('/rankings', [StudentRankingController::class, 'index'])->name('rankings');
@@ -81,6 +83,11 @@ Route::middleware(['auth:student'])->group(function () {
 
 // Teacher Routes
 Route::middleware(['auth:teacher'])->prefix('teacher')->name('teacher.')->group(function () {
+    // Explicit route model binding for module items
+    Route::bind('item', function ($value) {
+        return \App\Models\CourseModuleItem::findOrFail($value);
+    });
+
     Route::get('/dashboard', [TeacherDashboardController::class, 'index'])->name('dashboard');
     Route::get('/settings', [ProfileAvatarController::class, 'teacherSettings'])->name('settings');
     Route::post('/settings/avatar', [ProfileAvatarController::class, 'update'])->name('settings.avatar.update');
@@ -131,6 +138,10 @@ Route::post('/submissions/{submission}/grade-ai', [TeacherAssignmentController::
     Route::get('/courses/{course}/modules/{module}', [TeacherCourseController::class, 'showModule'])->name('courses.modules.show');
     Route::get('/courses/{course}/modules/{module}/items/create', [TeacherCourseController::class, 'createModuleItem'])->name('courses.modules.items.create');
     Route::post('/courses/{course}/modules/{module}/items', [TeacherCourseController::class, 'storeModuleItem'])->name('courses.modules.items.store');
+    Route::get('/courses/{course}/modules/{module}/items/{item}', [TeacherCourseController::class, 'showModuleItem'])->name('courses.modules.items.show');
+    Route::get('/courses/{course}/modules/{module}/items/{item}/edit', [TeacherCourseController::class, 'editModuleItem'])->name('courses.modules.items.edit');
+    Route::put('/courses/{course}/modules/{module}/items/{item}', [TeacherCourseController::class, 'updateModuleItem'])->name('courses.modules.items.update');
+    Route::delete('/courses/{course}/modules/{module}/items/{item}', [TeacherCourseController::class, 'destroyModuleItem'])->name('courses.modules.items.destroy');
     Route::post('/api/generate-content', [TeacherCourseController::class, 'generateAIContent'])->name('api.generate-content');
 
     // Students / Grades / Reports

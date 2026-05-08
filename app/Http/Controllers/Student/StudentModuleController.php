@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\CourseModule;
 use App\Models\Exam;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Http\Request;
 
 class StudentModuleController extends Controller
 {
@@ -160,6 +161,41 @@ class StudentModuleController extends Controller
             'teachers' => $teacherNames,
             'moduleItemsEnabled' => $moduleItemsEnabled,
         ]);
+    }
+
+    public function showUnitOutline(Course $course, CourseModule $module)
+    {
+        $student = auth()->user()->student;
+
+        if (!$student) {
+            return redirect()->route('dashboard')
+                ->withErrors(['error' => 'Student profile not found. Please contact administrator.']);
+        }
+
+        // Verify access
+        $allowedCourseIds = Course::query()
+            ->where('is_active', true)
+            ->where(function ($query) use ($student) {
+                $query->whereKey($student->course_id);
+                if (!empty($student->course?->class_name)) {
+                    $query->orWhere('class_name', $student->course->class_name);
+                }
+            })
+            ->pluck('id')
+            ->all();
+
+        abort_unless(in_array($course->id, $allowedCourseIds, true), 404);
+        abort_unless($module->course_id === $course->id, 404);
+
+        $moduleItemsEnabled = Schema::hasTable('course_module_items');
+
+        $module->load([
+            'course',
+            'teacher',
+            'items' => fn ($query) => $query->with('creator')->latest('created_at'),
+        ]);
+
+        return view('student.modules.unit-outline', compact('course', 'module', 'moduleItemsEnabled'));
     }
 
     public function show(CourseModule $module)

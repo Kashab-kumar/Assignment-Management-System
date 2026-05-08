@@ -118,7 +118,7 @@
                 <div class="meta-value">{{ $exam->questions->count() }}</div>
             </div>
             <div class="meta-item">
-                <div class="meta-label">Total Marks</div>
+                   <div class="meta-label">Total Marks</div>
                 <div class="meta-value">{{ $exam->max_score }}</div>
             </div>
             <div class="meta-item">

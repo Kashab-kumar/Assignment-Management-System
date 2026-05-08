@@ -348,7 +348,7 @@
 
                         <div class="module-actions">
                             <a href="{{ route('student.modules.show', $module['id']) }}" class="btn btn-primary">Continue</a>
-                            <a href="{{ route('student.modules.show', $module['id']) }}" class="btn btn-secondary">Details</a>
+                            <a href="{{ route('student.courses.modules.unit-outline', [$course->id, $module['id']]) }}" class="btn btn-secondary">Details</a>
                         </div>
                     </div>
                 </div>

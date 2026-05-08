@@ -1,7 +1,7 @@
 @extends('layouts.teacher')
 
-@section('title', 'Add Content')
-@section('page-title', 'Add Content to Unit')
+@section('title', 'Add Unit Outline')
+@section('page-title', 'Add Unit Outline')
 
 @section('content')
 <style>
@@ -215,7 +215,7 @@
 
 <div class="container">
     <div class="header">
-        <h1>Add Content to Unit</h1>
+        <h1>Add Unit Outline</h1>
         <p>{{ $module->title }} - {{ $course->name }}</p>
     </div>
 
@@ -227,7 +227,7 @@
             <span>/</span>
             <a href="{{ route('teacher.courses.modules.show', [$course, $module]) }}">{{ $module->title }}</a>
             <span>/</span>
-            <span>Add Content</span>
+            <span>Add Unit Outline</span>
         </nav>
 
         @if($errors->any())
@@ -243,6 +243,7 @@
 
         <form method="POST" action="{{ route('teacher.courses.modules.items.store', [$course, $module]) }}" enctype="multipart/form-data">
             @csrf
+            <input type="hidden" name="type" value="unit_outline">
 
             <div class="form-group">
                 <label for="title">Topic/Title <span class="required">*</span></label>
@@ -256,57 +257,91 @@
 
             <div class="form-group">
                 <label for="file">Upload unit outline file</label>
-                <label class="upload-box" style="display:block; border:2px dashed #e5e7eb; border-radius:8px; padding:28px; text-align:center; cursor:pointer; margin-top:8px;">
-                    <div style="font-size:24px; color:#6b7280;">📁</div>
-                    <div style="margin-top:8px; font-weight:600;">Upload unit outline file</div>
+                <label class="upload-box" id="upload-box" style="display:block; border:2px dashed #e5e7eb; border-radius:8px; padding:28px; text-align:center; cursor:pointer; margin-top:8px; transition: all 0.3s ease;">
+                    <div id="upload-icon" style="font-size:24px; color:#6b7280;">📁</div>
+                    <div id="upload-text" style="margin-top:8px; font-weight:600;">Upload unit outline file</div>
                     <div style="font-size:12px; color:#9ca3af; margin-top:6px;">PDF, DOC, DOCX, TXT — AI will use this for auto-grading</div>
                     <input type="file" id="file" name="file" accept=".pdf,.doc,.docx,.txt" onchange="handleFileUpload(this)" style="display:none">
                 </label>
-                <div id="file-info" style="margin-top: 8px; color: #10b981; font-size: 13px;"></div>
-            </div>
 
-            <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(420px, 520px); gap: 16px; margin-bottom: 16px; align-items: start;">
-                <div>
-                    <div style="background:#fff; border:1px solid #e5e7eb; padding:12px; border-radius:8px; margin-bottom:12px;">
-                        <div style="font-weight:700; margin-bottom:8px;">Grade Scale</div>
-                        <div style="display:grid; grid-template-columns:1fr 80px 80px; gap:8px; align-items:center">
-                            <div>A</div>
-                            <input name="grade_scale[a_min]" type="number" value="80" class="form-control">
-                            <input name="grade_scale[a_max]" type="number" value="100" class="form-control">
-                            <div>B</div>
-                            <input name="grade_scale[b_min]" type="number" value="65" class="form-control">
-                            <input name="grade_scale[b_max]" type="number" value="79" class="form-control">
-                            <div>C</div>
-                            <input name="grade_scale[c_min]" type="number" value="50" class="form-control">
-                            <input name="grade_scale[c_max]" type="number" value="64" class="form-control">
-                            <div>D</div>
-                            <input name="grade_scale[d_min]" type="number" value="40" class="form-control">
-                            <input name="grade_scale[d_max]" type="number" value="49" class="form-control">
-                            <div>E</div>
-                            <input name="grade_scale[e_min]" type="number" value="30" class="form-control">
-                            <input name="grade_scale[e_max]" type="number" value="39" class="form-control">
-                            <div>F</div>
-                            <input name="grade_scale[f_min]" type="number" value="0" class="form-control">
-                            <input name="grade_scale[f_max]" type="number" value="29" class="form-control">
+                <!-- File Preview Section -->
+                <div id="file-preview-section" style="display:none; margin-top: 16px; padding: 16px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        <div id="file-icon" style="font-size: 32px;">📄</div>
+                        <div style="flex: 1;">
+                            <div id="file-name" style="font-weight: 600; color: #1f2937; word-break: break-all;"></div>
+                            <div id="file-size" style="font-size: 12px; color: #6b7280; margin-top: 2px;"></div>
+                            <div id="file-type" style="font-size: 11px; color: #9ca3af; margin-top: 2px;"></div>
                         </div>
+                        <button type="button" onclick="removeFile()" style="background: #fee2e2; color: #dc2626; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500;">Remove</button>
                     </div>
 
-                    <div style="background:#fff; border:1px solid #e5e7eb; padding:12px; border-radius:8px;">
-                        <div style="font-weight:700; margin-bottom:8px;">Grading Criteria</div>
-                        <div id="criteria-list">
-                            <div class="criterion-row" data-index="0" style="display:grid; grid-template-columns: 1fr 1fr 80px; gap:8px; margin-bottom:8px; align-items:center;">
-                                <input type="text" class="criterion-name form-control" placeholder="Conceptual understanding" value="Conceptual understanding" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
-                                <input type="text" class="criterion-desc form-control" placeholder="Short description" value="Shows understanding of core concepts" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
-                                <div style="display:flex; gap:8px; align-items:center;"><input type="number" class="criterion-weight form-control" value="30" min="0" style="width:80px; padding:8px; border:1px solid #d1d5db; border-radius:6px;"><button type="button" class="btn btn-outline remove-criterion">×</button></div>
+                    <!-- Preview Actions -->
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button type="button" id="preview-btn" onclick="previewFile()" style="background: #dbeafe; color: #1d4ed8; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px;">
+                            👁️ Open in Browser
+                        </button>
+                    </div>
+
+                    <!-- Quick Text Preview (for TXT files only) -->
+                    <div id="text-preview" style="display:none; margin-top: 12px; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background: white;">
+                        <div style="background: #f3f4f6; padding: 8px 12px; font-size: 12px; color: #4b5563; font-weight: 500; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+                            <span>Text Preview (first 1000 characters)</span>
+                            <button type="button" onclick="previewFile()" style="background: none; border: none; color: #1d4ed8; cursor: pointer; font-size: 12px; text-decoration: underline;">Open full file →</button>
+                        </div>
+                        <pre id="text-content" style="width: 100%; height: 200px; margin: 0; padding: 12px; overflow: auto; font-size: 13px; line-height: 1.5; color: #374151; background: #fafafa; white-space: pre-wrap; word-wrap: break-word;"></pre>
+                    </div>
+
+                    <div id="preview-error" style="display:none; margin-top: 12px; padding: 12px; background: #fee2e2; color: #dc2626; border-radius: 6px; font-size: 13px;"></div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 320px 1fr; gap: 20px; margin-bottom: 16px; align-items: start;">
+                <!-- Grade Scale - Left Side -->
+                <div style="background:#fff; border:1px solid #e5e7eb; padding:16px; border-radius:8px;">
+                    <div style="font-weight:700; margin-bottom:12px; font-size:15px;">Grade Scale</div>
+                    <div style="display:grid; grid-template-columns:30px 1fr 1fr; gap:10px; align-items:center;">
+                        <div style="font-weight:600;">A</div>
+                            <input name="grade_scale[a_min]" type="number" value="{{ old('grade_scale.a_min', '80') }}" class="form-control" style="padding:10px;">
+                            <input name="grade_scale[a_max]" type="number" value="{{ old('grade_scale.a_max', '100') }}" class="form-control" style="padding:10px;">
+                            <div style="font-weight:600;">B</div>
+                            <input name="grade_scale[b_min]" type="number" value="{{ old('grade_scale.b_min', '65') }}" class="form-control" style="padding:10px;">
+                            <input name="grade_scale[b_max]" type="number" value="{{ old('grade_scale.b_max', '79') }}" class="form-control" style="padding:10px;">
+                            <div style="font-weight:600;">C</div>
+                            <input name="grade_scale[c_min]" type="number" value="{{ old('grade_scale.c_min', '50') }}" class="form-control" style="padding:10px;">
+                            <input name="grade_scale[c_max]" type="number" value="{{ old('grade_scale.c_max', '64') }}" class="form-control" style="padding:10px;">
+                            <div style="font-weight:600;">D</div>
+                            <input name="grade_scale[d_min]" type="number" value="{{ old('grade_scale.d_min', '40') }}" class="form-control" style="padding:10px;">
+                            <input name="grade_scale[d_max]" type="number" value="{{ old('grade_scale.d_max', '49') }}" class="form-control" style="padding:10px;">
+                            <div style="font-weight:600;">E</div>
+                            <input name="grade_scale[e_min]" type="number" value="{{ old('grade_scale.e_min', '30') }}" class="form-control" style="padding:10px;">
+                            <input name="grade_scale[e_max]" type="number" value="{{ old('grade_scale.e_max', '39') }}" class="form-control" style="padding:10px;">
+                            <div style="font-weight:600;">F</div>
+                            <input name="grade_scale[f_min]" type="number" value="{{ old('grade_scale.f_min', '0') }}" class="form-control" style="padding:10px;">
+                            <input name="grade_scale[f_max]" type="number" value="{{ old('grade_scale.f_max', '29') }}" class="form-control" style="padding:10px;">
+                    </div>
+                </div>
+
+                <!-- Grading Criteria - Right Side (fills remaining space) -->
+                <div style="background:#fff; border:1px solid #e5e7eb; padding:16px; border-radius:8px;">
+                    <div style="font-weight:700; margin-bottom:12px; font-size:15px;">Grading Criteria</div>
+                    <div id="criteria-list">
+                        <div class="criterion-row" data-index="0" style="display:grid; grid-template-columns: 1fr 1fr 100px 40px; gap:10px; margin-bottom:10px; align-items:center;">
+                                <input type="text" name="criteria[0][name]" class="criterion-name form-control" placeholder="Conceptual understanding" value="{{ old('criteria.0.name', 'Conceptual understanding') }}" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
+                                <input type="text" name="criteria[0][description]" class="criterion-desc form-control" placeholder="Short description" value="{{ old('criteria.0.description', 'Shows understanding of core concepts') }}" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
+                                <input type="number" name="criteria[0][weight]" class="criterion-weight form-control" value="{{ old('criteria.0.weight', '30') }}" min="0" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
+                                <button type="button" class="btn btn-outline remove-criterion" style="padding:8px 12px;">×</button>
                             </div>
-                        </div>
-                        <div style="display:grid; grid-template-columns: 1fr 1fr 80px; gap:8px; margin-top:8px; align-items:center;">
-                            <input id="new-criterion-name" placeholder="Criterion name" class="form-control" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
-                            <input id="new-criterion-desc" placeholder="Short description (optional)" class="form-control" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
-                            <input id="new-criterion-weight" type="number" min="0" placeholder="Weight" value="10" class="form-control" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
-                        </div>
-                        <div style="display:flex; gap:8px; margin-top:8px; align-items:center;"><button type="button" id="add-criterion-btn" class="btn btn-primary">+ Add Criterion</button></div>
-                        <div style="margin-top:8px;">Total weight: <span id="total-weight">30</span>%</div>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 100px 40px; gap:10px; margin-top:10px; align-items:center;">
+                        <input id="new-criterion-name" placeholder="Criterion name" class="form-control" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
+                        <input id="new-criterion-desc" placeholder="Short description (optional)" class="form-control" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
+                        <input id="new-criterion-weight" type="number" min="0" placeholder="Weight" value="10" class="form-control" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
+                        <div></div>
+                    </div>
+                    <div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
+                        <button type="button" id="add-criterion-btn" class="btn btn-primary">+ Add Criterion</button>
+                        <span style="margin-left:auto; font-weight:600; color:#4b5563;">Total weight: <span id="total-weight">30</span>%</span>
                     </div>
                 </div>
             </div>
@@ -327,7 +362,7 @@
 
             <div class="form-actions">
                 <a href="{{ route('teacher.courses.modules.show', [$course, $module]) }}" class="btn btn-outline">Cancel</a>
-                <button type="submit" class="btn btn-primary">Save Content</button>
+                <button type="submit" class="btn btn-primary">Save Unit Outline</button>
             </div>
         </form>
     </div>
@@ -335,16 +370,130 @@
 
 <script>
 let uploadedFile = null;
+let fileContent = null;
 
 function handleFileUpload(input) {
-    const fileInfo = document.getElementById('file-info');
+    const previewSection = document.getElementById('file-preview-section');
+    const uploadBox = document.getElementById('upload-box');
+
     if (input.files && input.files[0]) {
         uploadedFile = input.files[0];
-        fileInfo.textContent = `✓ File selected: ${uploadedFile.name} (${(uploadedFile.size / 1024).toFixed(2)} KB)`;
+        fileContent = null; // Reset content
+
+        // Update file info
+        document.getElementById('file-name').textContent = uploadedFile.name;
+        document.getElementById('file-size').textContent = formatFileSize(uploadedFile.size);
+        document.getElementById('file-type').textContent = uploadedFile.type || getFileTypeFromName(uploadedFile.name);
+
+        // Set file icon based on type
+        const fileIcon = document.getElementById('file-icon');
+        const ext = uploadedFile.name.split('.').pop().toLowerCase();
+        if (ext === 'pdf') fileIcon.textContent = '📕';
+        else if (['doc', 'docx'].includes(ext)) fileIcon.textContent = '📘';
+        else if (ext === 'txt') fileIcon.textContent = '📝';
+        else fileIcon.textContent = '📄';
+
+        // Show preview section, hide upload box styling
+        previewSection.style.display = 'block';
+        uploadBox.style.borderColor = '#10b981';
+        uploadBox.style.background = '#f0fdf4';
+        document.getElementById('upload-icon').textContent = '✅';
+        document.getElementById('upload-text').textContent = 'File uploaded successfully';
+
+        // Reset preview containers
+        document.getElementById('text-preview').style.display = 'none';
+        document.getElementById('text-content').textContent = '';
+        document.getElementById('preview-error').style.display = 'none';
+
     } else {
-        uploadedFile = null;
-        fileInfo.textContent = '';
+        removeFile();
     }
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function getFileTypeFromName(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    const types = {
+        'pdf': 'PDF Document',
+        'doc': 'Word Document',
+        'docx': 'Word Document',
+        'txt': 'Text File'
+    };
+    return types[ext] || 'Unknown File';
+}
+
+function removeFile() {
+    uploadedFile = null;
+    fileContent = null;
+
+    const input = document.getElementById('file');
+    input.value = '';
+
+    const previewSection = document.getElementById('file-preview-section');
+    const uploadBox = document.getElementById('upload-box');
+
+    previewSection.style.display = 'none';
+    uploadBox.style.borderColor = '#e5e7eb';
+    uploadBox.style.background = 'transparent';
+    document.getElementById('upload-icon').textContent = '📁';
+    document.getElementById('upload-text').textContent = 'Upload unit outline file';
+
+    // Hide text preview and error
+    document.getElementById('text-preview').style.display = 'none';
+    document.getElementById('text-content').textContent = '';
+    document.getElementById('preview-error').style.display = 'none';
+}
+
+function previewFile() {
+    if (!uploadedFile) return;
+
+    const ext = uploadedFile.name.split('.').pop().toLowerCase();
+    document.getElementById('preview-error').style.display = 'none';
+
+    // Open in new browser tab using object URL
+    const fileURL = URL.createObjectURL(uploadedFile);
+    window.open(fileURL, '_blank');
+
+    // For text files, also show inline preview as a quick reference
+    if (ext === 'txt') {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            fileContent = e.target.result;
+            // Show first 1000 characters inline
+            const previewText = fileContent.length > 1000
+                ? fileContent.substring(0, 1000) + '\n\n[... Click "Open in Browser" to see full file ...]'
+                : fileContent;
+            document.getElementById('text-content').textContent = previewText;
+            document.getElementById('text-preview').style.display = 'block';
+        };
+        reader.readAsText(uploadedFile);
+    }
+}
+
+function showPreviewError(message) {
+    const errorDiv = document.getElementById('preview-error');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+}
+
+function downloadFile() {
+    if (!uploadedFile) return;
+
+    const url = URL.createObjectURL(uploadedFile);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = uploadedFile.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
 // Unit outline helpers for Add Content page
 (function(){
@@ -385,8 +534,8 @@ function handleFileUpload(input) {
             const list = document.getElementById('criteria-list');
             const idx = list.children.length;
             const row = document.createElement('div'); row.className='criterion-row'; row.dataset.index=idx;
-            row.style.display='grid'; row.style.gridTemplateColumns='1fr 1fr 80px'; row.style.gap='8px'; row.style.marginBottom='8px'; row.style.alignItems='center';
-            row.innerHTML = `<input type="text" class="criterion-name form-control" placeholder="${name}" value="${name}" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;"><input type="text" class="criterion-desc form-control" placeholder="Short description" value="${desc}" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;"><div style=\"display:flex; gap:8px; align-items:center;\"><input type=\"number\" class=\"criterion-weight form-control\" value=\"10\" min=\"0\" style=\"width:80px; padding:8px; border:1px solid #d1d5db; border-radius:6px;\"><button type=\"button\" class=\"btn btn-outline remove-criterion\">×</button></div>`;
+            row.style.display='grid'; row.style.gridTemplateColumns='1fr 1fr 100px 40px'; row.style.gap='10px'; row.style.marginBottom='10px'; row.style.alignItems='center';
+            row.innerHTML = `<input type="text" name="criteria[${idx}][name]" class="criterion-name form-control" placeholder="${name}" value="${name}" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;"><input type="text" name="criteria[${idx}][description]" class="criterion-desc form-control" placeholder="Short description" value="${desc}" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;"><input type="number" name="criteria[${idx}][weight]" class="criterion-weight form-control" value="${weight}" min="0" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;"><button type="button" class="btn btn-outline remove-criterion" style="padding:8px 12px;">×</button>`;
             list.appendChild(row);
             const addedWeightInput = row.querySelector('.criterion-weight');
             if (addedWeightInput) addedWeightInput.value = weight;

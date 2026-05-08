@@ -94,27 +94,139 @@
         padding: 40px;
         color: #666;
     }
-    .modules-grid { display: grid; gap: 12px; margin-top: 12px; }
-    .module-card-link { text-decoration: none; display: block; }
-    .module-card { background: rgba(0,0,0,0.14); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; cursor: pointer; transition: all 0.3s ease; }
-    .module-card-link:hover .module-card { background: rgba(124,58,237,0.15); border-color: rgba(124,58,237,0.4); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(124,58,237,0.2); }
-    .module-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
-    .module-title { font-size: 15px; font-weight: 700; color: #000000; }
-    .module-order { font-size: 11px; color: #000000; background: rgba(148,163,184,0.16); padding: 3px 8px; border-radius: 999px; }
-    .module-desc { color: #000000; font-size: 13px; margin-top: 6px; line-height: 1.5; }
-    .module-tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-    .module-tag { font-size: 11px; color: #000000; background: rgba(124,58,237,0.18); border: 1px solid rgba(124,58,237,0.3); padding: 3px 8px; border-radius: 999px; }
-    .module-actions { display: flex; gap: 8px; margin-top: 12px; }
-    .module-form { margin-top: 12px; display: grid; gap: 10px; background: rgba(0,0,0,0.14); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; }
+    /* Modern Module Cards - Similar to Student/Teacher View */
+    .modules-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; margin-top: 20px; }
+    @media (max-width: 768px) { .modules-grid { grid-template-columns: 1fr; } }
+
+    .module-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .module-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        border-color: #7c3aed;
+    }
+
+    .module-card-header {
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        padding: 24px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    .module-icon {
+        width: 52px;
+        height: 52px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        margin-bottom: 16px;
+    }
+    .module-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0 0 4px;
+    }
+    .module-position {
+        font-size: 12px;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .module-card-body {
+        padding: 20px 24px;
+    }
+    .module-desc {
+        color: #4b5563;
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 16px;
+        min-height: 44px;
+    }
+
+    .module-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    .stat-box {
+        background: #f9fafb;
+        padding: 14px;
+        border-radius: 10px;
+        text-align: center;
+    }
+    .stat-value {
+        font-size: 22px;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 4px;
+    }
+    .stat-label {
+        font-size: 11px;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .module-footer {
+        padding: 16px 24px 24px;
+        border-top: 1px solid #f3f4f6;
+    }
+    .module-teacher {
+        font-size: 13px;
+        color: #6b7280;
+        margin-bottom: 16px;
+    }
+    .module-teacher strong {
+        color: #1f2937;
+    }
+
+    .module-actions {
+        display: flex;
+        gap: 10px;
+    }
+    .btn-module {
+        flex: 1;
+        padding: 12px 16px;
+        border-radius: 10px;
+        text-decoration: none;
+        text-align: center;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+    .btn-module-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+    .btn-module-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    /* Legacy styles for other sections */
+    .module-form { margin-top: 12px; display: grid; gap: 10px; background: #f8f9fa; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; }
     .module-form input, .module-form textarea { width: 100%; }
     .module-form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
     .module-items { display: grid; gap: 8px; margin-top: 12px; }
-    .module-item-card { border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); padding: 12px; }
+    .module-item-card { border-radius: 8px; border: 1px solid #e5e7eb; background: #f9fafb; padding: 12px; }
     .module-item-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
-    .module-item-title { font-size: 14px; font-weight: 700; color: #000000; }
-    .module-item-type { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #000000; background: rgba(124,58,237,0.18); border: 1px solid rgba(124,58,237,0.3); padding: 3px 8px; border-radius: 999px; }
-    .module-item-content { margin-top: 8px; color: #000000; white-space: pre-line; line-height: 1.55; }
-    .module-item-meta { margin-top: 8px; color: #000000; font-size: 12px; }
+    .module-item-title { font-size: 14px; font-weight: 700; color: #1f2937; }
+    .module-item-type { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #7c3aed; background: #ede9fe; border: 1px solid #ddd6fe; padding: 3px 8px; border-radius: 999px; }
+    .module-item-content { margin-top: 8px; color: #4b5563; white-space: pre-line; line-height: 1.55; }
+    .module-item-meta { margin-top: 8px; color: #6b7280; font-size: 12px; }
     @media (max-width: 900px) { .module-form-grid { grid-template-columns: 1fr; } }
 </style>
 
@@ -175,44 +287,64 @@
                             ];
                         @endphp
                         <div class="module-card">
-                            <div class="module-head">
+                            <div class="module-card-header">
+                                <div class="module-icon">📖</div>
                                 <div class="module-title">{{ $module->title }}</div>
-                                <span class="module-order">Module {{ $module->position }}</span>
-                            </div>
-                            @if($module->description)
-                                <div class="module-desc">{{ $module->description }}</div>
-                            @endif
-                            <div class="module-tags">
-                                <span class="module-tag">{{ $module->lesson_count }} lessons</span>
-                                <span class="module-tag">{{ $module->assignment_count }} assignments</span>
-                                <span class="module-tag">{{ $module->quiz_count }} quizzes</span>
-                            </div>
-                            <div class="module-desc" style="margin-top: 10px; margin-bottom: 2px;">
-                                Teacher: <strong>{{ $module->teacher?->name ?? 'Not assigned' }}</strong>
+                                <div class="module-position">Module {{ $module->position }}</div>
                             </div>
 
-                            @if($moduleItemsEnabled)
-                                @if($module->items->isEmpty())
-                                    <div class="module-desc" style="margin-top: 12px;">No teacher content has been added for this module yet.</div>
-                                @else
-                                    <div class="module-items">
-                                        @foreach($module->items as $item)
-                                            <div class="module-item-card">
-                                                <div class="module-item-head">
-                                                    <div class="module-item-title">{{ $item->title }}</div>
-                                                    <span class="module-item-type">{{ $typeLabels[$item->type] ?? ucfirst(str_replace('_', ' ', $item->type)) }}</span>
-                                                </div>
-                                                @if($item->content)
-                                                    <div class="module-item-content">{{ $item->content }}</div>
-                                                @endif
-                                                <div class="module-item-meta">
-                                                    Added by {{ $item->creator?->name ?? 'Teacher' }} on {{ $item->created_at->format('M d, Y') }}
-                                                </div>
-                                            </div>
-                                        @endforeach
+                            <div class="module-card-body">
+                                <div class="module-desc">
+                                    {{ $module->description ?: 'No description available for this module.' }}
+                                </div>
+                                <div class="module-stats">
+                                    <div class="stat-box">
+                                        <div class="stat-value">{{ $module->items?->count() ?? $module->lesson_count ?? 0 }}</div>
+                                        <div class="stat-label">Items</div>
                                     </div>
+                                    <div class="stat-box">
+                                        <div class="stat-value">{{ $module->quiz_count ?? 0 }}</div>
+                                        <div class="stat-label">Quizzes</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="module-footer">
+                                <div class="module-teacher">
+                                    👨‍🏫 Teacher: <strong>{{ $module->teacher?->name ?? 'Not assigned' }}</strong>
+                                </div>
+                                <div class="module-actions">
+                                    <button type="button" class="btn-module btn-module-primary" onclick="toggleModuleContent('module-content-{{ $module->id }}')">View Content</button>
+                                </div>
+                            </div>
+
+                            <!-- Expandable content section -->
+                            <div id="module-content-{{ $module->id }}" style="display: none; padding: 0 24px 24px; border-top: 1px solid #f3f4f6;">
+                                @if($moduleItemsEnabled)
+                                    @if($module->items->isEmpty())
+                                        <div class="module-desc" style="margin-top: 16px; padding: 16px; background: #f9fafb; border-radius: 8px;">
+                                            No teacher content has been added for this module yet.
+                                        </div>
+                                    @else
+                                        <div class="module-items" style="margin-top: 16px;">
+                                            @foreach($module->items as $item)
+                                                <div class="module-item-card">
+                                                    <div class="module-item-head">
+                                                        <div class="module-item-title">{{ $item->title }}</div>
+                                                        <span class="module-item-type">{{ $typeLabels[$item->type] ?? ucfirst(str_replace('_', ' ', $item->type)) }}</span>
+                                                    </div>
+                                                    @if($item->content)
+                                                        <div class="module-item-content">{{ $item->content }}</div>
+                                                    @endif
+                                                    <div class="module-item-meta">
+                                                        Added by {{ $item->creator?->name ?? 'Teacher' }} on {{ $item->created_at->format('M d, Y') }}
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
                                 @endif
-                            @endif
+                            </div>
                         </div>
                     @endforeach
                 </div>
@@ -305,4 +437,15 @@
     </div>
     @endif
 </div>
+
+<script>
+function toggleModuleContent(id) {
+    const element = document.getElementById(id);
+    if (element.style.display === 'none') {
+        element.style.display = 'block';
+    } else {
+        element.style.display = 'none';
+    }
+}
+</script>
 @endsection
