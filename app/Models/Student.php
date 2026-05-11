@@ -33,6 +33,11 @@ class Student extends Model
         return $this->hasMany(ExamAnswer::class);
     }
 
+    public function unitGrades()
+    {
+        return $this->hasMany(StudentUnitGrade::class);
+    }
+
     public function getAverageScore()
     {
         $submissions = (float) ($this->submissions()->where('status', 'graded')->avg('score') ?? 0);

@@ -1,4 +1,4 @@
-  <?php
+<?php
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
@@ -9,6 +9,8 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ProfileAvatarController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\UnitAssessmentConfigurationController;
 use App\Http\Controllers\Teacher\TeacherDashboardController;
 use App\Http\Controllers\Teacher\TeacherAssignmentController;
 use App\Http\Controllers\Teacher\TeacherSubmissionController;
@@ -78,6 +80,11 @@ Route::middleware(['auth:student'])->group(function () {
         Route::get('/grades', [StudentGradeController::class, 'index'])->name('grades.index');
         Route::get('/rankings', [StudentRankingController::class, 'index'])->name('rankings');
         Route::get('/profile', [StudentProfileController::class, 'index'])->name('profile');
+
+        // Analytics
+        Route::get('/analytics/dashboard', [AnalyticsController::class, 'studentDashboard'])->name('analytics.dashboard');
+        Route::get('/api/analytics/syllabus-mastery/{course}', [AnalyticsController::class, 'getSyllabusMasteryData'])->name('analytics.syllabus-mastery-data');
+        Route::get('/api/analytics/student-summary/{student}/{course}', [AnalyticsController::class, 'getStudentSummary'])->name('analytics.student-summary');
     });
 });
 
@@ -132,6 +139,16 @@ Route::post('/submissions/{submission}/grade-ai', [TeacherAssignmentController::
     Route::put('/units/{unit}', [UnitController::class, 'update'])->name('units.update');
     Route::delete('/units/{unit}', [UnitController::class, 'destroy'])->name('units.destroy');
 
+    // Unit Assessment Configuration
+    Route::get('/units/{unit}/assessment-config', [UnitAssessmentConfigurationController::class, 'index'])->name('units.assessment-config.index');
+    Route::get('/units/{unit}/assessment-config/create', [UnitAssessmentConfigurationController::class, 'create'])->name('units.assessment-config.create');
+    Route::post('/units/{unit}/assessment-config', [UnitAssessmentConfigurationController::class, 'store'])->name('units.assessment-config.store');
+    Route::get('/units/{unit}/assessment-config/{configuration}/edit', [UnitAssessmentConfigurationController::class, 'edit'])->name('units.assessment-config.edit');
+    Route::put('/units/{unit}/assessment-config/{configuration}', [UnitAssessmentConfigurationController::class, 'update'])->name('units.assessment-config.update');
+    Route::delete('/units/{unit}/assessment-config/{configuration}', [UnitAssessmentConfigurationController::class, 'destroy'])->name('units.assessment-config.destroy');
+    Route::post('/units/{unit}/assessment-config/bulk-update', [UnitAssessmentConfigurationController::class, 'bulkUpdate'])->name('units.assessment-config.bulk-update');
+    Route::get('/api/units/{unit}/assessment-config/summary', [UnitAssessmentConfigurationController::class, 'getSummary'])->name('units.assessment-config.summary');
+
     // Courses
     Route::get('/courses', [TeacherCourseController::class, 'index'])->name('courses.index');
     Route::get('/courses/{course}', [TeacherCourseController::class, 'show'])->name('courses.show');
@@ -150,6 +167,12 @@ Route::post('/submissions/{submission}/grade-ai', [TeacherAssignmentController::
     Route::get('/students/invitations/{invitation}', [TeacherStudentController::class, 'showInvitation'])->name('students.invitations.show');
     Route::get('/grades', [TeacherGradeController::class, 'index'])->name('grades.index');
     Route::get('/reports', [TeacherReportController::class, 'index'])->name('reports.index');
+
+    // Analytics
+    Route::get('/analytics/dashboard', [AnalyticsController::class, 'teacherDashboard'])->name('analytics.dashboard');
+    Route::get('/api/analytics/class-performance/{course}', [AnalyticsController::class, 'getClassPerformanceData'])->name('analytics.class-performance-data');
+    Route::get('/api/analytics/unit-distribution/{unit}/{course}', [AnalyticsController::class, 'getUnitPerformanceDistribution'])->name('analytics.unit-distribution');
+    Route::post('/analytics/recalculate-grades/{course}', [AnalyticsController::class, 'recalculateAllGrades'])->name('analytics.recalculate-grades');
 });
 
 // Admin Routes

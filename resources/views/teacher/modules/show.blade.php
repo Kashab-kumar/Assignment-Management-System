@@ -394,10 +394,21 @@
 
                         <div style="background:#fff; border:1px solid #e5e7eb; padding:12px; border-radius:8px;">
                             <div style="font-weight:700; margin-bottom:8px;">Grading Criteria</div>
+                            <div style="font-size:12px; color:#6b7280; margin-bottom:10px;">Use the presets for Assignment, Test, and Exam, or add your own custom criteria.</div>
                             <div id="criteria-list">
                                 <div class="criterion-row" data-index="0" style="display:grid; grid-template-columns: 1fr 1fr 80px; gap:8px; margin-bottom:8px; align-items:center;">
-                                    <input type="text" class="criterion-name" placeholder="Conceptual understanding" value="Conceptual understanding" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
-                                    <input type="text" class="criterion-desc" placeholder="Short description" value="Shows understanding of core concepts" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
+                                    <input type="text" class="criterion-name" placeholder="Assignment" value="Assignment" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
+                                    <input type="text" class="criterion-desc" placeholder="Short description" value="Homework, classwork, or submissions" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
+                                    <div style="display:flex; gap:8px; align-items:center;"><input type="number" class="criterion-weight" value="40" min="0" style="width:80px; padding:8px; border:1px solid #d1d5db; border-radius:6px;"><button type="button" class="btn btn-secondary remove-criterion">×</button></div>
+                                </div>
+                                <div class="criterion-row" data-index="1" style="display:grid; grid-template-columns: 1fr 1fr 80px; gap:8px; margin-bottom:8px; align-items:center;">
+                                    <input type="text" class="criterion-name" placeholder="Test" value="Test" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
+                                    <input type="text" class="criterion-desc" placeholder="Short description" value="Unit test or quiz" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
+                                    <div style="display:flex; gap:8px; align-items:center;"><input type="number" class="criterion-weight" value="30" min="0" style="width:80px; padding:8px; border:1px solid #d1d5db; border-radius:6px;"><button type="button" class="btn btn-secondary remove-criterion">×</button></div>
+                                </div>
+                                <div class="criterion-row" data-index="2" style="display:grid; grid-template-columns: 1fr 1fr 80px; gap:8px; margin-bottom:8px; align-items:center;">
+                                    <input type="text" class="criterion-name" placeholder="Exam" value="Exam" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
+                                    <input type="text" class="criterion-desc" placeholder="Short description" value="Midterm or final exam" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
                                     <div style="display:flex; gap:8px; align-items:center;"><input type="number" class="criterion-weight" value="30" min="0" style="width:80px; padding:8px; border:1px solid #d1d5db; border-radius:6px;"><button type="button" class="btn btn-secondary remove-criterion">×</button></div>
                                 </div>
                             </div>
@@ -405,8 +416,13 @@
                                 <input id="new-criterion-name" placeholder="Criterion name" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
                                 <input id="new-criterion-desc" placeholder="Short description (optional)" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
                             </div>
-                            <div style="display:flex; gap:8px; margin-top:8px; align-items:center;"><button type="button" id="add-criterion-btn" class="btn btn-primary">+ Add Criterion</button></div>
-                            <div style="margin-top:8px;">Total weight: <span id="total-weight">30</span>%</div>
+                            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; align-items:center;">
+                                <button type="button" class="btn btn-secondary preset-criterion-btn" data-name="Assignment" data-desc="Homework, classwork, or submissions" data-weight="40">+ Assignment</button>
+                                <button type="button" class="btn btn-secondary preset-criterion-btn" data-name="Test" data-desc="Unit test or quiz" data-weight="30">+ Test</button>
+                                <button type="button" class="btn btn-secondary preset-criterion-btn" data-name="Exam" data-desc="Midterm or final exam" data-weight="30">+ Exam</button>
+                                <button type="button" id="add-criterion-btn" class="btn btn-primary">+ Add Custom Criterion</button>
+                            </div>
+                            <div style="margin-top:8px;">Total weight: <span id="total-weight">100</span>%</div>
                         </div>
                     </div>
                 </div>
@@ -968,6 +984,30 @@ function openAssignmentModal() {
         document.getElementById('total-weight').textContent = total;
     }
 
+    function appendCriterionRow(name, description, weight) {
+        const list = document.getElementById('criteria-list');
+        const idx = list.children.length;
+        const row = document.createElement('div');
+        row.className = 'criterion-row';
+        row.dataset.index = idx;
+        row.style.display = 'grid';
+        row.style.gridTemplateColumns = '1fr 1fr 80px';
+        row.style.gap = '8px';
+        row.style.marginBottom = '8px';
+        row.style.alignItems = 'center';
+        row.innerHTML = `
+            <input type="text" class="criterion-name" value="${name}" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
+            <input type="text" class="criterion-desc" value="${description}" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
+            <div style="display:flex; gap:8px; align-items:center;">
+                <input type="number" class="criterion-weight" value="${weight}" min="0" style="width:80px; padding:8px; border:1px solid #d1d5db; border-radius:6px;">
+                <button type="button" class="btn btn-secondary remove-criterion">×</button>
+            </div>
+        `;
+        list.appendChild(row);
+        updateTotal();
+        serializeCriteria();
+    }
+
     function serializeCriteria() {
         const rows = Array.from(document.querySelectorAll('#criteria-list .criterion-row'));
         const items = rows.map(r => ({
@@ -989,22 +1029,22 @@ function openAssignmentModal() {
     }
 
     document.addEventListener('click', function(e) {
+        if (e.target && e.target.classList && e.target.classList.contains('preset-criterion-btn')) {
+            appendCriterionRow(
+                e.target.dataset.name || 'Criterion',
+                e.target.dataset.desc || '',
+                parseFloat(e.target.dataset.weight) || 0
+            );
+            return;
+        }
+
         if (e.target && e.target.id === 'add-criterion-btn') {
             const name = document.getElementById('new-criterion-name').value.trim();
             if (!name) return;
             const desc = document.getElementById('new-criterion-desc') ? document.getElementById('new-criterion-desc').value.trim() : '';
             const weightInput = document.getElementById('new-criterion-weight');
             const weight = weightInput ? (parseFloat(weightInput.value) || 0) : 0;
-            const list = document.getElementById('criteria-list');
-            const idx = list.children.length;
-            const row = document.createElement('div');
-            row.className = 'criterion-row';
-            row.dataset.index = idx;
-            row.style.display = 'grid'; row.style.gridTemplateColumns = '1fr 1fr 80px'; row.style.gap = '8px'; row.style.marginBottom = '8px'; row.style.alignItems = 'center';
-            row.innerHTML = `<input type="text" class="criterion-name" placeholder="${name}" value="${name}" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;"><input type="text" class="criterion-desc" placeholder="Short description" value="${desc}" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;"><div style=\"display:flex; gap:8px; align-items:center;\"><input type=\"number\" class=\"criterion-weight\" value=\"10\" min=\"0\" style=\"width:80px; padding:8px; border:1px solid #d1d5db; border-radius:6px;\"><button type=\"button\" class=\"btn btn-secondary remove-criterion\">×</button></div>`;
-            list.appendChild(row);
-            const addedWeightInput = row.querySelector('.criterion-weight');
-            if (addedWeightInput) addedWeightInput.value = weight;
+            appendCriterionRow(name, desc, weight);
             document.getElementById('new-criterion-name').value = '';
             if(document.getElementById('new-criterion-desc')) document.getElementById('new-criterion-desc').value = '';
             if (weightInput) weightInput.value = '10';
