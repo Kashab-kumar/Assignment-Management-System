@@ -9,10 +9,14 @@ use App\Models\CourseModule;
 use App\Models\CourseModuleItem;
 use App\Models\Exam;
 use App\Models\ExamResult;
+use App\Models\Unit;
+use App\Models\UnitAssessmentConfiguration;
 use App\Models\Submission;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\ValidationException;
 
 class TeacherCourseController extends Controller
 {
@@ -103,39 +107,165 @@ class TeacherCourseController extends Controller
             ]);
         }
 
-        $validated = $request->validate([
-            'type' => 'required|in:unit_outline,quiz,test,note,video',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string|max:5000',
-            'file' => 'nullable|file|mimes:pdf,doc,docx,txt|max:10240',
-        ]);
-
-        $filePath = null;
-        $fileName = null;
-        $fileType = null;
-
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $fileName = $file->getClientOriginalName();
-            $fileType = $file->getClientOriginalExtension();
-            $filePath = $file->store('module-files', 'public');
+        $outlines = $request->input('outlines', []);
+        if (!is_array($outlines) || empty($outlines)) {
+            $outlines = [[
+                'title' => $request->input('title'),
+                'description' => $request->input('description'),
+                'chapter_total_weight' => $request->input('chapter_total_weight', 100),
+                'grading_criteria' => $request->input('grading_criteria'),
+                'grade_scale' => $request->input('grade_scale'),
+                'ai_options' => $request->input('ai_options'),
+            ]];
         }
 
-        $nextPosition = ($module->items()->max('position') ?? 0) + 1;
+        DB::transaction(function () use ($module, $request, $outlines) {
+            $nextPosition = ($module->items()->max('position') ?? 0) + 1;
+            $nextUnitOrder = ($module->units()->max('order') ?? 0) + 1;
 
-        $module->items()->create([
-            'type' => $validated['type'],
-            'title' => $validated['title'],
-            'content' => $validated['description'] ?? null,
-            'file_path' => $filePath,
-            'file_name' => $fileName,
-            'file_type' => $fileType,
-            'position' => $nextPosition,
-            'created_by' => $request->user()->id,
-            'is_active' => true,
-            'grade_scale' => $request->input('grade_scale') ? json_decode($request->input('grade_scale'), true) : null,
-            'grading_criteria' => $request->input('grading_criteria') ? json_decode($request->input('grading_criteria'), true) : null,
-        ]);
+            foreach ($outlines as $index => $outlineData) {
+                $title = trim((string) ($outlineData['title'] ?? ''));
+                if ($title === '') {
+                    throw ValidationException::withMessages([
+                        "outlines.$index.title" => 'Each chapter/unit needs a title.',
+                    ]);
+                }
+
+                $description = $outlineData['description'] ?? null;
+                $chapterTotalWeight = isset($outlineData['chapter_total_weight']) ? (float) $outlineData['chapter_total_weight'] : 100;
+
+                $gradingCriteriaPayload = $outlineData['grading_criteria'] ?? null;
+                $gradingCriteria = [];
+                if (!empty($gradingCriteriaPayload)) {
+                    $gradingCriteria = is_string($gradingCriteriaPayload)
+                        ? json_decode($gradingCriteriaPayload, true)
+                        : $gradingCriteriaPayload;
+
+                    if (!is_array($gradingCriteria)) {
+                        throw ValidationException::withMessages([
+                            "outlines.$index.grading_criteria" => 'Assessment criteria format is invalid.',
+                        ]);
+                    }
+                }
+
+                if (!empty($gradingCriteria)) {
+                    $assessmentTotal = collect($gradingCriteria)->sum(function ($criterion) {
+                        return (float) ($criterion['weight'] ?? 0);
+                    });
+
+                    if (abs($assessmentTotal - $chapterTotalWeight) > 0.01) {
+                        throw ValidationException::withMessages([
+                            "outlines.$index.grading_criteria" => "Assessment weights must total {$chapterTotalWeight}% for this chapter/unit. Current total: {$assessmentTotal}%.",
+                        ]);
+                    }
+                }
+
+                $gradeScalePayload = $outlineData['grade_scale'] ?? null;
+                $gradeScale = [];
+                if (!empty($gradeScalePayload)) {
+                    $gradeScale = is_string($gradeScalePayload)
+                        ? json_decode($gradeScalePayload, true)
+                        : $gradeScalePayload;
+                    if (!is_array($gradeScale)) {
+                        $gradeScale = [];
+                    }
+                }
+
+                $aiOptionsPayload = $outlineData['ai_options'] ?? null;
+                $aiOptions = [];
+                if (!empty($aiOptionsPayload)) {
+                    $aiOptions = is_string($aiOptionsPayload)
+                        ? json_decode($aiOptionsPayload, true)
+                        : $aiOptionsPayload;
+                    if (!is_array($aiOptions)) {
+                        $aiOptions = [];
+                    }
+                }
+                $aiOptions['chapter_total_weight'] = $chapterTotalWeight;
+
+                $file = data_get($request->file('outlines'), $index . '.file');
+                $filePath = null;
+                $fileName = null;
+                $fileType = null;
+
+                if ($file) {
+                    $fileName = $file->getClientOriginalName();
+                    $fileType = $file->getClientOriginalExtension();
+                    $filePath = $file->store('module-files', 'public');
+                }
+
+                $unit = Unit::create([
+                    'module_id' => $module->id,
+                    'title' => $title,
+                    'description' => $description,
+                    'file_path' => $filePath,
+                    'extracted_content' => null,
+                    'order' => $nextUnitOrder++,
+                    'max_marks' => null,
+                    'content_type' => 'unit_outline',
+                    'grading_criteria' => !empty($gradingCriteria) ? json_encode($gradingCriteria) : null,
+                    'grade_scale' => !empty($gradeScale) ? json_encode($gradeScale) : null,
+                    'ai_options' => json_encode($aiOptions),
+                    'weightage_percent' => $chapterTotalWeight,
+                    'is_active' => true,
+                ]);
+
+                if (!empty($gradingCriteria)) {
+                    $byType = [];
+                    foreach ($gradingCriteria as $criterion) {
+                        $type = strtolower(trim($criterion['assessment_type'] ?? ($criterion['name'] ?? '')));
+                        if ($type === '') {
+                            continue;
+                        }
+
+                        $weight = (float) ($criterion['weight'] ?? 0);
+                        $topic = trim($criterion['topic'] ?? ($criterion['description'] ?? ''));
+
+                        if (!isset($byType[$type])) {
+                            $byType[$type] = ['weight' => 0, 'description' => ''];
+                        }
+
+                        $byType[$type]['weight'] += $weight;
+                        if ($topic !== '') {
+                            $byType[$type]['description'] = $byType[$type]['description']
+                                ? $byType[$type]['description'] . '; ' . $topic
+                                : $topic;
+                        }
+                    }
+
+                    foreach ($byType as $assessmentType => $data) {
+                        UnitAssessmentConfiguration::create([
+                            'unit_id' => $unit->id,
+                            'assessment_type' => $assessmentType,
+                            'weight_percent' => $data['weight'],
+                            'description' => $data['description'] ?: null,
+                            'is_active' => true,
+                        ]);
+                    }
+                }
+
+                $module->items()->create([
+                    'unit_id' => $unit->id,
+                    'type' => 'unit_outline',
+                    'title' => $title,
+                    'content' => $description,
+                    'file_path' => $filePath,
+                    'file_name' => $fileName,
+                    'file_type' => $fileType,
+                    'position' => $nextPosition++,
+                    'created_by' => $request->user()->id,
+                    'is_active' => true,
+                    'grade_scale' => !empty($gradeScale) ? $gradeScale : null,
+                    'grading_criteria' => !empty($gradingCriteria) ? $gradingCriteria : null,
+                    'ai_options' => $aiOptions,
+                ]);
+            }
+        });
+
+        if ($request->input('save_action') === 'add_another') {
+            return redirect()->route('teacher.courses.modules.items.create', [$course, $module])
+                ->with('success', 'Unit outline added successfully. Add the next chapter/unit below.');
+        }
 
         return redirect()->route('teacher.courses.modules.show', [$course, $module])
             ->with('success', 'Unit outline added successfully.');
@@ -217,6 +347,10 @@ class TeacherCourseController extends Controller
         // Delete file if exists
         if ($item->file_path) {
             Storage::disk('public')->delete($item->file_path);
+        }
+
+        if ($item->unit_id) {
+            $item->unit?->delete();
         }
 
         $item->delete();
@@ -347,15 +481,15 @@ class TeacherCourseController extends Controller
             $includeSummary = $request->input('include_summary', false);
             $includeKeyPoints = $request->input('include_key_points', false);
             $includePractice = $request->input('include_practice', false);
-            
+
             $fileText = '';
             $analyzedContent = '';
-            
+
             // Extract text from uploaded file
             if ($request->hasFile('file')) {
                 $file = $request->file('file');
                 $fileExtension = strtolower($file->getClientOriginalExtension());
-                
+
                 switch ($fileExtension) {
                     case 'txt':
                         $fileText = file_get_contents($file->getPathname());
@@ -373,7 +507,7 @@ class TeacherCourseController extends Controller
                     default:
                         return response()->json(['success' => false, 'error' => 'Unsupported file type']);
                 }
-                
+
                 if (empty($fileText)) {
                     return response()->json(['success' => false, 'error' => 'Could not extract text from file']);
                 }
@@ -381,16 +515,16 @@ class TeacherCourseController extends Controller
 
             // Build the prompt for Gemini
             $prompt = $this->buildPrompt($title, $type, $fileText, $difficulty, $includeExamples, $includeSummary, $includeKeyPoints, $includePractice, $itemsCount);
-            
+
             // Call Gemini API
             $content = $this->callGeminiAPI($prompt);
-            
+
             return response()->json([
                 'success' => true,
                 'content' => $content,
                 'analyzed_content' => $analyzedContent
             ]);
-            
+
         } catch (\Exception $e) {
             \Log::error('AI Generation Error: ' . $e->getMessage());
             return response()->json(['success' => false, 'error' => $e->getMessage()]);
@@ -414,39 +548,39 @@ class TeacherCourseController extends Controller
     private function buildPrompt($title, $type, $fileText, $difficulty, $includeExamples, $includeSummary, $includeKeyPoints, $includePractice, $itemsCount)
     {
         $prompt = "You are an educational content creator. ";
-        
+
         if (!empty($fileText)) {
             $prompt .= "I have provided a document with the following content:\n\n" . substr($fileText, 0, 10000) . "\n\n";
             $prompt .= "Based on this document, create educational content for: " . $title . "\n";
         } else {
             $prompt .= "Create educational content for the topic: " . $title . "\n";
         }
-        
+
         $prompt .= "Content Type: " . ucfirst($type) . "\n";
         $prompt .= "Difficulty Level: " . ucfirst($difficulty) . "\n";
         $prompt .= "Number of items to generate: " . $itemsCount . "\n\n";
-        
+
         $prompt .= "Requirements:\n";
         if ($includeExamples) $prompt .= "- Include practical examples\n";
         if ($includeSummary) $prompt .= "- Include a summary section\n";
         if ($includeKeyPoints) $prompt .= "- Highlight key points\n";
         if ($includePractice) $prompt .= "- Include practice questions\n";
-        
+
         $prompt .= "\nPlease generate comprehensive, well-structured educational content that is appropriate for the specified difficulty level.";
-        
+
         return $prompt;
     }
 
     private function callGeminiAPI($prompt)
     {
         $apiKey = env('GEMINI_API_KEY');
-        
+
         if (!$apiKey) {
             throw new \Exception('Gemini API key not configured');
         }
 
         $client = new \GuzzleHttp\Client();
-        
+
         $response = $client->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=' . $apiKey, [
             'headers' => [
                 'Content-Type' => 'application/json',
@@ -469,11 +603,11 @@ class TeacherCourseController extends Controller
         ]);
 
         $result = json_decode($response->getBody(), true);
-        
+
         if (isset($result['candidates'][0]['content']['parts'][0]['text'])) {
             return $result['candidates'][0]['content']['parts'][0]['text'];
         }
-        
+
         throw new \Exception('Invalid response from Gemini API');
     }
 

@@ -103,6 +103,11 @@
                 <label for="max_score">Maximum Score *</label>
                 <input type="number" id="max_score" name="max_score" min="1" max="1000" value="{{ old('max_score', $exam->max_score) }}" required>
             </div>
+
+            <div class="form-group">
+                <label for="weightage">Weightage (%)</label>
+                <input type="number" id="weightage" name="weightage" min="0" max="100" step="0.01" value="{{ old('weightage', $exam->weightage ?? 0) }}">
+            </div>
         </div>
 
         <button type="submit" class="btn">Update Assessment</button>

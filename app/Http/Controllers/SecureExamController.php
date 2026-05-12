@@ -25,7 +25,7 @@ class SecureExamController extends Controller
         }
 
         $now = now();
-        
+
         if ($now->lt($exam->start_datetime)) {
             return response()->json([
                 'error' => 'Exam has not started yet',
@@ -161,8 +161,9 @@ class SecureExamController extends Controller
             return response()->json(['terminated' => true], 403);
         }
 
-        // Check if exam time has expired
-        if ($exam->end_datetime && now()->gt($exam->end_datetime)) {
+        $remainingTime = $session->getRemainingTime();
+
+        if ($remainingTime === null || $remainingTime <= 0) {
             $session->ended_at = now();
             $session->termination_reason = 'Exam time expired';
             $session->save();
@@ -175,7 +176,7 @@ class SecureExamController extends Controller
 
         return response()->json([
             'active' => true,
-            'remaining_time' => $session->getRemainingTime(),
+            'remaining_time' => $remainingTime,
             'violations' => $session->violations,
             'warnings' => $session->warnings,
         ]);

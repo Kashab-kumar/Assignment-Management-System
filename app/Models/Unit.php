@@ -42,6 +42,11 @@ class Unit extends Model
         return $this->hasMany(Exam::class);
     }
 
+    public function tests()
+    {
+        return $this->hasMany(Test::class, 'unit_id');
+    }
+
     public function studentUnitGrades()
     {
         return $this->hasMany(StudentUnitGrade::class);

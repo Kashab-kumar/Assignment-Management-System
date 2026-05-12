@@ -45,7 +45,7 @@ class ExamSession extends Model
         ];
 
         $this->violation_log = $log;
-        
+
         switch ($type) {
             case 'tab_switch':
                 $this->tab_switches++;
@@ -76,12 +76,12 @@ class ExamSession extends Model
         }
 
         $exam = $this->exam;
-        
+
         if (!$exam) {
             return false;
         }
 
-        return $this->violations < $exam->max_violations && 
+        return $this->violations < $exam->max_violations &&
                $this->warnings < $exam->max_warnings;
     }
 
@@ -92,7 +92,7 @@ class ExamSession extends Model
         }
 
         $endTime = $this->started_at->copy()->addMinutes($this->exam->duration_minutes);
-        $remaining = $endTime->diffInSeconds(now());
+        $remaining = now()->diffInSeconds($endTime, false);
 
         return max(0, $remaining);
     }

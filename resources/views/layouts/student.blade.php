@@ -119,64 +119,36 @@
     <div class="flex min-h-screen">
         <!-- Sidebar -->
         <aside class="w-64 bg-white border-r border-gray-200 fixed h-full flex flex-col overflow-y-auto z-10">
-            <!-- Header -->
-            <div class="p-4 border-b border-gray-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3zm-7 9.18V17l7 4 7-4v-4.82L12 16l-7-3.82z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <div class="text-xl font-bold text-gray-900">Institute</div>
-                        <div class="text-xs text-gray-500">LMS Platform</div>
-                    </div>
-                </div>
-                <div class="w-full text-center bg-gradient-to-r from-primary-500 to-primary-700 text-white rounded-full py-1.5 px-3 text-xs font-bold">
-                    Student Portal
-                </div>
-            </div>
-
             <!-- Navigation -->
             <nav class="flex-1 p-3 space-y-1">
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
-                    </svg>
+                    <x-ui-icon name="dashboard" class="w-5 h-5 text-gray-900" />
                     <span>Dashboard</span>
                 </a>
 
                 <div class="pt-4 pb-2 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Academics</div>
 
                 <a href="{{ route('student.modules.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('student.modules.*') ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M4 6c0-1.1.9-2 2-2h6v16H6a2 2 0 0 1-2-2V6zm10-2h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4V4zM8 8h2v2H8V8zm0 4h2v2H8v-2z"/>
-                    </svg>
+                    <x-ui-icon name="course" class="w-5 h-5 text-gray-900" />
                     <span>Courses</span>
                 </a>
 
                 <a href="{{ route('student.grades.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('student.grades.*') ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                    </svg>
+                    <x-ui-icon name="grades" class="w-5 h-5 text-gray-900" />
                     <span>My Grades</span>
                 </a>
 
                 <div class="pt-4 pb-2 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Performance</div>
 
                 <a href="{{ route('student.rankings') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('student.rankings') ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M16 11V3H8v6H2v12h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-6h4v6z"/>
-                    </svg>
+                    <x-ui-icon name="report" class="w-5 h-5 text-gray-900" />
                     <span>Class Rankings</span>
                 </a>
 
                 <div class="pt-4 pb-2 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Account</div>
 
                 <a href="{{ route('student.profile') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('student.profile') ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                    </svg>
+                    <x-ui-icon name="person" class="w-5 h-5 text-gray-900" />
                     <span>My Profile</span>
                 </a>
             </nav>

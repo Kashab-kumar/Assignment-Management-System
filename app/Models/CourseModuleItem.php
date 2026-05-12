@@ -8,6 +8,7 @@ class CourseModuleItem extends Model
 {
     protected $fillable = [
         'course_module_id',
+        'unit_id',
         'type',
         'title',
         'content',
@@ -32,6 +33,11 @@ class CourseModuleItem extends Model
     public function module()
     {
         return $this->belongsTo(CourseModule::class, 'course_module_id');
+    }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class);
     }
 
     public function creator()

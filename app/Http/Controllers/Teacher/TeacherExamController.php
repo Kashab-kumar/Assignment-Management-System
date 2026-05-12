@@ -53,6 +53,7 @@ class TeacherExamController extends Controller
     {
         $selectedCourseId = $request->integer('course_id') ?: null;
         $selectedModuleId = $request->integer('module_id') ?: null;
+        $selectedUnitId = $request->integer('unit_id') ?: null;
         $mode = in_array($request->input('mode'), ['quiz', 'test'], true) ? $request->input('mode') : 'exam';
         $assignedCourseIds = $this->assignedCourseIds();
 
@@ -70,13 +71,13 @@ class TeacherExamController extends Controller
 
         $courses = Course::query()
             ->whereIn('id', $assignedCourseIds)
-            ->with(['modules' => fn ($query) => $query->orderBy('position')])
+            ->with(['modules' => fn ($query) => $query->with('units')->orderBy('position')])
             ->orderBy('category_name')
             ->orderBy('class_name')
             ->orderBy('name')
             ->get();
 
-        return view('teacher.exams.create', compact('courses', 'selectedCourseId', 'selectedModuleId', 'mode'));
+        return view('teacher.exams.create', compact('courses', 'selectedCourseId', 'selectedModuleId', 'selectedUnitId', 'mode'));
     }
 
     public function store(Request $request)
@@ -85,7 +86,8 @@ class TeacherExamController extends Controller
 
         $validated = $request->validate([
             'course_id' => ['required', Rule::in($assignedCourseIds)],
-            'module_id' => 'nullable|exists:course_modules,id',
+            'module_id' => 'required|exists:course_modules,id',
+            'unit_id' => 'required|exists:units,id',
             'type' => 'required|in:exam,quiz,test',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -93,6 +95,7 @@ class TeacherExamController extends Controller
             'exam_time' => 'nullable|date_format:H:i',
             'duration_minutes' => 'required|integer|min:1|max:600',
             'max_score' => 'required|integer|min:1|max:1000',
+            'weightage' => 'nullable|numeric|min:0|max:100',
             'secure_mode' => 'nullable|boolean',
             'secure_instructions' => 'nullable|string',
             'max_violations' => 'nullable|integer|min:1|max:10',
@@ -107,10 +110,18 @@ class TeacherExamController extends Controller
         // Convert secure_mode to boolean (checkbox sends "0" or "1")
         $validated['secure_mode'] = isset($validated['secure_mode']) && $validated['secure_mode'] == '1';
 
+        $unit = \App\Models\Unit::findOrFail($validated['unit_id']);
+        if ((int) $unit->module_id !== (int) $validated['module_id']) {
+            return back()->withInput()->withErrors([
+                'unit_id' => 'Selected chapter/unit does not belong to the selected module.',
+            ]);
+        }
+
         DB::transaction(function () use ($validated) {
             $exam = Exam::create([
                 'course_id' => $validated['course_id'],
                 'module_id' => $validated['module_id'] ?? null,
+                'unit_id' => $validated['unit_id'],
                 'type' => $validated['type'],
                 'title' => $validated['title'],
                 'description' => $validated['description'] ?? null,
@@ -118,6 +129,7 @@ class TeacherExamController extends Controller
                 'exam_time' => $validated['exam_time'] ?? null,
                 'duration_minutes' => $validated['duration_minutes'],
                 'max_score' => $validated['max_score'],
+                'weightage' => $validated['weightage'] ?? 0,
                 'secure_mode' => $validated['secure_mode'] ?? false,
                 'secure_instructions' => $validated['secure_instructions'] ?? null,
                 'max_violations' => $validated['max_violations'] ?? 3,
@@ -193,6 +205,7 @@ class TeacherExamController extends Controller
             'exam_time' => 'nullable|date_format:H:i',
             'duration_minutes' => 'required|integer|min:1|max:600',
             'max_score' => 'required|integer|min:1|max:1000',
+            'weightage' => 'nullable|numeric|min:0|max:100',
         ]);
 
         $exam->update([
@@ -204,6 +217,7 @@ class TeacherExamController extends Controller
             'exam_time' => $validated['exam_time'] ?? null,
             'duration_minutes' => $validated['duration_minutes'],
             'max_score' => $validated['max_score'],
+            'weightage' => $validated['weightage'] ?? 0,
         ]);
 
         return redirect()->route('teacher.exams.show', $exam)

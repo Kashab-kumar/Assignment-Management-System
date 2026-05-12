@@ -275,6 +275,98 @@
         font-weight: 700;
     }
 
+    .assessment-summary {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .assessment-summary-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 0 0 12px;
+    }
+
+    .assessment-summary-list {
+        display: grid;
+        gap: 10px;
+    }
+
+    .assessment-summary-item {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 14px 16px;
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+    }
+
+    .assessment-summary-name {
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    .chapter-section {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .chapter-section:first-of-type {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: 0;
+    }
+
+    .chapter-section-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 0 0 12px;
+    }
+
+    .chapter-items-list {
+        display: grid;
+        gap: 10px;
+    }
+
+    .chapter-item {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 14px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .chapter-item-name {
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    .chapter-item-meta {
+        font-size: 13px;
+        color: #6b7280;
+        margin-top: 4px;
+    }
+
+    .assessment-summary-desc {
+        font-size: 13px;
+        color: #6b7280;
+        margin-top: 4px;
+    }
+
     .empty-state {
         text-align: center;
         padding: 60px 20px;
@@ -385,6 +477,101 @@
                     </div>
                 @endif
 
+                @if($item->unit && $item->unit->assessmentConfigurations && $item->unit->assessmentConfigurations->isNotEmpty())
+                    <div class="assessment-summary">
+                        <div class="assessment-summary-title">Assessment Weights for This Unit</div>
+                        <div class="assessment-summary-list">
+                            @foreach($item->unit->assessmentConfigurations as $configuration)
+                                <div class="assessment-summary-item">
+                                    <div>
+                                        <div class="assessment-summary-name">{{ ucfirst($configuration->assessment_type) }}</div>
+                                        @if($configuration->description)
+                                            <div class="assessment-summary-desc">{{ $configuration->description }}</div>
+                                        @endif
+                                    </div>
+                                    <div class="criteria-weight">{{ $configuration->weight_percent }}%</div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @elseif($item->grading_criteria)
+                    <div class="assessment-summary">
+                        <div class="assessment-summary-title">Assessment Weights</div>
+                        <div class="assessment-summary-list">
+                            @foreach($item->grading_criteria as $criterion)
+                                <div class="assessment-summary-item">
+                                    <div>
+                                        <div class="assessment-summary-name">{{ $criterion['name'] ?? 'Criterion' }}</div>
+
+                                @if($item->unit)
+                                    <div class="chapter-section">
+                                        <div class="chapter-section-title">Assignments</div>
+                                        @if($item->unit->assignments && $item->unit->assignments->isNotEmpty())
+                                            <div class="chapter-items-list">
+                                                @foreach($item->unit->assignments as $assignment)
+                                                    <div class="chapter-item">
+                                                        <div>
+                                                            <div class="chapter-item-name">{{ $assignment->title }}</div>
+                                                            <div class="chapter-item-meta">{{ $assignment->description ?: 'No description' }}</div>
+                                                        </div>
+                                                        <div class="criteria-weight">{{ $assignment->weightage ?? 0 }}%</div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <div class="empty-state" style="padding: 24px 0; text-align:left;">No assignments for this chapter/unit.</div>
+                                        @endif
+                                    </div>
+
+                                    <div class="chapter-section">
+                                        <div class="chapter-section-title">Tests</div>
+                                        @if($item->unit->tests && $item->unit->tests->isNotEmpty())
+                                            <div class="chapter-items-list">
+                                                @foreach($item->unit->tests as $test)
+                                                    <div class="chapter-item">
+                                                        <div>
+                                                            <div class="chapter-item-name">{{ $test->title }}</div>
+                                                            <div class="chapter-item-meta">{{ $test->instructions ?: 'No instructions' }}</div>
+                                                        </div>
+                                                        <div class="criteria-weight">{{ $test->weightage ?? 0 }}%</div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <div class="empty-state" style="padding: 24px 0; text-align:left;">No tests for this chapter/unit.</div>
+                                        @endif
+                                    </div>
+
+                                    <div class="chapter-section">
+                                        <div class="chapter-section-title">Exams</div>
+                                        @if($item->unit->exams && $item->unit->exams->isNotEmpty())
+                                            <div class="chapter-items-list">
+                                                @foreach($item->unit->exams as $exam)
+                                                    <div class="chapter-item">
+                                                        <div>
+                                                            <div class="chapter-item-name">{{ $exam->title }}</div>
+                                                            <div class="chapter-item-meta">{{ $exam->description ?: 'No description' }}</div>
+                                                        </div>
+                                                        <div class="criteria-weight">{{ $exam->weightage ?? 0 }}%</div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <div class="empty-state" style="padding: 24px 0; text-align:left;">No exams for this chapter/unit.</div>
+                                        @endif
+                                    </div>
+                                @endif
+                                        @if(isset($criterion['description']) && $criterion['description'])
+                                            <div class="assessment-summary-desc">{{ $criterion['description'] }}</div>
+                                        @endif
+                                    </div>
+                                    <div class="criteria-weight">{{ $criterion['weight'] ?? 0 }}%</div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 @if($item->grade_scale)
                     <div style="margin-bottom: 20px;">
                         <div class="section-title">Grade Scale</div>
@@ -401,24 +588,6 @@
                     </div>
                 @endif
 
-                @if($item->grading_criteria)
-                    <div>
-                        <div class="section-title">Grading Criteria</div>
-                        <div class="criteria-list">
-                            @foreach($item->grading_criteria as $criterion)
-                                <div class="criteria-item">
-                                    <div class="criteria-info">
-                                        <h4>{{ $criterion['name'] ?? 'Criterion' }}</h4>
-                                        @if(isset($criterion['description']) && $criterion['description'])
-                                            <p>{{ $criterion['description'] }}</p>
-                                        @endif
-                                    </div>
-                                    <div class="criteria-weight">{{ $criterion['weight'] ?? 0 }}%</div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
             </div>
         @endforeach
 

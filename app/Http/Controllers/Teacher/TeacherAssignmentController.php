@@ -46,6 +46,7 @@ class TeacherAssignmentController extends Controller
     {
         $selectedCourseId = $request->integer('course_id') ?: null;
         $selectedModuleId = $request->integer('module_id') ?: null;
+        $selectedUnitId = $request->integer('unit_id') ?: null;
         $assignedCourseIds = $this->assignedCourseIds();
 
         // If module_id is provided, get the course_id from the module
@@ -62,12 +63,13 @@ class TeacherAssignmentController extends Controller
 
         $courses = Course::query()
             ->whereIn('id', $assignedCourseIds)
+            ->with(['modules' => fn ($query) => $query->with('units')->orderBy('position')])
             ->orderBy('category_name')
             ->orderBy('class_name')
             ->orderBy('name')
             ->get();
 
-        return view('teacher.assignments.create', compact('courses', 'selectedCourseId', 'selectedModuleId'));
+        return view('teacher.assignments.create', compact('courses', 'selectedCourseId', 'selectedModuleId', 'selectedUnitId'));
     }
 
     public function store(Request $request)
@@ -78,6 +80,7 @@ class TeacherAssignmentController extends Controller
         $validated = $request->validate([
             'course_id' => ['required', Rule::in($assignedCourseIds)],
             'module_id' => 'required|exists:course_modules,id',
+            'unit_id' => 'required|exists:units,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'instructions' => 'nullable|string',
@@ -94,6 +97,13 @@ class TeacherAssignmentController extends Controller
             abort(403, 'Unauthorized access to this module');
         }
 
+        $unit = \App\Models\Unit::findOrFail($validated['unit_id']);
+        if ((int) $unit->module_id !== (int) $module->id) {
+            return back()->withInput()->withErrors([
+                'unit_id' => 'Selected chapter/unit does not belong to the selected module.',
+            ]);
+        }
+
         if ($request->hasFile('instruction_file')) {
             $file = $request->file('instruction_file');
             $validated['instruction_file_path'] = $file->store('assignment-instructions', 'public');
@@ -101,6 +111,7 @@ class TeacherAssignmentController extends Controller
         }
 
         $validated['teacher_id'] = $teacher->id;
+        $validated['unit_id'] = $unit->id;
 
         $assignment = Assignment::create($validated);
 

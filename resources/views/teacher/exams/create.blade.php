@@ -548,6 +548,17 @@
                     @enderror
                 </div>
 
+                <div class="form-group">
+                    <label for="unit_id">Chapter/Unit <span class="required">*</span></label>
+                    <select id="unit_id" name="unit_id" class="form-control" required>
+                        <option value="">Select a chapter/unit</option>
+                    </select>
+                    <small style="color: #6b7280;">This exam will appear under the selected chapter/unit in the student page.</small>
+                    @error('unit_id')
+                        <div class="error-message">{{ $message }}</div>
+                    @enderror
+                </div>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label for="exam_date">Exam Date <span class="required">*</span></label>
@@ -597,6 +608,15 @@
                         <input type="number" id="duration_minutes" name="duration_minutes" class="form-control"
                                value="{{ old('duration_minutes', 30) }}" min="1" max="600" required>
                         @error('duration_minutes')
+                            <div class="error-message">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="weightage">Weightage (%)</label>
+                        <input type="number" id="weightage" name="weightage" class="form-control"
+                               value="{{ old('weightage', 0) }}" min="0" max="100" step="0.01">
+                        @error('weightage')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
                     </div>
@@ -743,6 +763,7 @@
 <script>
 let questionCount = 0;
 const selectedModuleId = {{ $selectedModuleId ?? 'null' }};
+const selectedUnitId = {{ $selectedUnitId ?? 'null' }};
 
 document.addEventListener('DOMContentLoaded', function() {
     const assessmentForm = document.getElementById('assessment-form');
@@ -785,6 +806,13 @@ document.addEventListener('DOMContentLoaded', function() {
         loadModules(courseSelect.value);
     }
 
+    const moduleSelect = document.getElementById('module_id');
+    if (moduleSelect) {
+        moduleSelect.addEventListener('change', function() {
+            loadUnits(this.value);
+        });
+    }
+
     const addQuestionBtn = document.getElementById('add-question-btn');
     if (addQuestionBtn) {
         addQuestionBtn.addEventListener('click', function(e) {
@@ -797,12 +825,16 @@ document.addEventListener('DOMContentLoaded', function() {
 function loadModules(courseId) {
     const moduleSelect = document.getElementById('module_id');
     const courseOption = document.querySelector(`#course_id option[value="${courseId}"]`);
+    const unitSelect = document.getElementById('unit_id');
 
     if (!moduleSelect) {
         return;
     }
 
     moduleSelect.innerHTML = '<option value="">Select a module (optional)</option>';
+    if (unitSelect) {
+        unitSelect.innerHTML = '<option value="">Select a chapter/unit</option>';
+    }
 
     if (!courseOption || !courseOption.dataset.modules) {
         return;
@@ -814,13 +846,49 @@ function loadModules(courseId) {
             const option = document.createElement('option');
             option.value = module.id;
             option.textContent = `Module ${module.position}: ${module.title}`;
+            option.dataset.units = JSON.stringify(module.units || []);
             if (module.id == selectedModuleId) {
                 option.selected = true;
             }
             moduleSelect.appendChild(option);
         });
+
+        if (moduleSelect.value) {
+            loadUnits(moduleSelect.value);
+        }
     } catch (e) {
         console.error('Error parsing modules:', e);
+    }
+}
+
+function loadUnits(moduleId) {
+    const moduleSelect = document.getElementById('module_id');
+    const unitSelect = document.getElementById('unit_id');
+
+    if (!moduleSelect || !unitSelect) {
+        return;
+    }
+
+    unitSelect.innerHTML = '<option value="">Select a chapter/unit</option>';
+
+    const selectedModule = Array.from(moduleSelect.options).find(option => String(option.value) === String(moduleId));
+    if (!selectedModule || !selectedModule.dataset.units) {
+        return;
+    }
+
+    try {
+        const units = JSON.parse(selectedModule.dataset.units);
+        units.forEach(unit => {
+            const option = document.createElement('option');
+            option.value = unit.id;
+            option.textContent = `Chapter/Unit ${unit.order ?? ''}: ${unit.title}`;
+            if (String(unit.id) === String(selectedUnitId)) {
+                option.selected = true;
+            }
+            unitSelect.appendChild(option);
+        });
+    } catch (e) {
+        console.error('Error parsing units:', e);
     }
 }
 

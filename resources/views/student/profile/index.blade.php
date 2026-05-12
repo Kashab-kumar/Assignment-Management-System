@@ -23,24 +23,6 @@
     .row:last-child { margin-bottom: 0; }
     .label { color: #000000; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
     .value { font-size: 16px; font-weight: 700; color: #1f2937; margin-top: 2px; }
-    .full-width { grid-column: 1 / -1; }
-    .modules-list { display: grid; gap: 10px; }
-    .module-item { padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.14); }
-    .module-title { font-size: 14px; font-weight: 700; color: #000000; }
-    .module-desc { color: #000000; font-size: 13px; margin-top: 4px; }
-    .module-meta { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-    .module-chip { font-size: 11px; color: #000000; background: rgba(124,58,237,0.18); border: 1px solid rgba(124,58,237,0.3); padding: 3px 8px; border-radius: 999px; }
-    .module-content-list { display: grid; gap: 8px; margin-top: 10px; }
-    .module-content-item { padding: 10px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
-    .module-content-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
-    .module-content-title { color: #f8fafc; font-size: 13px; font-weight: 700; }
-    .module-content-type { font-size: 11px; color: #000000; background: rgba(124,58,237,0.18); border: 1px solid rgba(124,58,237,0.3); padding: 3px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; }
-    .module-content-body { margin-top: 6px; color: #000000; font-size: 13px; line-height: 1.5; white-space: pre-line; }
-    .status-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 14px; }
-    .status-card { background: #ffffff; border: 1px solid rgba(0,0,0,0.08); border-radius: 10px; padding: 12px; }
-    .status-label { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; }
-    .status-value { margin-top: 6px; font-size: 28px; font-weight: 700; color: #1f2937; line-height: 1; }
-    .status-note { margin-top: 6px; font-size: 12px; color: #64748b; }
     @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
 </style>
 
@@ -59,96 +41,6 @@
         <div class="row"><div class="label">Graded Submissions</div><div class="value">{{ $gradedSubmissionCount }}</div></div>
         <div class="row"><div class="label">Exam Results</div><div class="value">{{ $examResultCount }}</div></div>
         <div class="row"><div class="label">Average Score</div><div class="value">{{ number_format($student->getAverageScore(), 2) }}</div></div>
-    </div>
-
-    <div class="card full-width">
-        <h2 style="margin-bottom:12px;">Course Modules</h2>
-        @if($courseModules->isEmpty())
-            <div class="row"><div class="value" style="font-size:14px;">No modules are available for your course yet.</div></div>
-        @else
-            @php
-                $totalModules = $courseModules->count();
-                $activeModules = $courseModules->filter(fn($module) => (bool) data_get($module, 'is_active', true))->count();
-                $totalLessons = (int) $courseModules->sum('lesson_count');
-                $totalAssignments = (int) $courseModules->sum('assignment_count');
-                $totalQuizzes = (int) $courseModules->sum('quiz_count');
-                $totalModuleItems = $moduleItemsEnabled
-                    ? (int) $courseModules->sum(fn($module) => $module->items->count())
-                    : 0;
-            @endphp
-
-            <div class="status-cards">
-                <div class="status-card">
-                    <div class="status-label">Total Modules</div>
-                    <div class="status-value">{{ $totalModules }}</div>
-                    <div class="status-note">In your current course</div>
-                </div>
-                <div class="status-card">
-                    <div class="status-label">Active Modules</div>
-                    <div class="status-value">{{ $activeModules }}</div>
-                    <div class="status-note">Available right now</div>
-                </div>
-                <div class="status-card">
-                    <div class="status-label">Lessons</div>
-                    <div class="status-value">{{ $totalLessons }}</div>
-                    <div class="status-note">Across all modules</div>
-                </div>
-                <div class="status-card">
-                    <div class="status-label">Assignments</div>
-                    <div class="status-value">{{ $totalAssignments }}</div>
-                    <div class="status-note">Module-linked tasks</div>
-                </div>
-                <div class="status-card">
-                    <div class="status-label">Quizzes</div>
-                    <div class="status-value">{{ $totalQuizzes }}</div>
-                    <div class="status-note">Practice and evaluation</div>
-                </div>
-                <div class="status-card">
-                    <div class="status-label">Content Items</div>
-                    <div class="status-value">{{ $totalModuleItems }}</div>
-                    <div class="status-note">Notes, tests, outlines</div>
-                </div>
-            </div>
-
-            <div class="modules-list">
-                @foreach($courseModules as $module)
-                    @php
-                        $typeLabels = [
-                            'unit_outline' => 'Unit Outline',
-                            'quiz' => 'Quiz',
-                            'test' => 'Test',
-                            'note' => 'Note',
-                        ];
-                    @endphp
-                    <div class="module-item">
-                        <div class="module-title">{{ $module->title }}</div>
-                        @if($module->description)
-                            <div class="module-desc">{{ $module->description }}</div>
-                        @endif
-                        <div class="module-meta">
-                            <span class="module-chip">{{ $module->lesson_count }} lessons</span>
-                            <span class="module-chip">{{ $module->assignment_count }} assignments</span>
-                            <span class="module-chip">{{ $module->quiz_count }} quizzes</span>
-                        </div>
-                        @if($moduleItemsEnabled && $module->items->isNotEmpty())
-                            <div class="module-content-list">
-                                @foreach($module->items as $item)
-                                    <div class="module-content-item">
-                                        <div class="module-content-head">
-                                            <div class="module-content-title">{{ $item->title }}</div>
-                                            <span class="module-content-type">{{ $typeLabels[$item->type] ?? ucfirst(str_replace('_', ' ', $item->type)) }}</span>
-                                        </div>
-                                        @if($item->content)
-                                            <div class="module-content-body">{{ $item->content }}</div>
-                                        @endif
-                                    </div>
-                                @endforeach
-                            </div>
-                        @endif
-                    </div>
-                @endforeach
-            </div>
-        @endif
     </div>
 </div>
 @endsection

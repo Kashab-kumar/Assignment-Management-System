@@ -319,15 +319,26 @@
                 <option value="">Select a module</option>
                 @php
                     $teacher = auth()->user()->teacher;
-                    $modules = \App\Models\CourseModule::where('teacher_id', $teacher->id)->get();
+                    $modules = \App\Models\CourseModule::where('teacher_id', $teacher->id)->with('units')->get();
                 @endphp
                 @foreach($modules as $module)
-                    <option value="{{ $module->id }}" {{ old('module_id', $selectedModuleId) == $module->id ? 'selected' : '' }}>
+                    <option value="{{ $module->id }}" data-course-id="{{ $module->course_id }}" data-units='@json($module->units)' {{ old('module_id', $selectedModuleId) == $module->id ? 'selected' : '' }}>
                         {{ $module->title }} - {{ $module->course->name }}
                     </option>
                 @endforeach
             </select>
             @error('module_id')
+                <div class="error">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="unit_id">Chapter/Unit *</label>
+            <select class="form-select" id="unit_id" name="unit_id" required>
+                <option value="">Select a chapter/unit</option>
+            </select>
+            <div class="help-text">This assignment will appear under the selected chapter/unit in the student page.</div>
+            @error('unit_id')
                 <div class="error">{{ $message }}</div>
             @enderror
         </div>
@@ -439,6 +450,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const weightageInput = document.getElementById('weightage');
     const maxScoreInput = document.getElementById('max_score');
     const dueDateInput = document.getElementById('due_date');
+    const moduleSelect = document.getElementById('module_id');
+    const courseSelect = document.getElementById('course_id');
+    const unitSelect = document.getElementById('unit_id');
+    const selectedUnitId = {{ $selectedUnitId ?? 'null' }};
 
     // Set minimum date to today
     const now = new Date();
@@ -456,26 +471,33 @@ document.addEventListener('DOMContentLoaded', function() {
         if (value < 1) this.value = 1;
     });
 
-    // Auto-select course when module is selected
-    const moduleSelect = document.getElementById('module_id');
-    const courseSelect = document.getElementById('course_id');
-
     moduleSelect.addEventListener('change', function() {
         const selectedOption = this.options[this.selectedIndex];
-        if (selectedOption.value) {
-            // Parse course info from option text
-            const optionText = selectedOption.text;
-            const courseName = optionText.split(' - ')[1];
+        unitSelect.innerHTML = '<option value="">Select a chapter/unit</option>';
 
-            // Find and select the corresponding course
-            for (let option of courseSelect.options) {
-                if (option.text.includes(courseName)) {
-                    courseSelect.value = option.value;
-                    break;
-                }
+        if (selectedOption.value) {
+            courseSelect.value = selectedOption.dataset.courseId || courseSelect.value;
+
+            try {
+                const units = JSON.parse(selectedOption.dataset.units || '[]');
+                units.forEach(unit => {
+                    const option = document.createElement('option');
+                    option.value = unit.id;
+                    option.textContent = `Chapter/Unit ${unit.order ?? ''}: ${unit.title}`;
+                    if (String(unit.id) === String(selectedUnitId)) {
+                        option.selected = true;
+                    }
+                    unitSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error parsing units:', error);
             }
         }
     });
+
+    if (moduleSelect.value) {
+        moduleSelect.dispatchEvent(new Event('change'));
+    }
 
     // Character counter for textareas
     const textareas = document.querySelectorAll('.form-textarea');

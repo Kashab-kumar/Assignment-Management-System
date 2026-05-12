@@ -355,8 +355,9 @@
                 <div style="display: grid; grid-template-columns: 1fr 420px; gap: 16px;">
                     <div>
                         <div style="margin-bottom: 12px;">
-                            <label style="display: block; font-weight: 600; margin-bottom: 6px; color: #1f2937;">Max marks</label>
-                            <input type="number" name="max_marks" value="100" min="0" style="width: 160px; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 6px; color: #1f2937;">Chapter/Unit Total Weight (%)</label>
+                            <input type="number" id="unit-total-weight" name="weightage_percent" value="100" min="0" max="100" step="0.01" style="width: 160px; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
+                            <div style="font-size:12px; color:#6b7280; margin-top:4px;">Set how much this chapter contributes, then distribute that same total across Assignment, Test, and Exam below.</div>
                         </div>
 
 
@@ -393,8 +394,8 @@
                         </div>
 
                         <div style="background:#fff; border:1px solid #e5e7eb; padding:12px; border-radius:8px;">
-                            <div style="font-weight:700; margin-bottom:8px;">Grading Criteria</div>
-                            <div style="font-size:12px; color:#6b7280; margin-bottom:10px;">Use the presets for Assignment, Test, and Exam, or add your own custom criteria.</div>
+                            <div style="font-weight:700; margin-bottom:8px;">Grading Criteria — <span id="unit-title-display">{{ old('title') ?: 'Untitled' }}</span></div>
+                                <div style="font-size:12px; color:#6b7280; margin-bottom:10px;">Use the presets for Assignment, Test, and Exam, or add your own custom criteria.</div>
                             <div id="criteria-list">
                                 <div class="criterion-row" data-index="0" style="display:grid; grid-template-columns: 1fr 1fr 80px; gap:8px; margin-bottom:8px; align-items:center;">
                                     <input type="text" class="criterion-name" placeholder="Assignment" value="Assignment" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
@@ -412,9 +413,10 @@
                                     <div style="display:flex; gap:8px; align-items:center;"><input type="number" class="criterion-weight" value="30" min="0" style="width:80px; padding:8px; border:1px solid #d1d5db; border-radius:6px;"><button type="button" class="btn btn-secondary remove-criterion">×</button></div>
                                 </div>
                             </div>
-                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:8px; align-items:center;">
+                            <div style="display:grid; grid-template-columns: 1fr 1fr 100px; gap:8px; margin-top:8px; align-items:center;">
                                 <input id="new-criterion-name" placeholder="Criterion name" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
                                 <input id="new-criterion-desc" placeholder="Short description (optional)" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
+                                <input id="new-criterion-weight" type="number" min="0" value="10" placeholder="Weight" style="padding:8px; border:1px solid #d1d5db; border-radius:6px;">
                             </div>
                             <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; align-items:center;">
                                 <button type="button" class="btn btn-secondary preset-criterion-btn" data-name="Assignment" data-desc="Homework, classwork, or submissions" data-weight="40">+ Assignment</button>
@@ -423,6 +425,13 @@
                                 <button type="button" id="add-criterion-btn" class="btn btn-primary">+ Add Custom Criterion</button>
                             </div>
                             <div style="margin-top:8px;">Total weight: <span id="total-weight">100</span>%</div>
+                            <div style="margin-top:8px;">
+                                <div id="weight-progress" style="width:100%; height:12px; background:#eef2ff; border-radius:8px; overflow:hidden;">
+                                    <div id="weight-progress-fill" style="width:100%; height:100%; background:#f97316; transition: width 200ms ease, background 200ms ease;"></div>
+                                </div>
+                                <div id="weight-remaining" style="margin-top:6px; font-size:12px; color:#6b7280;">Remaining: 0%</div>
+                            </div>
+                            <div id="total-weight-warning" style="display:none; margin-top:6px; color:#b91c1c; font-size:12px; font-weight:600;">Total weight must be exactly 100% before saving.</div>
                         </div>
                     </div>
                 </div>
@@ -441,6 +450,7 @@
                 </div>
                 <input type="hidden" name="grading_criteria" id="grading_criteria_input">
                 <input type="hidden" name="grade_scale" id="grade_scale_input">
+                <input type="hidden" name="ai_options" id="ai_options_input">
 
                 <div style="margin-bottom: 16px;">
                     <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #1f2937;">Order</label>
@@ -982,6 +992,34 @@ function openAssignmentModal() {
         const weights = Array.from(document.querySelectorAll('.criterion-weight')).map(i => parseFloat(i.value) || 0);
         const total = weights.reduce((s, v) => s + v, 0);
         document.getElementById('total-weight').textContent = total;
+
+        const warning = document.getElementById('total-weight-warning');
+        const chapterWeightInput = document.getElementById('unit-total-weight');
+        const chapterWeight = chapterWeightInput ? (parseFloat(chapterWeightInput.value) || 0) : 0;
+        const expected = chapterWeight > 0 ? chapterWeight : 100;
+        if (warning) {
+            warning.textContent = 'Assessment total must be exactly ' + expected + '%. Current total: ' + total + '%.';
+            warning.style.display = total === expected ? 'none' : 'block';
+        }
+
+        // update progress bar
+        const progressFill = document.getElementById('weight-progress-fill');
+        const remainingLabel = document.getElementById('weight-remaining');
+        if (progressFill && remainingLabel) {
+            const pct = expected > 0 ? Math.max(0, Math.min(100, (total / expected) * 100)) : 0;
+            progressFill.style.width = pct + '%';
+            const remaining = Math.round((expected - total) * 100) / 100;
+            remainingLabel.textContent = remaining >= 0 ? ('Remaining: ' + remaining + '%') : ('Over by: ' + Math.abs(remaining) + '%');
+            if (total === expected) {
+                progressFill.style.background = '#10b981';
+            } else if (total < expected) {
+                progressFill.style.background = '#f97316';
+            } else {
+                progressFill.style.background = '#ef4444';
+            }
+        }
+
+        return total;
     }
 
     function appendCriterionRow(name, description, weight) {
@@ -1011,11 +1049,25 @@ function openAssignmentModal() {
     function serializeCriteria() {
         const rows = Array.from(document.querySelectorAll('#criteria-list .criterion-row'));
         const items = rows.map(r => ({
+            assessment_type: r.querySelector('.criterion-name').value || '',
+            topic: (r.querySelector('.criterion-desc') ? r.querySelector('.criterion-desc').value : ''),
+            weight: parseFloat(r.querySelector('.criterion-weight').value) || 0,
+            // Backward-compatible keys for older readers
             name: r.querySelector('.criterion-name').value || '',
-            description: (r.querySelector('.criterion-desc') ? r.querySelector('.criterion-desc').value : ''),
-            weight: parseFloat(r.querySelector('.criterion-weight').value) || 0
+            description: (r.querySelector('.criterion-desc') ? r.querySelector('.criterion-desc').value : '')
         }));
         document.getElementById('grading_criteria_input').value = JSON.stringify(items);
+    }
+
+    function serializeAiOptions() {
+        const chapterWeightInput = document.getElementById('unit-total-weight');
+        const chapterWeight = chapterWeightInput ? (parseFloat(chapterWeightInput.value) || 0) : 0;
+        const aiInput = document.getElementById('ai_options_input');
+        if (aiInput) {
+            aiInput.value = JSON.stringify({
+                chapter_total_weight: chapterWeight
+            });
+        }
     }
 
     function serializeGradeScale() {
@@ -1060,18 +1112,48 @@ function openAssignmentModal() {
     });
 
     document.addEventListener('input', function(e) {
-        if (e.target && e.target.classList && e.target.classList.contains('criterion-weight')) {
+        if (e.target && e.target.classList && (e.target.classList.contains('criterion-weight') || e.target.classList.contains('criterion-name') || e.target.classList.contains('criterion-desc'))) {
             updateTotal(); serializeCriteria();
         }
 
         if (e.target && e.target.name && e.target.name.startsWith('grade_scale')) {
             serializeGradeScale();
         }
+
+        if (e.target && e.target.id === 'unit-total-weight') {
+            updateTotal(); serializeAiOptions();
+        }
     });
 
     // initial serialize
     document.addEventListener('DOMContentLoaded', function() {
         updateTotal(); serializeCriteria(); serializeGradeScale();
+        serializeAiOptions();
+        // live update unit title display
+        const titleInput = document.querySelector('#add-unit-form input[name="title"]');
+        const display = document.getElementById('unit-title-display');
+        if (titleInput && display) {
+            titleInput.addEventListener('input', function() { display.textContent = this.value || 'Untitled'; });
+            // initialize
+            display.textContent = titleInput.value || 'Untitled';
+        }
+
+        const addUnitForm = document.querySelector('#add-unit-form form[method="POST"]');
+        if (addUnitForm) {
+            addUnitForm.addEventListener('submit', function(e) {
+                const chapterWeightInput = document.getElementById('unit-total-weight');
+                const chapterWeight = chapterWeightInput ? (parseFloat(chapterWeightInput.value) || 0) : 0;
+                const expected = chapterWeight > 0 ? chapterWeight : 100;
+                const total = updateTotal();
+                serializeCriteria();
+                serializeGradeScale();
+                serializeAiOptions();
+                if (total !== expected) {
+                    e.preventDefault();
+                    alert('Assessment weights must total ' + expected + '%. Current total: ' + total + '%.');
+                }
+            });
+        }
     });
 })();
 

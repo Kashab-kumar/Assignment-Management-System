@@ -192,7 +192,13 @@ class StudentModuleController extends Controller
         $module->load([
             'course',
             'teacher',
-            'items' => fn ($query) => $query->with('creator')->latest('created_at'),
+            'items' => fn ($query) => $query->with([
+                'creator',
+                'unit.assessmentConfigurations',
+                'unit.assignments',
+                'unit.tests',
+                'unit.exams',
+            ])->latest('created_at'),
         ]);
 
         return view('student.modules.unit-outline', compact('course', 'module', 'moduleItemsEnabled'));

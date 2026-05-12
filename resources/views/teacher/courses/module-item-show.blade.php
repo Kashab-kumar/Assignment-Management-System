@@ -236,6 +236,12 @@
                     <div class="meta-label">Last Updated</div>
                     <div class="meta-value">{{ $item->updated_at->format('d M Y, h:i A') }}</div>
                 </div>
+                @if($item->unit)
+                <div class="meta-item">
+                    <div class="meta-label">Linked Unit</div>
+                    <div class="meta-value">{{ $item->unit->title }}</div>
+                </div>
+                @endif
             </div>
         </div>
 
