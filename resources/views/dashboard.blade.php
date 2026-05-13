@@ -11,7 +11,7 @@
     }
 
     .welcome-card {
-        background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+        background: linear-gradient(135deg, #111827 0%, #000000 100%);
         color: white;
         padding: 30px 32px;
         border-radius: 14px;
@@ -80,11 +80,6 @@
     }
     .btn:hover { background: #6d28d9; }
 </style>
-
-<div class="welcome-card">
-    <h2>Welcome back, {{ $student->name }}!</h2>
-    <p>Student ID: {{ $student->student_id }} | {{ $groupLabel }}: {{ $groupValue }}</p>
-</div>
 
 <div class="stats">
     <div class="stat-card">

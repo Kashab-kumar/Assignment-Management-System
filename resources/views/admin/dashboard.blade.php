@@ -21,7 +21,7 @@
     }
 
     .welcome-card {
-        background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+        background: linear-gradient(135deg, #111827 0%, #000000 100%);
         color: white;
         padding: 30px 32px;
         border-radius: 14px;
@@ -247,11 +247,6 @@
 @endphp
 
 <div class="dashboard-shell">
-    <div class="welcome-card">
-        <h2>Welcome back, {{ auth()->user()->name }}!</h2>
-        <p>Role: Administrator | Manage users, courses, and reports</p>
-    </div>
-
     <div class="dashboard-head">
         <div>
             <h1>Admin Dashboard</h1>

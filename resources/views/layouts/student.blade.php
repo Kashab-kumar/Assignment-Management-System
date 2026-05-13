@@ -37,13 +37,80 @@
             background-color: #111827;
         }
 
-        [data-theme="dark"] aside {
+        [data-theme="dark"] .top-nav {
             background-color: var(--sidebar-bg) !important;
             border-color: #374151 !important;
         }
 
-        [data-theme="dark"] aside * {
+        [data-theme="dark"] .top-nav * {
             color: var(--sidebar-text);
+        }
+
+        .top-nav-scroll {
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: max-content;
+        }
+
+        .top-nav-link {
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+            padding: 10px 20px;
+            font-size: 15px !important;
+            border-radius: 9999px;
+            text-decoration: none;
+        }
+
+        .top-nav-link-active {
+            background-color: #1f2937 !important;
+            color: #ffffff !important;
+        }
+
+        .top-nav-link-inactive {
+            color: #1f2937 !important;
+            background-color: transparent !important;
+        }
+
+        .top-nav-link-inactive:hover {
+            background-color: transparent !important;
+            color: #111827 !important;
+        }
+
+        .top-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .page-tab-header {
+            background-color: #111827;
+            color: #ffffff;
+            border-radius: 14px;
+            padding: 24px 28px;
+            margin-bottom: 24px;
+        }
+
+        .page-tab-title {
+            font-size: 32px;
+            line-height: 1.2;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .page-tab-subtitle {
+            margin-top: 8px;
+            margin-bottom: 0;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.86);
         }
 
         [data-theme="dark"] main {
@@ -116,70 +183,41 @@
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans" data-theme="light">
-    <div class="flex min-h-screen">
-        <!-- Sidebar -->
-        <aside class="w-64 bg-white border-r border-gray-200 fixed h-full flex flex-col overflow-y-auto z-10">
-            <!-- Navigation -->
-            <nav class="flex-1 p-3 space-y-1">
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                    <x-ui-icon name="dashboard" class="w-5 h-5 text-gray-900" />
-                    <span>Dashboard</span>
-                </a>
+    <div class="min-h-screen flex flex-col">
+        <header class="top-nav bg-white border-b border-gray-200 px-4 md:px-6 py-2 sticky top-0 z-20">
+            <div class="flex items-center justify-between w-full">
+                <nav class="top-nav-scroll flex-1 flex justify-center min-w-0">
+                    <div class="top-nav-links">
+                        <a href="{{ route('dashboard') }}" class="top-nav-link font-medium transition-colors {{ request()->routeIs('dashboard') ? 'top-nav-link-active' : 'top-nav-link-inactive' }}">Dashboard</a>
+                        <a href="{{ route('student.modules.index') }}" class="top-nav-link font-medium transition-colors {{ request()->routeIs('student.modules.*') ? 'top-nav-link-active' : 'top-nav-link-inactive' }}">Courses</a>
+                        <a href="{{ route('student.grades.index') }}" class="top-nav-link font-medium transition-colors {{ request()->routeIs('student.grades.*') ? 'top-nav-link-active' : 'top-nav-link-inactive' }}">My Grades</a>
+                        <a href="{{ route('student.rankings') }}" class="top-nav-link font-medium transition-colors {{ request()->routeIs('student.rankings') ? 'top-nav-link-active' : 'top-nav-link-inactive' }}">Class Rankings</a>
+                        <a href="{{ route('student.profile') }}" class="top-nav-link font-medium transition-colors {{ request()->routeIs('student.profile') ? 'top-nav-link-active' : 'top-nav-link-inactive' }}">My Profile</a>
+                    </div>
+                </nav>
 
-                <div class="pt-4 pb-2 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Academics</div>
-
-                <a href="{{ route('student.modules.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('student.modules.*') ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                    <x-ui-icon name="course" class="w-5 h-5 text-gray-900" />
-                    <span>Courses</span>
-                </a>
-
-                <a href="{{ route('student.grades.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('student.grades.*') ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                    <x-ui-icon name="grades" class="w-5 h-5 text-gray-900" />
-                    <span>My Grades</span>
-                </a>
-
-                <div class="pt-4 pb-2 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Performance</div>
-
-                <a href="{{ route('student.rankings') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('student.rankings') ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                    <x-ui-icon name="report" class="w-5 h-5 text-gray-900" />
-                    <span>Class Rankings</span>
-                </a>
-
-                <div class="pt-4 pb-2 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Account</div>
-
-                <a href="{{ route('student.profile') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('student.profile') ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                    <x-ui-icon name="person" class="w-5 h-5 text-gray-900" />
-                    <span>My Profile</span>
-                </a>
-            </nav>
-
-            <!-- Account Section -->
-            <div class="p-4 border-t border-gray-200">
-                @php($sidebarAvatarUrl = auth()->user()->avatar_path ? url('/storage/' . auth()->user()->avatar_path) : null)
-                <div class="flex items-center gap-2">
-                    <a href="{{ route('student.settings') }}" class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-900 flex-1 min-w-0">
-                        <div class="w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold flex-shrink-0 border-2 border-primary-300">
-                            @if($sidebarAvatarUrl)
-                                <img src="{{ $sidebarAvatarUrl }}" alt="{{ auth()->user()->name }}" class="w-full h-full rounded-full object-cover">
-                            @else
-                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                            @endif
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <div class="text-sm font-semibold truncate text-gray-900">{{ auth()->user()->name }}</div>
-                            <div class="text-xs text-gray-500">Student</div>
-                        </div>
-                        <svg class="w-4 h-4 text-primary-600 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.58.23-1.12.54-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.31.6.22l2.39-.96c.5.4 1.05.72 1.63.94l.36 2.54c.04.24.25.42.5.42h3.84c.25 0 .46-.18.5-.42l.36-2.54c.58-.23 1.12-.54 1.63-.94l2.39.96c.22.09.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5z"/>
-                        </svg>
-                    </a>
+                <div class="top-nav-actions shrink-0 flex items-center gap-4">
+                    <span class="text-sm text-gray-700 font-medium whitespace-nowrap">{{ auth()->user()->name }}</span>
+                    <form action="{{ route('logout', ['guard' => auth()->user()->role]) }}" method="POST" class="m-0">
+                        @csrf
+                        <button type="submit" class="px-6 py-2 rounded-full bg-black text-white hover:bg-gray-900 transition-colors text-sm font-medium border border-black whitespace-nowrap">Logout</button>
+                    </form>
                 </div>
             </div>
-        </aside>
+        </header>
 
         <!-- Main Content -->
-        <main class="flex-1 ml-64">
-            <div class="p-8">
+        <main class="flex-1">
+            <div class="p-4 md:p-8">
+                <div class="page-tab-header">
+                    <h1 class="page-tab-title">{{ request()->routeIs('student.modules.*') ? 'Courses' : (request()->routeIs('student.grades.*') ? 'My Grades' : (request()->routeIs('student.rankings*') ? 'Class Rankings' : (request()->routeIs('student.profile*') ? 'My Profile' : 'Dashboard'))) }}</h1>
+                    @if(request()->routeIs('dashboard'))
+                        <p class="page-tab-subtitle">Student ID: {{ auth()->user()->student->student_id ?? 'N/A' }} | Course: {{ auth()->user()->student && auth()->user()->student->course ? auth()->user()->student->course->name : 'N/A' }} | Class: {{ auth()->user()->student->class ?? 'N/A' }}</p>
+                    @else
+                        <p class="page-tab-subtitle">You are viewing the current section.</p>
+                    @endif
+                </div>
+
                 @if(session('role_notice'))
                     <div class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-sm">
                         {{ session('role_notice') }}
