@@ -6,7 +6,7 @@
 @section('content')
 <style>
     .container {
-        max-width: 1100px;
+        max-width: 1280px;
         margin: 0 auto;
         background: #ffffff;
         border-radius: 12px;
@@ -34,7 +34,7 @@
     }
 
     .body {
-        padding: 32px;
+        padding: 24px;
     }
 
     .form-group {
@@ -188,6 +188,329 @@
         border-color: #9ca3af;
     }
 
+    .unit-outline-block {
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+        background: #ffffff;
+        margin-bottom: 24px;
+    }
+
+    /* Ensure top border appears when multiple tbody.unit-outline-block are adjacent */
+    .unit-outline-block + .unit-outline-block tr:first-child td,
+    .sheet-table tbody + tbody tr:first-child td {
+        border-top: 1px solid #d1d5db !important;
+    }
+
+    /* Make sure the left chapter cell keeps the pale background like the first block */
+    .unit-outline-block .chapter-cell { background: #f8fafc; }
+
+    .sheet-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        background: #ffffff;
+    }
+
+    .sheet-table th,
+    .sheet-table td {
+        border: 1px solid #d1d5db;
+        vertical-align: middle;
+        padding: 0;
+        min-height: 40px;
+    }
+
+    .sheet-table thead th {
+        background: #f3f4f6;
+        color: #111827;
+        font-size: 13px;
+        font-weight: 700;
+        text-align: left;
+        padding: 12px;
+        border-color: #9ca3af;
+    }
+
+    .sheet-cell {
+        padding: 10px;
+        background: #ffffff;
+        height: 100%;
+    }
+
+    .sheet-cell-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 6px;
+    }
+
+    .sheet-total-cell {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: 100%;
+        font-weight: 600;
+        color: #111827;
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .sheet-upload-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100%;
+        padding: 10px;
+    }
+
+    .sheet-upload-box {
+        width: 100%;
+        border: 1px dashed #d1d5db;
+        border-radius: 6px;
+        padding: 12px 8px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: #fafafa;
+    }
+
+    .sheet-upload-box:hover {
+        background: #f3f4f6;
+        border-color: #7c3aed;
+    }
+
+    .sheet-upload-box .upload-title {
+        margin-top: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .sheet-upload-box .upload-subtitle {
+        margin-top: 2px;
+        font-size: 10px;
+        color: #6b7280;
+    }
+
+    .file-preview-card {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 10px;
+        padding: 10px;
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+    }
+
+    .file-preview-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    .file-preview-icon {
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    .file-preview-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .file-preview-name {
+        font-weight: 600;
+        color: #1f2937;
+        font-size: 12px;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .file-preview-meta {
+        font-size: 10px;
+        color: #6b7280;
+        margin-top: 2px;
+    }
+
+    .file-preview-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .file-preview-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px 10px;
+        border-radius: 4px;
+        border: 1px solid transparent;
+        font-size: 11px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .file-preview-link-open {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .file-preview-link-download {
+        background: #ecfccb;
+        color: #3f6212;
+    }
+
+    .upload-success {
+        font-size: 11px;
+        font-weight: 600;
+        color: #059669;
+    }
+
+    .sheet-input,
+    .sheet-select {
+        width: 100%;
+        border: none;
+        outline: none;
+        background: transparent;
+        font-size: 13px;
+        padding: 8px;
+        box-sizing: border-box;
+        font-family: inherit;
+    }
+
+    .sheet-input {
+        min-height: 36px;
+    }
+
+    .sheet-topic {
+        min-height: 36px;
+    }
+
+    .sheet-number {
+        text-align: center;
+    }
+
+    .task-actions {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+        margin-top: 6px;
+    }
+
+    .task-action-btn {
+        border: 1px solid #d1d5db;
+        background: #f8fafc;
+        color: #111827;
+        border-radius: 4px;
+        padding: 3px 8px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .task-action-btn:hover {
+        background: #e5e7eb;
+        border-color: #9ca3af;
+    }
+
+    .criterion-task-box {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .criterion-task-box .criterion-topic {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .criterion-remove-btn {
+        flex-shrink: 0;
+        width: 28px;
+        height: 28px;
+        line-height: 1;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        background: #fff7f7;
+        color: #dc2626;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .criterion-remove-btn:hover {
+        background: #fee2e2;
+        border-color: #fca5a5;
+    }
+
+    .sheet-row {
+        height: auto;
+    }
+
+    .sheet-summary-row td {
+        background: #f9fafb;
+        font-weight: 700;
+        font-size: 13px;
+        padding: 12px;
+    }
+
+    .sheet-summary-label {
+        text-align: left;
+    }
+
+    .sheet-summary-value {
+        text-align: center;
+    }
+
+    .sheet-compact-note {
+        margin-top: 4px;
+        font-size: 10px;
+        color: #6b7280;
+    }
+
+    .teacher-only-note {
+        margin-top: 4px;
+        font-size: 11px;
+        color: #6b7280;
+    }
+
+    .sheet-note {
+        font-size: 11px;
+        color: #6b7280;
+        margin-top: 4px;
+    }
+
+    .chapter-header-cell {
+        background: #f0f4f8;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .outline-title {
+        width: 100%;
+        min-height: 68px;
+        resize: none;
+        overflow: hidden;
+        white-space: normal;
+        word-wrap: break-word;
+        word-break: break-word;
+        line-height: 1.4;
+        box-sizing: border-box;
+    }
+
+    .outline-title::-webkit-scrollbar {
+        display: none;
+    }
+
     /* Hide the purple duplicate Add Assessment button inside each chapter block */
     .unit-outline-block .btn.btn-primary.add-criterion-btn {
         display: none !important;
@@ -251,151 +574,111 @@
             <input type="hidden" name="type" value="unit_outline">
 
             <div id="unit-outline-blocks">
-            <div class="unit-outline-block" data-outline-index="0" style="background:#f8fafc; border:1px solid #e5e7eb; border-radius:12px; padding:20px; margin-bottom:24px;">
-                <div class="outline-heading" data-outline-heading style="font-weight:700; font-size:16px; margin-bottom:14px; color:#1f2937;">Chapter/Unit 1</div>
-                <div class="form-group">
-                    <label for="outline-title-0">Chapter/Unit Title <span class="required">*</span></label>
-                          <input type="text" id="outline-title-0" name="outlines[0][title]" class="form-control outline-title"
-                              value="{{ old('outlines.0.title', old('title')) }}"
-                           placeholder="e.g., Introduction to Photosynthesis" required>
-                    @error('title')
-                        <div class="error-message">{{ $message }}</div>
-                    @enderror
-                </div>
+                <table class="sheet-table" id="unit-outline-table">
+                    <colgroup>
+                        <col style="width: 20%;">
+                        <col style="width: 30%;">
+                        <col style="width: 10%;">
+                        <col style="width: 10%;">
+                        <col style="width: 12%;">
+                        <col style="width: 18%;">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Chapter/unit</th>
+                            <th>Tasks</th>
+                            <th>Marks</th>
+                            <th>Weightage</th>
+                            <th>Total Weightage</th>
+                            <th>Question bank</th>
+                        </tr>
+                    </thead>
+                    <tbody class="unit-outline-block" data-outline-index="0" id="criteria-list-0">
+                        <tr class="criterion-row sheet-row" data-index="0">
+                               <td class="chapter-cell chapter-header-cell" rowspan="1">
+                                <div class="sheet-cell">
+                                    <div class="sheet-cell-title">Chapter/unit title</div>
+                                    <textarea id="outline-title-0" name="outlines[0][title]" class="outline-title sheet-input"
+                                        placeholder="e.g., Chapter 1" required>{{ old('outlines.0.title', '') }}</textarea>
+                                    <div class="sheet-compact-note">Chapter identifier</div>
+                                    @error('title')
+                                        <div class="error-message">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </td>
+                            <td>
+                                <input type="text" name="outlines[0][criteria][0][topic]" class="criterion-topic sheet-input sheet-topic" placeholder="e.g., Assignment on Network" value="{{ old('outlines.0.criteria.0.topic', '') }}">
+                                <div class="task-actions">
+                                    <button type="button" class="task-action-btn task-add-btn" data-type="assignment" data-topic="Assignment on Network" data-weight="10">+ Assignment</button>
+                                    <button type="button" class="task-action-btn task-add-btn" data-type="test" data-topic="Test" data-weight="15">+ Test</button>
+                                    <button type="button" class="task-action-btn task-add-btn" data-type="quiz" data-topic="quiz" data-weight="5">+ Quiz</button>
+                                    <button type="button" class="task-action-btn task-add-btn" data-type="exam" data-topic="exam" data-weight="20">+ Exam</button>
+                                </div>
+                            </td>
+                            <td>
+                                <input type="number" name="outlines[0][criteria][0][marks]" class="criterion-marks sheet-input sheet-number" value="{{ old('outlines.0.criteria.0.marks', '') }}" min="0" step="0.01" placeholder="e.g., 15">
+                            </td>
+                            <td>
+                                <input type="number" name="outlines[0][criteria][0][weight]" class="criterion-weight sheet-input sheet-number" value="{{ old('outlines.0.criteria.0.weight', '') }}" min="0" step="0.01" placeholder="e.g., 10%">
+                            </td>
+                                <td class="total-weight-cell chapter-header-cell" rowspan="1">
+                                <div class="sheet-cell">
+                                    <div class="sheet-cell-title">Total Weightage</div>
+                                    <input type="number" id="outline-chapter-total-weight-0" name="outlines[0][chapter_total_weight]" class="outline-total-weight sheet-input sheet-number"
+                                        value="{{ old('outlines.0.chapter_total_weight', old('chapter_total_weight', '')) }}" min="0" max="100" step="0.01"
+                                        placeholder="e.g., 100">
+                                    <div id="total-weight-0" class="sheet-total-cell" style="font-size: 16px; margin-top: 4px;">0%</div>
+                                    <div id="weight-remaining-0" class="sheet-compact-note" style="text-align:center;">Remaining: 0%</div>
+                                    <div id="total-weight-warning-0" style="display:none; margin-top:6px; color:#dc2626; font-size:11px; font-weight:600; text-align:center;"></div>
+                                </div>
+                            </td>
+                                <td class="question-bank-cell chapter-header-cell" rowspan="1">
+                                <div class="sheet-cell">
+                                    <div class="sheet-cell-title">Question bank</div>
+                                    <label class="sheet-upload-box" id="upload-box-0">
+                                        <div id="upload-icon-0" style="font-size:20px; color:#6b7280;">📁</div>
+                                        <div id="upload-text-0" class="upload-title">File upload</div>
+                                        <div class="upload-subtitle">PDF, DOC, DOCX, TXT</div>
+                                        <input type="file" id="outline-file-0" name="outlines[0][file]" accept=".pdf,.doc,.docx,.txt" onchange="handleFileUpload(this, 0)" style="display:none">
+                                    </label>
+                                    <div class="teacher-only-note">Teacher only</div>
 
-                <div class="form-group">
-                    <label for="outline-chapter-total-weight-0">Chapter/Unit Total Weight (%)</label>
-                          <input type="number" id="outline-chapter-total-weight-0" name="outlines[0][chapter_total_weight]" class="form-control outline-total-weight"
-                              value="{{ old('outlines.0.chapter_total_weight', old('chapter_total_weight', '100')) }}" min="0" max="100" step="0.01"
-                           placeholder="e.g., 20">
-                    <small style="display:block; margin-top:6px; color:#6b7280; font-size:12px;">This creates the actual Unit record for the module. The assessment rows below will be linked to it automatically.</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="outline-description-0">Learning objectives & description</label>
-                    <textarea id="outline-description-0" name="outlines[0][description]" class="form-control outline-description"
-                              placeholder="Describe what students should achieve, what topics this chapter covers, and any special instructions...">{{ old('outlines.0.description', old('description')) }}</textarea>
-                    @error('description')
-                        <div class="error-message">{{ $message }}</div>
-                    @enderror
-                </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label for="outline-file-0">Upload unit outline file</label>
-                    <label class="upload-box" id="upload-box-0" style="display:block; border:2px dashed #e5e7eb; border-radius:8px; padding:28px; text-align:center; cursor:pointer; margin-top:8px; transition: all 0.3s ease;">
-                        <div id="upload-icon-0" style="font-size:24px; color:#6b7280;">📁</div>
-                        <div id="upload-text-0" style="margin-top:8px; font-weight:600;">Upload unit outline file</div>
-                        <div style="font-size:12px; color:#9ca3af; margin-top:6px;">PDF, DOC, DOCX, TXT — AI will use this for auto-grading</div>
-                        <input type="file" id="outline-file-0" name="outlines[0][file]" accept=".pdf,.doc,.docx,.txt" onchange="handleFileUpload(this, 0)" style="display:none">
-                    </label>
-
-                    <!-- File Preview Section -->
-                    <div id="file-preview-section-0" style="display:none; margin-top: 16px; padding: 16px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px;">
-                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                            <div id="file-icon-0" style="font-size: 32px;">📄</div>
-                            <div style="flex: 1;">
-                                <div id="file-name-0" style="font-weight: 600; color: #1f2937; word-break: break-all;"></div>
-                                <div id="file-size-0" style="font-size: 12px; color: #6b7280; margin-top: 2px;"></div>
-                                <div id="file-type-0" style="font-size: 11px; color: #9ca3af; margin-top: 2px;"></div>
-                            </div>
-                            <button type="button" onclick="removeFile(0)" style="background: #fee2e2; color: #dc2626; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500;">Remove</button>
-                        </div>
-
-                        <!-- Preview Actions -->
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                            <button type="button" id="preview-btn-0" onclick="previewFile(0)" style="background: #dbeafe; color: #1d4ed8; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px;">
-                                👁️ Open in Browser
-                            </button>
-                        </div>
-
-                        <!-- Quick Text Preview (for TXT files only) -->
-                        <div id="text-preview-0" style="display:none; margin-top: 12px; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background: white;">
-                            <div style="background: #f3f4f6; padding: 8px 12px; font-size: 12px; color: #4b5563; font-weight: 500; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
-                                <span>Text Preview (first 1000 characters)</span>
-                                <button type="button" onclick="previewFile(0)" style="background: none; border: none; color: #1d4ed8; cursor: pointer; font-size: 12px; text-decoration: underline;">Open full file →</button>
-                            </div>
-                            <pre id="text-content-0" style="width: 100%; height: 200px; margin: 0; padding: 12px; overflow: auto; font-size: 13px; line-height: 1.5; color: #374151; background: #fafafa; white-space: pre-wrap; word-wrap: break-word;"></pre>
-                        </div>
-
-                        <div id="preview-error-0" style="display:none; margin-top: 12px; padding: 12px; background: #fee2e2; color: #dc2626; border-radius: 6px; font-size: 13px;"></div>
-                    </div>
-                </div>
-
-                <div style="margin-top:20px; margin-bottom:4px;">
-                    <div style="font-weight:700; font-size:16px; margin-bottom:10px; color:#1f2937;">Assessments for <span id="chapter-title-display-0">{{ old('title') ?: 'Untitled' }}</span></div>
-                    <div style="font-size:12px; color:#6b7280; margin-bottom:14px;">Add the Assignment, Test, and Exam rows that belong to this chapter/unit. These assessments are saved to the same Unit record created above.</div>
-                </div>
-                <div style="background:#fff; border:1px solid #e5e7eb; padding:16px; border-radius:8px;">
-                    <div style="font-size:12px; color:#6b7280; margin-bottom:10px;">Keep this section inside the chapter flow so the teacher adds the chapter and its assessments together.</div>
-                    <div id="criteria-list-0" class="criteria-list">
-                        <div class="criterion-row" data-index="0" style="display:grid; grid-template-columns: 1fr 1fr 100px 40px; gap:10px; margin-bottom:10px; align-items:center;">
-                            <select name="outlines[0][criteria][0][type]" class="criterion-type form-control" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-                                <option value="assignment" @selected(old('outlines.0.criteria.0.type', old('criteria.0.type', 'assignment')) === 'assignment')>Assignment</option>
-                                <option value="test" @selected(old('outlines.0.criteria.0.type', old('criteria.0.type')) === 'test')>Test</option>
-                                <option value="exam" @selected(old('outlines.0.criteria.0.type', old('criteria.0.type')) === 'exam')>Exam</option>
-                            </select>
-                            <input type="text" name="outlines[0][criteria][0][topic]" class="criterion-topic form-control" placeholder="Topic" value="{{ old('outlines.0.criteria.0.topic', old('criteria.0.topic', 'Homework, classwork, or submissions')) }}" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-                            <input type="number" name="outlines[0][criteria][0][weight]" class="criterion-weight form-control" value="{{ old('outlines.0.criteria.0.weight', old('criteria.0.weight', '40')) }}" min="0" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-                            <button type="button" class="btn btn-outline remove-criterion" style="padding:8px 12px;">×</button>
-                        </div>
-                        <div class="criterion-row" data-index="1" style="display:grid; grid-template-columns: 1fr 1fr 100px 40px; gap:10px; margin-bottom:10px; align-items:center;">
-                            <select name="outlines[0][criteria][1][type]" class="criterion-type form-control" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-                                <option value="assignment" @selected(old('outlines.0.criteria.1.type', old('criteria.1.type')) === 'assignment')>Assignment</option>
-                                <option value="test" @selected(old('outlines.0.criteria.1.type', old('criteria.1.type', 'test')) === 'test')>Test</option>
-                                <option value="exam" @selected(old('outlines.0.criteria.1.type', old('criteria.1.type')) === 'exam')>Exam</option>
-                            </select>
-                            <input type="text" name="outlines[0][criteria][1][topic]" class="criterion-topic form-control" placeholder="Topic" value="{{ old('outlines.0.criteria.1.topic', old('criteria.1.topic', 'Unit test or quiz')) }}" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-                            <input type="number" name="outlines[0][criteria][1][weight]" class="criterion-weight form-control" value="{{ old('outlines.0.criteria.1.weight', old('criteria.1.weight', '30')) }}" min="0" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-                            <button type="button" class="btn btn-outline remove-criterion" style="padding:8px 12px;">×</button>
-                        </div>
-                        <div class="criterion-row" data-index="2" style="display:grid; grid-template-columns: 1fr 1fr 100px 40px; gap:10px; margin-bottom:10px; align-items:center;">
-                            <select name="outlines[0][criteria][2][type]" class="criterion-type form-control" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-                                <option value="assignment" @selected(old('outlines.0.criteria.2.type', old('criteria.2.type')) === 'assignment')>Assignment</option>
-                                <option value="test" @selected(old('outlines.0.criteria.2.type', old('criteria.2.type')) === 'test')>Test</option>
-                                <option value="exam" @selected(old('outlines.0.criteria.2.type', old('criteria.2.type', 'exam')) === 'exam')>Exam</option>
-                            </select>
-                            <input type="text" name="outlines[0][criteria][2][topic]" class="criterion-topic form-control" placeholder="Topic" value="{{ old('outlines.0.criteria.2.topic', old('criteria.2.topic', 'Midterm or final exam')) }}" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-                            <input type="number" name="outlines[0][criteria][2][weight]" class="criterion-weight form-control" value="{{ old('outlines.0.criteria.2.weight', old('criteria.2.weight', '30')) }}" min="0" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-                            <button type="button" class="btn btn-outline remove-criterion" style="padding:8px 12px;">×</button>
-                        </div>
-                    </div>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr 100px 40px; gap:10px; margin-top:10px; align-items:center;">
-                        <select id="new-criterion-type-0" class="form-control new-criterion-type" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-                            <option value="assignment">Assignment</option>
-                            <option value="test">Test</option>
-                            <option value="exam">Exam</option>
-                        </select>
-                        <input id="new-criterion-topic-0" placeholder="Topic (optional)" class="form-control new-criterion-topic" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-                        <input id="new-criterion-weight-0" type="number" min="0" placeholder="Weight" value="10" class="form-control new-criterion-weight" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-                        <div></div>
-                    </div>
-                    <div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
-                        <button type="button" class="btn btn-outline preset-criterion-btn" data-type="assignment" data-topic="Homework, classwork, or submissions" data-weight="40">+ Assignment</button>
-                        <button type="button" class="btn btn-outline preset-criterion-btn" data-type="test" data-topic="Unit test or quiz" data-weight="30">+ Test</button>
-                        <button type="button" class="btn btn-outline preset-criterion-btn" data-type="exam" data-topic="Midterm or final exam" data-weight="30">+ Exam</button>
-                        <!-- Purple "+ Add Assessment" removed (duplicate); use preset buttons or the smaller add button instead -->
-                        <span style="margin-left:auto; font-weight:600; color:#4b5563;">Total weight: <span id="total-weight-0">100</span>%</span>
-                    </div>
-                    <div style="margin-top:8px;">
-                        <div id="weight-progress-0" style="width:100%; height:12px; background:#eef2ff; border-radius:8px; overflow:hidden;">
-                            <div id="weight-progress-fill-0" style="width:100%; height:100%; background:#f97316; transition: width 200ms ease, background 200ms ease;"></div>
-                        </div>
-                        <div id="weight-remaining-0" style="margin-top:6px; font-size:12px; color:#6b7280;">Remaining: 0%</div>
-                    </div>
-                    <div id="total-weight-warning-0" style="display:none; margin-top:8px; color:#b91c1c; font-size:12px; font-weight:600;">Assessment total must match chapter/unit total weight before saving.</div>
-                </div>
-
-            </div>
-
-            <input type="hidden" name="outlines[0][grading_criteria]" class="grading-criteria-input">
-            <input type="hidden" name="outlines[0][grade_scale]" class="grade-scale-input">
-            <input type="hidden" name="outlines[0][ai_options]" class="ai-options-input">
+                                    <div id="file-preview-section-0" class="file-preview-card" style="display:none;">
+                                        <div class="file-preview-row">
+                                            <div id="file-icon-0" class="file-preview-icon">📄</div>
+                                            <div class="file-preview-info">
+                                                <div id="file-name-0" class="file-preview-name"></div>
+                                                <div id="file-size-0" class="file-preview-meta"></div>
+                                            </div>
+                                        </div>
+                                        <div class="file-preview-actions">
+                                            <a id="preview-btn-0" class="file-preview-link file-preview-link-open" href="#" target="_blank" rel="noopener noreferrer">Open</a>
+                                            <a id="download-btn-0" class="file-preview-link file-preview-link-download" href="#" download>Download</a>
+                                            <button type="button" onclick="removeFile(0)" class="file-preview-link" style="background:#fee2e2;color:#dc2626;">Remove</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody id="sheet-summary-body">
+                        <tr class="sheet-summary-row">
+                            <td class="sheet-summary-label">Total</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td id="overall-total-weight" class="sheet-summary-value">0%</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
 
             </div>
 
             <div style="display:flex; gap:12px; justify-content:flex-start; margin-bottom:16px;">
                 <button type="button" id="add-outline-btn" class="btn btn-outline" onclick="cloneOutlineBlock()">+ Add Another Chapter/Unit</button>
             </div>
-
+            </div>
             <div class="form-actions">
                 <a href="{{ route('teacher.courses.modules.show', [$course, $module]) }}" class="btn btn-outline">Cancel</a>
                 <button type="submit" class="btn btn-primary">Save Unit Outlines</button>
@@ -406,7 +689,7 @@
 
 <script>
 const uploadedFiles = {};
-const fileContents = {};
+const uploadedFileUrls = {};
 
 function formatFileSize(bytes) {
     if (bytes === 0) return '0 Bytes';
@@ -436,74 +719,189 @@ function getOutlineIndexFromElement(element) {
     return block ? parseInt(block.dataset.outlineIndex, 10) : 0;
 }
 
+function buildChapterSection(index, values = {}) {
+    const title = values.title || '';
+    const chapterTotalWeight = values.chapter_total_weight ?? '';
+    const topic0 = values.topic0 || '';
+    const topic1 = values.topic1 || '';
+    const topic2 = values.topic2 || '';
+    const marks0 = values.marks0 ?? '';
+    const marks1 = values.marks1 ?? '';
+    const marks2 = values.marks2 ?? '';
+    const weight0 = values.weight0 ?? '';
+    const weight1 = values.weight1 ?? '';
+    const weight2 = values.weight2 ?? '';
+
+    return `
+        <tbody class="unit-outline-block" data-outline-index="${index}" id="criteria-list-${index}">
+            <tr class="criterion-row sheet-row" data-index="0">
+                <td class="chapter-cell chapter-header-cell" rowspan="1">
+                    <div class="sheet-cell">
+                        <div class="sheet-cell-title">Chapter/unit title</div>
+                        <textarea id="outline-title-${index}" name="outlines[${index}][title]" class="outline-title sheet-input"
+                            placeholder="e.g., Chapter ${index + 1}" required>${String(title).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/'/g, '&#039;')}</textarea>
+                        <div class="sheet-compact-note">Chapter identifier</div>
+                    </div>
+                </td>
+                <td>
+                    <input type="text" name="outlines[${index}][criteria][0][topic]" class="criterion-topic sheet-input sheet-topic" placeholder="e.g., Assignment on Network" value="${String(topic0).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/'/g, '&#039;')}">
+                    <div class="task-actions">
+                        <button type="button" class="task-action-btn task-add-btn" data-type="assignment" data-topic="Assignment on Network" data-weight="10">+ Assignment</button>
+                        <button type="button" class="task-action-btn task-add-btn" data-type="test" data-topic="Test" data-weight="15">+ Test</button>
+                        <button type="button" class="task-action-btn task-add-btn" data-type="quiz" data-topic="quiz" data-weight="5">+ Quiz</button>
+                        <button type="button" class="task-action-btn task-add-btn" data-type="exam" data-topic="exam" data-weight="20">+ Exam</button>
+                    </div>
+                </td>
+                <td>
+                    <input type="number" name="outlines[${index}][criteria][0][marks]" class="criterion-marks sheet-input sheet-number" value="${marks0}" min="0" step="0.01" placeholder="e.g., 15">
+                </td>
+                <td>
+                    <input type="number" name="outlines[${index}][criteria][0][weight]" class="criterion-weight sheet-input sheet-number" value="${weight0}" min="0" step="0.01" placeholder="e.g., 10%">
+                </td>
+                <td class="total-weight-cell chapter-header-cell" rowspan="1">
+                    <div class="sheet-cell">
+                        <div class="sheet-cell-title">Total Weightage</div>
+                        <input type="number" id="outline-chapter-total-weight-${index}" name="outlines[${index}][chapter_total_weight]" class="outline-total-weight sheet-input sheet-number"
+                            value="${chapterTotalWeight}" min="0" max="100" step="0.01"
+                            placeholder="e.g., 100">
+                        <div id="total-weight-${index}" class="sheet-total-cell" style="font-size: 16px; margin-top: 4px;">0%</div>
+                        <div id="weight-remaining-${index}" class="sheet-compact-note" style="text-align:center;">Remaining: 0%</div>
+                        <div id="total-weight-warning-${index}" style="display:none; margin-top:6px; color:#dc2626; font-size:11px; font-weight:600; text-align:center;"></div>
+                    </div>
+                </td>
+                <td class="question-bank-cell chapter-header-cell" rowspan="1">
+                    <div class="sheet-cell">
+                        <div class="sheet-cell-title">Question bank</div>
+                        <label class="sheet-upload-box" id="upload-box-${index}">
+                            <div id="upload-icon-${index}" style="font-size:20px; color:#6b7280;">📁</div>
+                            <div id="upload-text-${index}" class="upload-title">File upload</div>
+                            <div class="upload-subtitle">PDF, DOC, DOCX, TXT</div>
+                            <input type="file" id="outline-file-${index}" name="outlines[${index}][file]" accept=".pdf,.doc,.docx,.txt" onchange="handleFileUpload(this, ${index})" style="display:none">
+                        </label>
+                        <div class="teacher-only-note">Teacher only</div>
+
+                        <div id="file-preview-section-${index}" class="file-preview-card" style="display:none;">
+                            <div class="file-preview-row">
+                                <div id="file-icon-${index}" class="file-preview-icon">📄</div>
+                                <div class="file-preview-info">
+                                    <div id="file-name-${index}" class="file-preview-name"></div>
+                                    <div id="file-size-${index}" class="file-preview-meta"></div>
+                                </div>
+                            </div>
+                            <div class="file-preview-actions">
+                                <a id="preview-btn-${index}" class="file-preview-link file-preview-link-open" href="#" target="_blank" rel="noopener noreferrer">Open</a>
+                                <a id="download-btn-${index}" class="file-preview-link file-preview-link-download" href="#" download>Download</a>
+                                <button type="button" onclick="removeFile(${index})" class="file-preview-link" style="background:#fee2e2;color:#dc2626;">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            ${renderDefaultCriteriaRows(index)}
+        </tbody>`;
+}
+
 function renderDefaultCriteriaRows(index) {
     return `
-        <div class="criterion-row" data-index="0" style="display:grid; grid-template-columns: 1fr 1fr 100px 40px; gap:10px; margin-bottom:10px; align-items:center;">
-            <select name="outlines[${index}][criteria][0][type]" class="criterion-type form-control" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-                <option value="assignment" selected>Assignment</option>
-                <option value="test">Test</option>
-                <option value="exam">Exam</option>
-            </select>
-            <input type="text" name="outlines[${index}][criteria][0][topic]" class="criterion-topic form-control" placeholder="Topic" value="Homework, classwork, or submissions" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-            <input type="number" name="outlines[${index}][criteria][0][weight]" class="criterion-weight form-control" value="40" min="0" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-            <button type="button" class="btn btn-outline remove-criterion" style="padding:8px 12px;">×</button>
-        </div>
-        <div class="criterion-row" data-index="1" style="display:grid; grid-template-columns: 1fr 1fr 100px 40px; gap:10px; margin-bottom:10px; align-items:center;">
-            <select name="outlines[${index}][criteria][1][type]" class="criterion-type form-control" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-                <option value="assignment">Assignment</option>
-                <option value="test" selected>Test</option>
-                <option value="exam">Exam</option>
-            </select>
-            <input type="text" name="outlines[${index}][criteria][1][topic]" class="criterion-topic form-control" placeholder="Topic" value="Unit test or quiz" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-            <input type="number" name="outlines[${index}][criteria][1][weight]" class="criterion-weight form-control" value="30" min="0" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-            <button type="button" class="btn btn-outline remove-criterion" style="padding:8px 12px;">×</button>
-        </div>
-        <div class="criterion-row" data-index="2" style="display:grid; grid-template-columns: 1fr 1fr 100px 40px; gap:10px; margin-bottom:10px; align-items:center;">
-            <select name="outlines[${index}][criteria][2][type]" class="criterion-type form-control" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-                <option value="assignment">Assignment</option>
-                <option value="test">Test</option>
-                <option value="exam" selected>Exam</option>
-            </select>
-            <input type="text" name="outlines[${index}][criteria][2][topic]" class="criterion-topic form-control" placeholder="Topic" value="Midterm or final exam" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-            <input type="number" name="outlines[${index}][criteria][2][weight]" class="criterion-weight form-control" value="30" min="0" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;">
-            <button type="button" class="btn btn-outline remove-criterion" style="padding:8px 12px;">×</button>
-        </div>`;
+        <tr class="criterion-row sheet-row" data-index="1">
+            <td>
+                <div class="criterion-task-box">
+                    <input type="text" name="outlines[${index}][criteria][1][topic]" class="criterion-topic sheet-input sheet-topic" placeholder="Add a task title" value="">
+                    <button type="button" class="criterion-remove-btn remove-criterion" aria-label="Remove task">×</button>
+                </div>
+                <div class="task-actions">
+                    <button type="button" class="task-action-btn task-add-btn" data-type="assignment" data-topic="Homework, classwork, or submissions" data-weight="10">+ Assignment</button>
+                    <button type="button" class="task-action-btn task-add-btn" data-type="test" data-topic="Unit test or quiz" data-weight="15">+ Test</button>
+                    <button type="button" class="task-action-btn task-add-btn" data-type="exam" data-topic="Midterm or final exam" data-weight="5">+ Exam</button>
+                </div>
+            </td>
+            <td><input type="number" name="outlines[${index}][criteria][1][marks]" class="criterion-marks sheet-input sheet-number" value="" min="0" step="0.01" placeholder="Marks"></td>
+            <td><input type="number" name="outlines[${index}][criteria][1][weight]" class="criterion-weight sheet-input sheet-number" value="" min="0" step="0.01" placeholder="Weight"></td>
+        </tr>
+        <tr class="criterion-row sheet-row" data-index="2">
+            <td>
+                <div class="criterion-task-box">
+                    <input type="text" name="outlines[${index}][criteria][2][topic]" class="criterion-topic sheet-input sheet-topic" placeholder="Add a task title" value="">
+                    <button type="button" class="criterion-remove-btn remove-criterion" aria-label="Remove task">×</button>
+                </div>
+            </td>
+            <td><input type="number" name="outlines[${index}][criteria][2][marks]" class="criterion-marks sheet-input sheet-number" value="" min="0" step="0.01" placeholder="Marks"></td>
+            <td><input type="number" name="outlines[${index}][criteria][2][weight]" class="criterion-weight sheet-input sheet-number" value="" min="0" step="0.01" placeholder="Weight"></td>
+        </tr>
+        <tr class="criterion-row sheet-row" data-index="3">
+            <td>
+                <div class="criterion-task-box">
+                    <input type="text" name="outlines[${index}][criteria][3][topic]" class="criterion-topic sheet-input sheet-topic" placeholder="Add a task title" value="">
+                    <button type="button" class="criterion-remove-btn remove-criterion" aria-label="Remove task">×</button>
+                </div>
+            </td>
+            <td><input type="number" name="outlines[${index}][criteria][3][marks]" class="criterion-marks sheet-input sheet-number" value="" min="0" step="0.01" placeholder="Marks"></td>
+            <td><input type="number" name="outlines[${index}][criteria][3][weight]" class="criterion-weight sheet-input sheet-number" value="" min="0" step="0.01" placeholder="Weight"></td>
+        </tr>`;
+}
+
+function syncSheetRowspans(block) {
+    const rows = block.querySelectorAll('.criterion-row');
+    const rowCount = Math.max(rows.length, 1);
+
+    const chapterCell = block.querySelector('.chapter-cell');
+    const totalCell = block.querySelector('.total-weight-cell');
+    const questionCell = block.querySelector('.question-bank-cell');
+
+    if (chapterCell) chapterCell.rowSpan = rowCount;
+    if (totalCell) totalCell.rowSpan = rowCount;
+    if (questionCell) questionCell.rowSpan = rowCount;
 }
 
 function updateTotal(block) {
     const weights = Array.from(block.querySelectorAll('.criterion-weight')).map(input => parseFloat(input.value) || 0);
     const total = weights.reduce((sum, value) => sum + value, 0);
     const index = block.dataset.outlineIndex;
-    const totalEl = block.querySelector('#total-weight-' + index);
-    if (totalEl) totalEl.textContent = total;
-
-    const warning = block.querySelector('#total-weight-warning-' + index);
     const chapterWeightInput = block.querySelector('.outline-total-weight');
-    const chapterWeight = chapterWeightInput ? (parseFloat(chapterWeightInput.value) || 0) : 0;
-    const expected = chapterWeight > 0 ? chapterWeight : 100;
-
-    if (warning) {
-        warning.textContent = 'Assessment total must be exactly ' + expected + '%. Current total: ' + total + '%.';
-        warning.style.display = total === expected ? 'none' : 'block';
+    const totalEl = block.querySelector('#total-weight-' + index);
+    if (totalEl) {
+        totalEl.textContent = total + '%';
+        totalEl.style.color = total > 100 ? '#dc2626' : '#111827';
     }
 
-    const progressFill = block.querySelector('#weight-progress-fill-' + index);
+    if (chapterWeightInput) {
+        chapterWeightInput.value = total;
+    }
+
+    const warning = block.querySelector('#total-weight-warning-' + index);
     const remainingLabel = block.querySelector('#weight-remaining-' + index);
-    if (progressFill && remainingLabel) {
-        const pct = expected > 0 ? Math.max(0, Math.min(100, (total / expected) * 100)) : 0;
-        progressFill.style.width = pct + '%';
-        const remaining = Math.round((expected - total) * 100) / 100;
-        remainingLabel.textContent = remaining >= 0 ? ('Remaining: ' + remaining + '%') : ('Over by: ' + Math.abs(remaining) + '%');
-        if (total === expected) {
-            progressFill.style.background = '#10b981';
-        } else if (total < expected) {
-            progressFill.style.background = '#f97316';
+    if (warning) {
+        if (total > 100) {
+            warning.textContent = 'Over by ' + (total - 100) + '%';
+            warning.style.display = 'block';
         } else {
-            progressFill.style.background = '#ef4444';
+            warning.textContent = '';
+            warning.style.display = 'none';
         }
     }
 
+    if (remainingLabel) {
+        const remaining = 100 - total;
+        remainingLabel.textContent = remaining >= 0 ? ('Remaining: ' + remaining + '%') : ('Over by: ' + Math.abs(remaining) + '%');
+    }
+
+    syncSheetRowspans(block);
+
     return total;
+}
+
+function updateOverallTotal() {
+    const blocks = Array.from(document.querySelectorAll('.unit-outline-block'));
+    const overallTotal = blocks.reduce((sum, block) => sum + updateTotal(block), 0);
+    const overallCell = document.getElementById('overall-total-weight');
+
+    if (overallCell) {
+        overallCell.textContent = overallTotal + '%';
+        overallCell.style.color = overallTotal > 100 ? '#dc2626' : '#111827';
+        overallCell.style.fontWeight = overallTotal > 100 ? '700' : '600';
+    }
+
+    return overallTotal;
 }
 
 function serializeCriteria(block) {
@@ -512,6 +910,7 @@ function serializeCriteria(block) {
     const items = rows.map(row => ({
         assessment_type: row.querySelector('.criterion-type') ? row.querySelector('.criterion-type').value : '',
         topic: row.querySelector('.criterion-topic') ? row.querySelector('.criterion-topic').value : '',
+        marks: parseFloat(row.querySelector('.criterion-marks')?.value) || 0,
         weight: parseFloat(row.querySelector('.criterion-weight')?.value) || 0,
         name: row.querySelector('.criterion-type') ? row.querySelector('.criterion-type').value : '',
         description: row.querySelector('.criterion-topic') ? row.querySelector('.criterion-topic').value : ''
@@ -538,20 +937,27 @@ function serializeAiOptions(block) {
 
 function appendCriterionRow(block, type, topic, weight) {
     const index = block.dataset.outlineIndex;
-    const list = block.querySelector('.criteria-list');
-    const rowIndex = list.children.length;
-    const row = document.createElement('div');
-    row.className = 'criterion-row';
+    const list = block;
+    const rowIndex = list.querySelectorAll('.criterion-row').length;
+    const row = document.createElement('tr');
+    row.className = 'criterion-row sheet-row';
     row.dataset.index = rowIndex;
-    row.style.display = 'grid';
-    row.style.gridTemplateColumns = '1fr 1fr 100px 40px';
-    row.style.gap = '10px';
-    row.style.marginBottom = '10px';
-    row.style.alignItems = 'center';
-    row.innerHTML = `<select name="outlines[${index}][criteria][${rowIndex}][type]" class="criterion-type form-control" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;"><option value="assignment" ${type === 'assignment' ? 'selected' : ''}>Assignment</option><option value="test" ${type === 'test' ? 'selected' : ''}>Test</option><option value="exam" ${type === 'exam' ? 'selected' : ''}>Exam</option></select><input type="text" name="outlines[${index}][criteria][${rowIndex}][topic]" class="criterion-topic form-control" placeholder="Topic" value="${String(topic || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/'/g, '&#039;')}" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;"><input type="number" name="outlines[${index}][criteria][${rowIndex}][weight]" class="criterion-weight form-control" value="${parseFloat(weight) || 0}" min="0" style="padding:10px; border:1px solid #d1d5db; border-radius:6px;"><button type="button" class="btn btn-outline remove-criterion" style="padding:8px 12px;">×</button>`;
+    row.innerHTML = `<td><div class="criterion-task-box"><input type="text" name="outlines[${index}][criteria][${rowIndex}][topic]" class="criterion-topic sheet-input sheet-topic" placeholder="Topic" value="${String(topic || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/'/g, '&#039;')}"><button type="button" class="criterion-remove-btn remove-criterion" aria-label="Remove task">×</button></div></td><td><input type="number" name="outlines[${index}][criteria][${rowIndex}][marks]" class="criterion-marks sheet-input sheet-number" value="0" min="0" step="0.01" placeholder="Marks"></td><td><input type="number" name="outlines[${index}][criteria][${rowIndex}][weight]" class="criterion-weight sheet-input sheet-number" value="${parseFloat(weight) || 0}" min="0" step="0.01" placeholder="Weight"></td>`;
     list.appendChild(row);
     updateTotal(block);
     serializeCriteria(block);
+}
+
+function taskDefaults(type) {
+    if (type === 'test') {
+        return { topic: 'Unit test or quiz', marks: 10, weight: 15 };
+    }
+
+    if (type === 'exam') {
+        return { topic: 'Midterm or final exam', marks: 10, weight: 5 };
+    }
+
+    return { topic: 'Homework, classwork, or submissions', marks: 15, weight: 10 };
 }
 
 function handleFileUpload(input, index) {
@@ -563,11 +969,13 @@ function handleFileUpload(input, index) {
 
     if (input.files && input.files[0]) {
         uploadedFiles[index] = input.files[0];
-        fileContents[index] = null;
+        if (uploadedFileUrls[index]) {
+            URL.revokeObjectURL(uploadedFileUrls[index]);
+        }
+        uploadedFileUrls[index] = URL.createObjectURL(uploadedFiles[index]);
 
         block.querySelector('#file-name-' + index).textContent = uploadedFiles[index].name;
         block.querySelector('#file-size-' + index).textContent = formatFileSize(uploadedFiles[index].size);
-        block.querySelector('#file-type-' + index).textContent = uploadedFiles[index].type || getFileTypeFromName(uploadedFiles[index].name);
 
         const fileIcon = block.querySelector('#file-icon-' + index);
         const ext = uploadedFiles[index].name.split('.').pop().toLowerCase();
@@ -576,15 +984,12 @@ function handleFileUpload(input, index) {
         else if (ext === 'txt') fileIcon.textContent = '📝';
         else fileIcon.textContent = '📄';
 
-        previewSection.style.display = 'block';
-        uploadBox.style.borderColor = '#10b981';
-        uploadBox.style.background = '#f0fdf4';
-        block.querySelector('#upload-icon-' + index).textContent = '✅';
-        block.querySelector('#upload-text-' + index).textContent = 'File uploaded successfully';
+        const previewBtn = block.querySelector('#preview-btn-' + index);
+        const downloadBtn = block.querySelector('#download-btn-' + index);
+        if (previewBtn) previewBtn.href = uploadedFileUrls[index];
+        if (downloadBtn) downloadBtn.href = uploadedFileUrls[index];
 
-        block.querySelector('#text-preview-' + index).style.display = 'none';
-        block.querySelector('#text-content-' + index).textContent = '';
-        block.querySelector('#preview-error-' + index).style.display = 'none';
+        previewSection.style.display = 'block';
     } else {
         removeFile(index);
     }
@@ -592,7 +997,10 @@ function handleFileUpload(input, index) {
 
 function removeFile(index) {
     delete uploadedFiles[index];
-    delete fileContents[index];
+    if (uploadedFileUrls[index]) {
+        URL.revokeObjectURL(uploadedFileUrls[index]);
+        delete uploadedFileUrls[index];
+    }
 
     const block = getOutlineBlock(index);
     if (!block) return;
@@ -608,34 +1016,14 @@ function removeFile(index) {
     uploadBox.style.background = 'transparent';
     block.querySelector('#upload-icon-' + index).textContent = '📁';
     block.querySelector('#upload-text-' + index).textContent = 'Upload unit outline file';
-    block.querySelector('#text-preview-' + index).style.display = 'none';
-    block.querySelector('#text-content-' + index).textContent = '';
-    block.querySelector('#preview-error-' + index).style.display = 'none';
 }
 
 function previewFile(index) {
     const file = uploadedFiles[index];
     if (!file) return;
 
-    const block = getOutlineBlock(index);
-    const ext = file.name.split('.').pop().toLowerCase();
-    block.querySelector('#preview-error-' + index).style.display = 'none';
-
-    const fileURL = URL.createObjectURL(file);
-    window.open(fileURL, '_blank');
-
-    if (ext === 'txt') {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            fileContents[index] = e.target.result;
-            const previewText = fileContents[index].length > 1000
-                ? fileContents[index].substring(0, 1000) + '\n\n[... Click "Open in Browser" to see full file ...]'
-                : fileContents[index];
-            block.querySelector('#text-content-' + index).textContent = previewText;
-            block.querySelector('#text-preview-' + index).style.display = 'block';
-        };
-        reader.readAsText(file);
-    }
+    const fileURL = uploadedFileUrls[index] || URL.createObjectURL(file);
+    window.open(fileURL, '_blank', 'noopener');
 }
 
 function syncOutlineTitle(block) {
@@ -647,114 +1035,79 @@ function syncOutlineTitle(block) {
     }
 }
 
+function autoResizeTitleField(field) {
+    if (!field) return;
+    field.style.height = 'auto';
+    field.style.height = field.scrollHeight + 'px';
+}
+
 function cloneOutlineBlock() {
-    // Prefer using a prebuilt template (if available) so new blocks match exactly
-    try {
-        if (window.unitOutlineTemplate) {
-            const blocks = Array.from(document.querySelectorAll('.unit-outline-block'));
-            const newIndex = blocks.length;
-            const html = window.unitOutlineTemplate.replace(/__INDEX__/g, newIndex);
-            const container = document.createElement('div');
-            container.innerHTML = html;
-            const node = container.firstElementChild;
-            if (node) {
-                node.dataset.outlineIndex = newIndex;
-                document.getElementById('unit-outline-blocks').appendChild(node);
-                updateTotal(node);
-                serializeCriteria(node);
-                serializeGradeScale(node);
-                serializeAiOptions(node);
-                syncOutlineTitle(node);
-                return;
-            }
-        }
-    } catch (e) {
-        console.warn('Template clone failed, falling back to DOM clone', e);
-    }
-
-    // Last-resort: clone the last existing block and fix ids/names
+    const table = document.getElementById('unit-outline-table');
+    const summaryBody = document.getElementById('sheet-summary-body');
     const blocks = Array.from(document.querySelectorAll('.unit-outline-block'));
-    const lastBlock = blocks[blocks.length - 1];
     const newIndex = blocks.length;
-    const clone = lastBlock.cloneNode(true);
-    const oldIndex = parseInt(lastBlock.dataset.outlineIndex, 10);
+    const html = buildChapterSection(newIndex);
+    const parserTable = document.createElement('table');
+    parserTable.innerHTML = html.trim();
+    const node = parserTable.querySelector('tbody.unit-outline-block');
 
-    clone.dataset.outlineIndex = newIndex;
-    clone.style.marginTop = '24px';
-
-    clone.querySelectorAll('[id]').forEach(element => {
-        element.id = element.id.replace(new RegExp('-' + oldIndex + '$'), '-' + newIndex);
-    });
-
-    clone.querySelectorAll('[name]').forEach(element => {
-        element.name = element.name.replace(`outlines[${oldIndex}]`, `outlines[${newIndex}]`);
-    });
-
-    clone.querySelectorAll('[for]').forEach(element => {
-        element.htmlFor = element.htmlFor.replace(new RegExp('-' + oldIndex + '$'), '-' + newIndex);
-    });
-
-    const heading = clone.querySelector('[data-outline-heading]');
-    if (heading) heading.textContent = 'Chapter/Unit ' + (newIndex + 1);
-
-    clone.querySelectorAll('.outline-title').forEach(el => el.value = '');
-    clone.querySelectorAll('.outline-total-weight').forEach(el => el.value = '100');
-    clone.querySelectorAll('.outline-description').forEach(el => el.value = '');
-    clone.querySelectorAll('.grading-criteria-input').forEach(el => el.value = '');
-    clone.querySelectorAll('.grade-scale-input').forEach(el => el.value = '');
-    clone.querySelectorAll('.ai-options-input').forEach(el => el.value = '');
-
-    const fileInput = clone.querySelector('input[type="file"]');
-    if (fileInput) {
-        fileInput.value = '';
-        fileInput.setAttribute('name', `outlines[${newIndex}][file]`);
-        fileInput.setAttribute('onchange', `handleFileUpload(this, ${newIndex})`);
+    if (!table || !node) {
+        return;
     }
 
-    const removeButton = clone.querySelector('[onclick^="removeFile"]');
-    if (removeButton) removeButton.setAttribute('onclick', `removeFile(${newIndex})`);
+    if (summaryBody) {
+        table.insertBefore(node, summaryBody);
+    } else {
+        table.appendChild(node);
+    }
 
-    const previewButton = clone.querySelector('[onclick^="previewFile"]');
-    if (previewButton) previewButton.setAttribute('onclick', `previewFile(${newIndex})`);
+    // Force visible top border on the newly inserted block's first row cells
+    try {
+        Array.from(node.querySelectorAll('tr:first-child td')).forEach(td => {
+            td.style.borderTop = '1px solid #d1d5db';
+        });
+        const chapterCell = node.querySelector('.chapter-cell');
+        if (chapterCell) chapterCell.style.background = '#f8fafc';
+    } catch (e) {
+        // ignore
+    }
 
-    const previewTextButton = clone.querySelector('#text-preview-' + newIndex + ' button');
-    if (previewTextButton) previewTextButton.setAttribute('onclick', `previewFile(${newIndex})`);
-
-    const uploadIcon = clone.querySelector('#upload-icon-' + newIndex);
-    if (uploadIcon) uploadIcon.textContent = '📁';
-    const uploadText = clone.querySelector('#upload-text-' + newIndex);
-    if (uploadText) uploadText.textContent = 'Upload unit outline file';
-    const filePreview = clone.querySelector('#file-preview-section-' + newIndex);
-    if (filePreview) filePreview.style.display = 'none';
-    const textPreview = clone.querySelector('#text-preview-' + newIndex);
-    if (textPreview) textPreview.style.display = 'none';
-    const textContent = clone.querySelector('#text-content-' + newIndex);
-    if (textContent) textContent.textContent = '';
-    const previewErr = clone.querySelector('#preview-error-' + newIndex);
-    if (previewErr) previewErr.style.display = 'none';
-
-    const criteriaList = clone.querySelector('#criteria-list-' + newIndex);
-    if (criteriaList) criteriaList.innerHTML = renderDefaultCriteriaRows(newIndex);
-    const newType = clone.querySelector('#new-criterion-type-' + newIndex);
-    if (newType) newType.value = 'assignment';
-    const newTopic = clone.querySelector('#new-criterion-topic-' + newIndex);
-    if (newTopic) newTopic.value = '';
-    const newWeight = clone.querySelector('#new-criterion-weight-' + newIndex);
-    if (newWeight) newWeight.value = '10';
-
-    document.getElementById('unit-outline-blocks').appendChild(clone);
-    syncOutlineTitle(clone);
-    updateTotal(clone);
-    serializeCriteria(clone);
-    serializeGradeScale(clone);
-    serializeAiOptions(clone);
+    updateTotal(node);
+    serializeCriteria(node);
+    serializeGradeScale(node);
+    serializeAiOptions(node);
+    syncOutlineTitle(node);
+    autoResizeTitleField(node.querySelector('.outline-title'));
+    updateOverallTotal();
 }
 
 (function(){
     document.addEventListener('click', function(e){
+        if (e.target && e.target.classList && e.target.classList.contains('task-add-btn')) {
+            const block = e.target.closest('.unit-outline-block');
+            const defaults = taskDefaults(e.target.dataset.type || 'assignment');
+            appendCriterionRow(block, e.target.dataset.type || 'assignment', defaults.topic, defaults.weight);
+
+                    const rows = block.querySelectorAll('.criterion-row');
+                    const lastRow = rows[rows.length - 1];
+            if (lastRow) {
+                const topicInput = lastRow.querySelector('.criterion-topic');
+                const marksInput = lastRow.querySelector('.criterion-marks');
+                const weightInput = lastRow.querySelector('.criterion-weight');
+                if (topicInput) topicInput.value = defaults.topic;
+                if (marksInput) marksInput.value = defaults.marks;
+                if (weightInput) weightInput.value = defaults.weight;
+                serializeCriteria(block);
+                updateTotal(block);
+                updateOverallTotal();
+            }
+            return;
+        }
+
         if (e.target && e.target.classList && e.target.classList.contains('preset-criterion-btn')) {
             const block = e.target.closest('.unit-outline-block');
             appendCriterionRow(block, e.target.dataset.type || 'assignment', e.target.dataset.topic || '', parseFloat(e.target.dataset.weight) || 0);
+            updateOverallTotal();
             return;
         }
 
@@ -766,6 +1119,7 @@ function cloneOutlineBlock() {
             appendCriterionRow(block, typeInput ? typeInput.value : 'assignment', topicInput ? topicInput.value.trim() : '', weightInput ? (parseFloat(weightInput.value) || 0) : 0);
             if (topicInput) topicInput.value = '';
             if (weightInput) weightInput.value = '10';
+            updateOverallTotal();
             return;
         }
 
@@ -776,6 +1130,7 @@ function cloneOutlineBlock() {
                 row.remove();
                 updateTotal(block);
                 serializeCriteria(block);
+                updateOverallTotal();
             }
         }
     });
@@ -787,15 +1142,23 @@ function cloneOutlineBlock() {
         if (e.target.classList && (e.target.classList.contains('criterion-weight') || e.target.classList.contains('criterion-type') || e.target.classList.contains('criterion-topic'))) {
             updateTotal(block);
             serializeCriteria(block);
+            updateOverallTotal();
+        }
+
+        if (e.target.classList && e.target.classList.contains('criterion-marks')) {
+            serializeCriteria(block);
         }
 
         if (e.target.classList && e.target.classList.contains('outline-title')) {
             syncOutlineTitle(block);
+            autoResizeTitleField(e.target);
+            autoResizeTitleField(e.target);
         }
 
         if (e.target.classList && e.target.classList.contains('outline-total-weight')) {
             updateTotal(block);
             serializeAiOptions(block);
+            updateOverallTotal();
         }
     });
 
@@ -805,11 +1168,17 @@ function cloneOutlineBlock() {
 
         if (e.target.classList && e.target.classList.contains('criterion-type')) {
             serializeCriteria(block);
+            updateOverallTotal();
+        }
+
+        if (e.target.classList && e.target.classList.contains('criterion-marks')) {
+            serializeCriteria(block);
         }
 
         if (e.target.classList && e.target.classList.contains('outline-total-weight')) {
             updateTotal(block);
             serializeAiOptions(block);
+            updateOverallTotal();
         }
     });
 
@@ -820,43 +1189,20 @@ function cloneOutlineBlock() {
             serializeGradeScale(block);
             serializeAiOptions(block);
             syncOutlineTitle(block);
+            syncSheetRowspans(block);
+            autoResizeTitleField(block.querySelector('.outline-title'));
         });
-
-        // Build a robust HTML template from the first block so cloned blocks match exactly
-        try {
-            const first = document.querySelector('.unit-outline-block');
-            if (first) {
-                // capture outerHTML and replace the initial index markers with a placeholder
-                let html = first.outerHTML;
-                html = html.replace(/\[0\]/g, '[__INDEX__]');
-                html = html.replace(/-0(["'\s>])/g, '-__INDEX__$1');
-                // store template for cloning
-                window.unitOutlineTemplate = html;
-            }
-        } catch (e) {
-            console.warn('Could not build outline template', e);
-        }
-
+        updateOverallTotal();
         const form = document.querySelector('form[method="POST"][enctype]');
         if (form) {
             form.addEventListener('submit', function(e){
-                let valid = true;
                 Array.from(document.querySelectorAll('.unit-outline-block')).forEach(block => {
-                    const chapterWeightInput = block.querySelector('.outline-total-weight');
-                    const expected = chapterWeightInput ? (parseFloat(chapterWeightInput.value) || 0) : 100;
-                    const total = updateTotal(block);
+                    updateTotal(block);
                     serializeCriteria(block);
                     serializeGradeScale(block);
                     serializeAiOptions(block);
-                    if (total !== expected) {
-                        valid = false;
-                    }
                 });
-
-                if (!valid) {
-                    e.preventDefault();
-                    alert('Each chapter/unit assessment total must match its chapter/unit total weight before saving.');
-                }
+                updateOverallTotal();
             });
         }
     });

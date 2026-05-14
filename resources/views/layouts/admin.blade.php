@@ -214,7 +214,7 @@
                     <span class="text-sm text-gray-700 font-medium whitespace-nowrap">{{ auth()->user()->name }}</span>
                     <form action="{{ route('logout', ['guard' => auth()->user()->role]) }}" method="POST" class="m-0">
                         @csrf
-                        <button type="submit" class="px-6 py-2 rounded-full bg-black text-white hover:bg-gray-900 transition-colors text-sm font-medium border border-black whitespace-nowrap">Logout</button>
+                        <button type="submit" class="px-6 py-2 rounded-full bg-black text-white hover:bg-gray-900 transition-colors text-sm font-medium border border-black whitespace-nowrap" style="min-width: 92px; background-color: #111827; color: #ffffff; border-color: #111827;">Logout</button>
                     </form>
                 </div>
             </div>

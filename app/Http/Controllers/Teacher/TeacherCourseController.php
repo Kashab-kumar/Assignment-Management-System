@@ -132,7 +132,7 @@ class TeacherCourseController extends Controller
                 }
 
                 $description = $outlineData['description'] ?? null;
-                $chapterTotalWeight = isset($outlineData['chapter_total_weight']) ? (float) $outlineData['chapter_total_weight'] : 100;
+                $chapterTotalWeight = isset($outlineData['chapter_total_weight']) ? (float) $outlineData['chapter_total_weight'] : 0;
 
                 $gradingCriteriaPayload = $outlineData['grading_criteria'] ?? null;
                 $gradingCriteria = [];
@@ -148,16 +148,10 @@ class TeacherCourseController extends Controller
                     }
                 }
 
-                if (!empty($gradingCriteria)) {
-                    $assessmentTotal = collect($gradingCriteria)->sum(function ($criterion) {
+                if (empty($outlineData['chapter_total_weight']) && !empty($gradingCriteria)) {
+                    $chapterTotalWeight = collect($gradingCriteria)->sum(function ($criterion) {
                         return (float) ($criterion['weight'] ?? 0);
                     });
-
-                    if (abs($assessmentTotal - $chapterTotalWeight) > 0.01) {
-                        throw ValidationException::withMessages([
-                            "outlines.$index.grading_criteria" => "Assessment weights must total {$chapterTotalWeight}% for this chapter/unit. Current total: {$assessmentTotal}%.",
-                        ]);
-                    }
                 }
 
                 $gradeScalePayload = $outlineData['grade_scale'] ?? null;
