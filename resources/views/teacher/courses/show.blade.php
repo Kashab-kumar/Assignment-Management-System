@@ -186,6 +186,49 @@
     .module-item-type { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #000000; background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.32); padding: 3px 8px; border-radius: 999px; }
     .module-item-content { margin-top: 8px; color: #000000; line-height: 1.55; white-space: pre-line; }
     .module-item-meta { margin-top: 8px; color: #64748b; font-size: 12px; }
+
+    .grading-section { margin-top: 28px; }
+    .grading-header { margin-bottom: 16px; }
+    .grading-header h3 { margin: 0; color: #0f172a; font-size: 20px; }
+    .grading-header p { margin: 6px 0 0; color: #64748b; }
+    .grading-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+    @media (max-width: 768px) { .grading-grid { grid-template-columns: 1fr; } }
+    .grading-card {
+        background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 18px;
+        padding: 24px;
+        color: #fff;
+        box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        text-decoration: none;
+        display: block;
+        min-height: 176px;
+    }
+    .grading-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 22px 38px rgba(15, 23, 42, 0.18);
+        border-color: rgba(96, 165, 250, 0.65);
+    }
+    .grading-card-label { font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #93c5fd; }
+    .grading-card-count { margin-top: 14px; font-size: 38px; font-weight: 800; color: #ffffff; }
+    .grading-card-count span { font-size: 15px; font-weight: 600; color: #bfdbfe; margin-left: 8px; }
+    .grading-card-desc { margin-top: 8px; color: #cbd5e1; font-size: 14px; line-height: 1.6; }
+    .grading-card-button {
+        margin-top: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 11px 16px;
+        border-radius: 12px;
+        background: #2563eb;
+        color: #fff;
+        font-weight: 700;
+        font-size: 14px;
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: 0 10px 18px rgba(37, 99, 235, 0.22);
+    }
+    .grading-card:hover .grading-card-button { background: #1d4ed8; }
 </style>
 
 <div class="course-container">
@@ -243,6 +286,16 @@
                                         <div class="stat-label">Quizzes</div>
                                     </div>
                                 </div>
+                                <div class="module-stats" style="margin-top:8px;">
+                                    <div class="stat-box">
+                                        <div class="stat-value">{{ $module->assignment_pending_count ?? 0 }}</div>
+                                        <div class="stat-label">Assignments Pending</div>
+                                    </div>
+                                    <div class="stat-box">
+                                        <div class="stat-value">{{ $module->exam_pending_count ?? 0 }}</div>
+                                        <div class="stat-label">Exams Pending</div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="module-footer">
@@ -259,5 +312,7 @@
             @endif
         @endif
     </div>
+
+    {{-- Course-level grading cards removed; grading is per-module inside module pages --}}
 </div>
 @endsection

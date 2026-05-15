@@ -100,6 +100,10 @@ class TeacherExamController extends Controller
             'secure_instructions' => 'nullable|string',
             'max_violations' => 'nullable|integer|min:1|max:10',
             'max_warnings' => 'nullable|integer|min:1|max:20',
+            'covered_topics' => 'nullable|array',
+            'covered_topics.*' => 'string',
+            'selected_questions' => 'nullable|array',
+                'selected_questions.*' => 'array',
             'questions' => 'required|array|min:1',
             'questions.*.question_text' => 'required|string|max:5000',
             'questions.*.answer_key' => 'required|string|max:5000',
@@ -117,7 +121,7 @@ class TeacherExamController extends Controller
             ]);
         }
 
-        DB::transaction(function () use ($validated) {
+            DB::transaction(function () use ($validated) {
             $exam = Exam::create([
                 'course_id' => $validated['course_id'],
                 'module_id' => $validated['module_id'] ?? null,
@@ -134,19 +138,52 @@ class TeacherExamController extends Controller
                 'secure_instructions' => $validated['secure_instructions'] ?? null,
                 'max_violations' => $validated['max_violations'] ?? 3,
                 'max_warnings' => $validated['max_warnings'] ?? 5,
+                'covered_topics' => $validated['covered_topics'] ?? [],
             ]);
-
-            if (!empty($validated['questions'])) {
-                foreach ($validated['questions'] as $index => $question) {
-                    $exam->questions()->create([
-                        'question_text' => $question['question_text'],
-                        'answer_key' => $question['answer_key'] ?? null,
-                        'question_type' => $question['question_type'],
-                        'points' => (int) ($question['points'] ?? 1),
-                        'position' => $index + 1,
-                    ]);
+                // If selected_questions provided, import from Question bank
+                if (!empty($validated['selected_questions'])) {
+                    $questions = \App\Models\Question::whereIn('id', $validated['selected_questions'])->get();
+                        // Normalize incoming selected_questions which may be array of ids or objects
+                        $ids = [];
+                        $overrides = [];
+                        foreach ($validated['selected_questions'] as $sq) {
+                            if (is_array($sq)) {
+                                $id = isset($sq['id']) ? intval($sq['id']) : null;
+                                $marks = isset($sq['marks']) && $sq['marks'] !== '' ? intval($sq['marks']) : null;
+                            } else {
+                                $id = intval($sq);
+                                $marks = null;
+                            }
+                            if ($id) {
+                                $ids[] = $id;
+                                if ($marks !== null) $overrides[$id] = $marks;
+                            }
+                        }
+                        $questions = \App\Models\Question::whereIn('id', $ids)->get()->keyBy('id');
+                        $pos = 0;
+                        foreach ($ids as $id) {
+                            $q = $questions->get($id);
+                            if (!$q) continue;
+                            $pos++;
+                            $exam->questions()->create([
+                                'question_text' => $q->question_text,
+                                'answer_key' => $q->answer ?? null,
+                                'question_type' => $q->question_type ?? 'short_answer',
+                                'points' => (int) ($overrides[$id] ?? $q->marks ?? 1),
+                                'position' => $pos,
+                            ]);
+                        }
+                } elseif (!empty($validated['questions'])) {
+                    foreach ($validated['questions'] as $index => $question) {
+                        $exam->questions()->create([
+                            'question_text' => $question['question_text'],
+                            'answer_key' => $question['answer_key'] ?? null,
+                            'question_type' => $question['question_type'],
+                            'points' => (int) ($question['points'] ?? 1),
+                            'position' => $index + 1,
+                        ]);
+                    }
                 }
-            }
         });
 
         return redirect()->route('teacher.courses.show', $validated['course_id'])
@@ -247,18 +284,41 @@ class TeacherExamController extends Controller
             }
         }
 
-        ExamResult::updateOrCreate(
-            [
-                'exam_id' => $exam->id,
-                'student_id' => $validated['student_id'],
-            ],
+        $result = ExamResult::updateOrCreate(
+            ['exam_id' => $exam->id, 'student_id' => $validated['student_id']],
             [
                 'score' => $validated['score'],
+                'grade' => $this->deriveLetterGrade((float) $validated['score'], (float) $exam->max_score),
+                'feedback' => $validated['remarks'] ?? null,
                 'remarks' => $validated['remarks'] ?? null,
+                'graded_by' => auth()->user()->teacher?->id,
+                'graded_at' => now(),
             ]
         );
 
         return back()->with('success', 'Exam result saved successfully.');
+    }
+
+    private function deriveLetterGrade(float $score, float $maxScore): string
+    {
+        if ($maxScore <= 0) {
+            return 'N/A';
+        }
+
+        $percent = ($score / $maxScore) * 100;
+
+        return match (true) {
+            $percent >= 90 => 'A+',
+            $percent >= 85 => 'A',
+            $percent >= 80 => 'A-',
+            $percent >= 75 => 'B+',
+            $percent >= 70 => 'B',
+            $percent >= 65 => 'B-',
+            $percent >= 60 => 'C+',
+            $percent >= 55 => 'C',
+            $percent >= 50 => 'D',
+            default => 'F',
+        };
     }
 
     public function verifyAnswer(Request $request, \App\Models\ExamAnswer $answer)

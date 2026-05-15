@@ -191,6 +191,26 @@ class UnitController extends Controller
         return redirect()->back()->with('success', 'Unit deleted successfully.');
     }
 
+    public function getTopics(Unit $unit)
+    {
+        // Get topics from the unit's grading_criteria
+        $topics = [];
+
+        if ($unit->grading_criteria && is_array($unit->grading_criteria)) {
+            foreach ($unit->grading_criteria as $item) {
+                if (isset($item['topic']) && $item['topic'] !== '-') {
+                    $topics[] = [
+                        'topic' => $item['topic'],
+                        'marks' => $item['marks'] ?? 0,
+                        'weight' => $item['weight'] ?? 0
+                    ];
+                }
+            }
+        }
+
+        return response()->json(['topics' => $topics]);
+    }
+
     private function authorizeModuleAccess(CourseModule $module)
     {
         $teacher = auth()->user()->teacher;

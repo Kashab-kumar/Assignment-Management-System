@@ -208,9 +208,6 @@
                     <div class="card-sublabel">Manage assignments</div>
                 </div>
             </a>
-            <a href="{{ route('teacher.assignments.create', ['course_id' => $course->id, 'module_id' => $module->id]) }}" class="btn-create">
-                <span>+</span> Create Assignment
-            </a>
         </div>
 
         <!-- Exams Card -->
@@ -222,142 +219,38 @@
                     <div class="card-sublabel">Manage exams & quizzes</div>
                 </div>
             </a>
-            <a href="{{ route('teacher.exams.create', ['course_id' => $course->id, 'module_id' => $module->id]) }}" class="btn-create exam">
-                <span>+</span> Create Exam
-            </a>
         </div>
 
         <!-- Unit Outline Card -->
         <div class="card-wrapper">
-            <button type="button" id="unit-outline-card" class="card card-toggle" onclick="toggleUnitOutlinePanel()" aria-expanded="false" aria-controls="unit-outline-panel">
-                <div class="card-label">Unit Outline</div>
-                <div class="card-count">{{ $unitOutlineItems->count() }}</div>
-                <div class="card-sublabel">View chapter table</div>
-            </button>
-            <a href="{{ route('teacher.courses.modules.items.create', [$course, $module]) }}" class="btn-create">
-                <span>+</span> Add Unit Outline
+            <a href="{{ route('teacher.courses.modules.unit-outline', [$course, $module]) }}" class="card-link">
+                <div id="unit-outline-card" class="card">
+                    <div class="card-label">Unit Outline</div>
+                    <div class="card-count">{{ $unitOutlineItems->count() }}</div>
+                    <div class="card-sublabel">View chapter table</div>
+                </div>
             </a>
         </div>
     </div>
 
-    <div id="unit-outline-panel" class="panel unit-outline-panel-hidden" style="margin-top: 20px;">
-        <h3 class="section-title">Unit Outline</h3>
+    <div style="margin-top:20px;">
+        <div class="grading-section">
+            <div class="grading-grid" style="display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:16px;">
+                <a href="{{ route('teacher.courses.assignment-grading', $course) }}?module={{ $module->id }}" class="grading-card" style="background:linear-gradient(180deg,#0f172a 0%,#111827 100%); color:#fff; padding:18px; border-radius:12px; text-decoration:none; display:block;">
+                    <div class="grading-card-label">Assignment Grading</div>
+                    <div class="grading-card-count">{{ $assignmentPendingCount ?? 0 }} <span style="font-size:14px; font-weight:600; color:#bfdbfe; margin-left:8px;">Pending</span></div>
+                    <div class="grading-card-desc" style="color:#cbd5e1; margin-top:8px;">Grade submitted assignments, leave feedback, and publish marks for students in this module.</div>
+                    <span class="grading-card-button" style="margin-top:12px; display:inline-block; padding:10px 14px; border-radius:10px; background:#2563eb; color:#fff;">Manage Grading</span>
+                </a>
 
-        @if($unitOutlineItems->count() > 0)
-            <div class="outline-table-wrap">
-                <table class="outline-table">
-                    <thead>
-                        <tr>
-                            <th>Chapter/unit</th>
-                            <th>Tasks</th>
-                            <th>Marks</th>
-                            <th>Weightage</th>
-                            <th>Check list</th>
-                            <th>Total Weightage</th>
-                            <th>Question bank</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($unitOutlineItems as $item)
-                            @php
-                                $criteria = collect($item->grading_criteria ?? [])->values();
-                                if ($criteria->isEmpty()) {
-                                    $criteria = collect([[
-                                        'topic' => '-',
-                                        'marks' => '-',
-                                        'weight' => 0,
-                                    ]]);
-                                }
-
-                                $criteriaCount = max($criteria->count(), 1);
-                                $criteriaWeightTotal = $criteria->sum(fn ($criterion) => (float) ($criterion['weight'] ?? 0));
-                                $chapterWeight = (float) data_get($item->ai_options, 'chapter_total_weight', $criteriaWeightTotal);
-                                $overallChapterWeight += $chapterWeight;
-                            @endphp
-
-                            @foreach($criteria as $rowIndex => $criterion)
-                                @php
-                                    $topic = trim((string) ($criterion['topic'] ?? $criterion['name'] ?? '-'));
-                                    $marks = $criterion['marks'] ?? '-';
-                                    $weight = (float) ($criterion['weight'] ?? 0);
-                                    $isDone = $topic !== '' && $topic !== '-' && is_numeric($marks) && (float) $marks > 0 && $weight > 0;
-                                @endphp
-                                <tr>
-                                    @if($rowIndex === 0)
-                                        <td class="outline-chapter-cell" rowspan="{{ $criteriaCount }}">
-                                            <div class="outline-chapter-title">{{ $item->title }}</div>
-                                            <div class="outline-row-actions">
-                                                <a href="{{ route('teacher.courses.modules.items.show', [$course, $module, $item]) }}" class="btn-sm" style="background:#3b82f6;color:#fff;text-decoration:none;">View</a>
-                                                <a href="{{ route('teacher.courses.modules.items.edit', [$course, $module, $item]) }}" class="btn-sm btn-edit">Edit</a>
-                                                <form method="POST" action="{{ route('teacher.courses.modules.items.destroy', [$course, $module, $item]) }}" style="display:inline;" onsubmit="return confirm('Delete this unit outline? This action cannot be undone.');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn-sm btn-delete">Delete</button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    @endif
-
-                                    <td class="outline-task">{{ $topic }}</td>
-                                    <td class="outline-number">{{ $marks }}</td>
-                                    <td class="outline-number">{{ rtrim(rtrim(number_format($weight, 2, '.', ''), '0'), '.') }}%</td>
-                                    <td class="outline-check {{ $isDone ? 'done' : 'not-done' }}">{{ $isDone ? 'Done' : 'Not Done' }}</td>
-
-                                    @if($rowIndex === 0)
-                                        <td class="outline-total-cell" rowspan="{{ $criteriaCount }}">
-                                            <div class="outline-total-value">{{ rtrim(rtrim(number_format($chapterWeight, 2, '.', ''), '0'), '.') }}%</div>
-                                        </td>
-                                        <td class="outline-file-cell" rowspan="{{ $criteriaCount }}">
-                                            @if($item->file_path)
-                                                <a class="outline-file-link" href="{{ asset('storage/' . $item->file_path) }}" target="_blank" rel="noopener noreferrer">{{ $item->file_name ?: 'File upload' }}</a>
-                                            @else
-                                                <span style="color:#6b7280;">File upload</span>
-                                            @endif
-                                        </td>
-                                    @endif
-                                </tr>
-                            @endforeach
-                        @endforeach
-
-                        <tr class="outline-summary-row">
-                            <td>Total</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>{{ rtrim(rtrim(number_format($overallChapterWeight, 2, '.', ''), '0'), '.') }}%</td>
-                            <td></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <a href="{{ route('teacher.courses.exam-grading', $course) }}?module={{ $module->id }}" class="grading-card" style="background:linear-gradient(180deg,#0f172a 0%,#111827 100%); color:#fff; padding:18px; border-radius:12px; text-decoration:none; display:block;">
+                    <div class="grading-card-label">Exam Grading</div>
+                    <div class="grading-card-count">{{ $examPendingCount ?? 0 }} <span style="font-size:14px; font-weight:600; color:#bfdbfe; margin-left:8px;">Pending</span></div>
+                    <div class="grading-card-desc" style="color:#cbd5e1; margin-top:8px;">Review exam answers and update student scores with comments for this module.</div>
+                    <span class="grading-card-button" style="margin-top:12px; display:inline-block; padding:10px 14px; border-radius:10px; background:#2563eb; color:#fff;">Manage Grading</span>
+                </a>
             </div>
-        @else
-            <div class="empty-state">No content has been added to this unit yet.</div>
-        @endif
-
-        <a href="{{ route('teacher.courses.modules.items.create', [$course, $module]) }}" class="btn-add">+ Add Unit Outline</a>
+        </div>
     </div>
 </div>
-
-<script>
-function toggleUnitOutlinePanel() {
-    const panel = document.getElementById('unit-outline-panel');
-    const card = document.getElementById('unit-outline-card');
-    if (!panel || !card) {
-        return;
-    }
-
-    const isHidden = panel.classList.contains('unit-outline-panel-hidden');
-    if (isHidden) {
-        panel.classList.remove('unit-outline-panel-hidden');
-        card.classList.add('active');
-        card.setAttribute('aria-expanded', 'true');
-        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-        panel.classList.add('unit-outline-panel-hidden');
-        card.classList.remove('active');
-        card.setAttribute('aria-expanded', 'false');
-    }
-}
-</script>
 @endsection

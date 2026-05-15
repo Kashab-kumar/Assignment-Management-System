@@ -223,6 +223,18 @@
             </div>
         @endif
 
+        @php
+            $criteriaRows = old('criteria', $item->grading_criteria ?? []);
+            if (!is_array($criteriaRows) || empty($criteriaRows)) {
+                $criteriaRows = [[
+                    'topic' => '',
+                    'marks' => '',
+                    'weight' => '',
+                ]];
+            }
+            $chapterTotalWeight = old('chapter_total_weight', data_get($item->ai_options, 'chapter_total_weight', ''));
+        @endphp
+
         <form method="POST" action="{{ route('teacher.courses.modules.items.update', [$course, $module, $item]) }}" enctype="multipart/form-data">
             @csrf
             @method('PUT')
@@ -277,6 +289,51 @@
                 @enderror
             </div>
 
+            <div class="form-group">
+                <label>Tasks, Marks & Weightage</label>
+                <div style="overflow-x:auto; border:1px solid #e5e7eb; border-radius:8px;">
+                    <table style="width:100%; border-collapse:collapse; min-width:760px;">
+                        <thead>
+                            <tr style="background:#f9fafb;">
+                                <th style="padding:10px; border-bottom:1px solid #e5e7eb; text-align:left;">Task</th>
+                                <th style="padding:10px; border-bottom:1px solid #e5e7eb; text-align:left; width:140px;">Marks</th>
+                                <th style="padding:10px; border-bottom:1px solid #e5e7eb; text-align:left; width:160px;">Weightage</th>
+                                <th style="padding:10px; border-bottom:1px solid #e5e7eb; text-align:left; width:90px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="criteria-rows">
+                            @foreach($criteriaRows as $index => $criterion)
+                                <tr class="criteria-row">
+                                    <td style="padding:10px; border-bottom:1px solid #e5e7eb;">
+                                        <input type="text" name="criteria[{{ $index }}][topic]" class="form-control criterion-topic" value="{{ old('criteria.' . $index . '.topic', $criterion['topic'] ?? $criterion['description'] ?? $criterion['name'] ?? '') }}" placeholder="e.g., Assignment on Network">
+                                    </td>
+                                    <td style="padding:10px; border-bottom:1px solid #e5e7eb;">
+                                        <input type="number" name="criteria[{{ $index }}][marks]" class="form-control criterion-marks" value="{{ old('criteria.' . $index . '.marks', $criterion['marks'] ?? '') }}" min="0" step="0.01" placeholder="e.g., 15">
+                                    </td>
+                                    <td style="padding:10px; border-bottom:1px solid #e5e7eb;">
+                                        <input type="number" name="criteria[{{ $index }}][weight]" class="form-control criterion-weight" value="{{ old('criteria.' . $index . '.weight', $criterion['weight'] ?? '') }}" min="0" step="0.01" placeholder="e.g., 10">
+                                    </td>
+                                    <td style="padding:10px; border-bottom:1px solid #e5e7eb;">
+                                        <button type="button" class="btn-sm btn-secondary remove-criteria-btn" style="background:#ef4444; color:#fff;">Remove</button>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:12px; margin-top:12px; flex-wrap:wrap;">
+                    <button type="button" id="add-criteria-btn" class="btn-sm" style="background:#7c3aed; color:#fff;">+ Add Task</button>
+                    <div style="display:flex; align-items:center; gap:8px; margin-left:auto;">
+                        <label for="chapter_total_weight" style="margin-bottom:0; font-weight:600;">Chapter Total Weightage</label>
+                        <input type="number" id="chapter_total_weight" name="chapter_total_weight" class="form-control" style="width:140px;" value="{{ $chapterTotalWeight }}" min="0" max="100" step="0.01" placeholder="100">
+                    </div>
+                </div>
+                @error('criteria')
+                    <div class="error-message">{{ $message }}</div>
+                @enderror
+            </div>
+
             <div class="form-actions">
                 <a href="{{ route('teacher.courses.modules.show', [$course, $module]) }}" class="btn btn-outline">Cancel</a>
                 <button type="submit" class="btn btn-primary">Update Unit Outline</button>
@@ -301,5 +358,73 @@ function handleFileUpload(input) {
         uploadBox.style.background = 'transparent';
     }
 }
+
+(function () {
+    const rowsContainer = document.getElementById('criteria-rows');
+    const addButton = document.getElementById('add-criteria-btn');
+    const totalInput = document.getElementById('chapter_total_weight');
+
+    function updateNames() {
+        const rows = rowsContainer.querySelectorAll('.criteria-row');
+        rows.forEach((row, index) => {
+            const topic = row.querySelector('.criterion-topic');
+            const marks = row.querySelector('.criterion-marks');
+            const weight = row.querySelector('.criterion-weight');
+            if (topic) topic.name = `criteria[${index}][topic]`;
+            if (marks) marks.name = `criteria[${index}][marks]`;
+            if (weight) weight.name = `criteria[${index}][weight]`;
+        });
+    }
+
+    function updateTotal() {
+        if (!totalInput) return;
+        const total = Array.from(rowsContainer.querySelectorAll('.criterion-weight'))
+            .reduce((sum, input) => sum + (parseFloat(input.value) || 0), 0);
+        totalInput.value = total.toFixed(2).replace(/\.00$/, '');
+    }
+
+    if (addButton && rowsContainer) {
+        addButton.addEventListener('click', function () {
+            const row = document.createElement('tr');
+            row.className = 'criteria-row';
+            row.innerHTML = `
+                <td style="padding:10px; border-bottom:1px solid #e5e7eb;">
+                    <input type="text" class="form-control criterion-topic" placeholder="e.g., Assignment on Network">
+                </td>
+                <td style="padding:10px; border-bottom:1px solid #e5e7eb;">
+                    <input type="number" class="form-control criterion-marks" min="0" step="0.01" placeholder="e.g., 15">
+                </td>
+                <td style="padding:10px; border-bottom:1px solid #e5e7eb;">
+                    <input type="number" class="form-control criterion-weight" min="0" step="0.01" placeholder="e.g., 10">
+                </td>
+                <td style="padding:10px; border-bottom:1px solid #e5e7eb;">
+                    <button type="button" class="btn-sm btn-secondary remove-criteria-btn" style="background:#ef4444; color:#fff;">Remove</button>
+                </td>`;
+            rowsContainer.appendChild(row);
+            updateNames();
+            updateTotal();
+        });
+
+        rowsContainer.addEventListener('click', function (event) {
+            if (event.target.classList.contains('remove-criteria-btn')) {
+                const row = event.target.closest('.criteria-row');
+                if (row && rowsContainer.querySelectorAll('.criteria-row').length > 1) {
+                    row.remove();
+                    updateNames();
+                    updateTotal();
+                }
+            }
+        });
+
+        rowsContainer.addEventListener('input', function (event) {
+            if (event.target.classList.contains('criterion-weight')) {
+                updateTotal();
+            }
+        });
+    }
+
+    updateNames();
+    updateTotal();
+})();
 </script>
 @endsection

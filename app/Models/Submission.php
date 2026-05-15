@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Submission extends Model
 {
-    protected $fillable = ['student_id', 'assignment_id', 'content', 'file_path', 'score', 'status', 'feedback', 'submitted_at'];
+    protected $fillable = ['student_id', 'assignment_id', 'content', 'file_path', 'score', 'grade', 'graded_by', 'graded_at', 'status', 'feedback', 'submitted_at'];
 
     protected $casts = [
         'submitted_at' => 'datetime',
+        'graded_at' => 'datetime',
     ];
 
     public function student()

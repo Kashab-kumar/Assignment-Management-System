@@ -416,6 +416,29 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
+
+    /* Student table style similar to teacher view (question bank excluded) */
+    .student-outline-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    .student-outline-table th,
+    .student-outline-table td {
+        border: 1px solid #cbd5e1;
+        padding: 10px 12px;
+        text-align: left;
+        vertical-align: middle;
+    }
+    .student-outline-table th {
+        background: #f8fafc;
+        font-weight: 700;
+    }
+    .student-outline-table .chapter-cell {
+        background: #f8fafc;
+        font-weight: 700;
+    }
+    .status-not-done { color: #ef4444; font-weight: 700; }
 </style>
 
 <div class="container">
@@ -433,163 +456,69 @@
     </div>
 
     @if($module->items && $module->items->count() > 0)
-        @foreach($module->items as $item)
-            <div class="outline-card">
-                <div class="outline-header">
-                    <div>
-                        <h2 class="outline-title">{{ $item->title }}</h2>
-                        <span class="outline-type">{{ ucfirst(str_replace('_', ' ', $item->type)) }}</span>
-                        @if($item->creator)
-                            <div class="outline-creator">Created by {{ $item->creator->name }} on {{ $item->created_at->format('M d, Y') }}</div>
-                        @endif
-                    </div>
-                    @if($item->file_path)
-                        <a href="{{ asset('storage/' . $item->file_path) }}" target="_blank" class="btn-view">👁 View File</a>
-                    @endif
-                </div>
-
-                @if($item->content)
-                    <div class="description-box">
-                        {{ $item->content }}
-                    </div>
-                @endif
-
-                @if($item->file_path)
-                    <div class="file-section">
-                        <div class="section-title">Attached File</div>
-                        <div class="file-card">
-                            <div class="file-icon">
-                                @if($item->file_type == 'pdf') 📕
-                                @elseif(in_array($item->file_type, ['doc', 'docx'])) 📘
-                                @elseif($item->file_type == 'txt') 📝
-                                @else 📄
-                                @endif
-                            </div>
-                            <div class="file-info">
-                                <div class="file-name">{{ $item->file_name }}</div>
-                                <div class="file-meta">{{ strtoupper($item->file_type) }} file</div>
-                            </div>
-                            <div class="file-actions">
-                                <a href="{{ asset('storage/' . $item->file_path) }}" target="_blank" class="btn-sm btn-primary-sm">Open</a>
-                                <a href="{{ asset('storage/' . $item->file_path) }}" download class="btn-sm btn-secondary-sm">Download</a>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-
-                @if($item->unit && $item->unit->assessmentConfigurations && $item->unit->assessmentConfigurations->isNotEmpty())
-                    <div class="assessment-summary">
-                        <div class="assessment-summary-title">Assessment Weights for This Unit</div>
-                        <div class="assessment-summary-list">
-                            @foreach($item->unit->assessmentConfigurations as $configuration)
-                                <div class="assessment-summary-item">
-                                    <div>
-                                        <div class="assessment-summary-name">{{ ucfirst($configuration->assessment_type) }}</div>
-                                        @if($configuration->description)
-                                            <div class="assessment-summary-desc">{{ $configuration->description }}</div>
-                                        @endif
-                                    </div>
-                                    <div class="criteria-weight">{{ $configuration->weight_percent }}%</div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @elseif($item->grading_criteria)
-                    <div class="assessment-summary">
-                        <div class="assessment-summary-title">Assessment Weights</div>
-                        <div class="assessment-summary-list">
-                            @foreach($item->grading_criteria as $criterion)
-                                <div class="assessment-summary-item">
-                                    <div>
-                                        <div class="assessment-summary-name">{{ $criterion['name'] ?? 'Criterion' }}</div>
-
-                                @if($item->unit)
-                                    <div class="chapter-section">
-                                        <div class="chapter-section-title">Assignments</div>
-                                        @if($item->unit->assignments && $item->unit->assignments->isNotEmpty())
-                                            <div class="chapter-items-list">
-                                                @foreach($item->unit->assignments as $assignment)
-                                                    <div class="chapter-item">
-                                                        <div>
-                                                            <div class="chapter-item-name">{{ $assignment->title }}</div>
-                                                            <div class="chapter-item-meta">{{ $assignment->description ?: 'No description' }}</div>
-                                                        </div>
-                                                        <div class="criteria-weight">{{ $assignment->weightage ?? 0 }}%</div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @else
-                                            <div class="empty-state" style="padding: 24px 0; text-align:left;">No assignments for this chapter/unit.</div>
-                                        @endif
-                                    </div>
-
-                                    <div class="chapter-section">
-                                        <div class="chapter-section-title">Tests</div>
-                                        @if($item->unit->tests && $item->unit->tests->isNotEmpty())
-                                            <div class="chapter-items-list">
-                                                @foreach($item->unit->tests as $test)
-                                                    <div class="chapter-item">
-                                                        <div>
-                                                            <div class="chapter-item-name">{{ $test->title }}</div>
-                                                            <div class="chapter-item-meta">{{ $test->instructions ?: 'No instructions' }}</div>
-                                                        </div>
-                                                        <div class="criteria-weight">{{ $test->weightage ?? 0 }}%</div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @else
-                                            <div class="empty-state" style="padding: 24px 0; text-align:left;">No tests for this chapter/unit.</div>
-                                        @endif
-                                    </div>
-
-                                    <div class="chapter-section">
-                                        <div class="chapter-section-title">Exams</div>
-                                        @if($item->unit->exams && $item->unit->exams->isNotEmpty())
-                                            <div class="chapter-items-list">
-                                                @foreach($item->unit->exams as $exam)
-                                                    <div class="chapter-item">
-                                                        <div>
-                                                            <div class="chapter-item-name">{{ $exam->title }}</div>
-                                                            <div class="chapter-item-meta">{{ $exam->description ?: 'No description' }}</div>
-                                                        </div>
-                                                        <div class="criteria-weight">{{ $exam->weightage ?? 0 }}%</div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @else
-                                            <div class="empty-state" style="padding: 24px 0; text-align:left;">No exams for this chapter/unit.</div>
-                                        @endif
-                                    </div>
-                                @endif
-                                        @if(isset($criterion['description']) && $criterion['description'])
-                                            <div class="assessment-summary-desc">{{ $criterion['description'] }}</div>
-                                        @endif
-                                    </div>
-                                    <div class="criteria-weight">{{ $criterion['weight'] ?? 0 }}%</div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-
-                @if($item->grade_scale)
-                    <div style="margin-bottom: 20px;">
-                        <div class="section-title">Grade Scale</div>
-                        <div class="grade-scale">
-                            @foreach(['A', 'B', 'C', 'D', 'E', 'F'] as $grade)
-                                @if(isset($item->grade_scale[strtolower($grade) . '_min']) && isset($item->grade_scale[strtolower($grade) . '_max']))
-                                    <div class="grade-item">
-                                        <div class="grade-letter">{{ $grade }}</div>
-                                        <div class="grade-range">{{ $item->grade_scale[strtolower($grade) . '_min'] }}-{{ $item->grade_scale[strtolower($grade) . '_max'] }}%</div>
-                                    </div>
-                                @endif
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-
-            </div>
-        @endforeach
+        <div class="outline-card">
+            <table class="student-outline-table">
+                <thead>
+                    <tr>
+                        <th>Chapter/unit</th>
+                        <th>Tasks</th>
+                        <th>Marks</th>
+                        <th>Weightage</th>
+                        <th>Check list</th>
+                        <th>Total Weightage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($module->items as $item)
+                        @php
+                            $unit = $item->unit;
+                            $assignments = $unit?->assignments ?? collect();
+                            $tests = $unit?->tests ?? collect();
+                            $exams = $unit?->exams ?? collect();
+                            $tasksCount = $assignments->count() + $tests->count() + $exams->count();
+                            $totalWeight = ($assignments->sum('weightage') ?? 0) + ($tests->sum('weightage') ?? 0) + ($exams->sum('weightage') ?? 0);
+                            $unitCoverage = $coverage[$unit->id]['topics'] ?? null;
+                            $hasTopics = $unitCoverage && count($unitCoverage) > 0;
+                            $allCovered = $hasTopics ? collect($unitCoverage)->every(fn($t) => $t['covered']) : ($totalWeight >= 100);
+                        @endphp
+                            <tr>
+                                <td class="chapter-cell">{{ $item->title }}</td>
+                                <td>{{ $tasksCount > 0 ? $tasksCount . ' task(s)' : '-' }}</td>
+                                <td>-</td>
+                                <td>{{ $item->unit?->weightage ? $item->unit->weightage . '%' : '-' }}</td>
+                                <td class="{{ $allCovered ? 'status-completed' : 'status-not-done' }}">
+                                    {{ $allCovered ? 'Done' : 'Not Done' }}
+                                    @if($hasTopics)
+                                        <div style="margin-top:6px; font-size:13px; color:#6b7280;">
+                                            <strong>Topics:</strong>
+                                            <ul style="margin:6px 0 0 16px; padding:0; list-style: disc;">
+                                            @foreach($unitCoverage as $key => $topic)
+                                                <li style="margin-bottom:4px;">
+                                                    {{ $topic['label'] }} — @if($topic['covered']) <span style="color:#16a34a; font-weight:700;">Done</span>
+                                                        @if(!empty($topic['links']))
+                                                            <div style="margin-top:4px;">
+                                                                @foreach(array_slice($topic['links'],0,3) as $link)
+                                                                    @if($link['type'] === 'assignment')
+                                                                        <a href="{{ route('student.assignments.show', $link['id']) }}" style="margin-right:8px; color:#2563eb;">{{ $link['title'] ?: 'Assignment #' . $link['id'] }}</a>
+                                                                    @else
+                                                                        <a href="{{ route('student.exams.show', $link['id']) }}" style="margin-right:8px; color:#2563eb;">{{ $link['title'] ?: 'Exam #' . $link['id'] }}</a>
+                                                                    @endif
+                                                                @endforeach
+                                                            </div>
+                                                        @endif
+                                                    @else <span style="color:#ef4444; font-weight:700;">Not Done</span> @endif
+                                                </li>
+                                            @endforeach
+                                            </ul>
+                                        </div>
+                                    @endif
+                                </td>
+                                <td>{{ $totalWeight }}%</td>
+                            </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
 
         <div class="actions-bar">
             <a href="{{ route('student.courses.show', $course->id) }}" class="btn btn-outline">← Back to Course</a>

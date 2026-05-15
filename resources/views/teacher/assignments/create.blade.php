@@ -343,6 +343,39 @@
             @enderror
         </div>
 
+        <div class="form-group" id="topics-group" style="display: none;">
+            <label class="form-label">Topics Covered by This Assignment</label>
+            <div id="topics-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; padding: 12px; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
+                <p style="grid-column: 1/-1; color: #6b7280; font-size: 14px; margin: 0;">Select which topics from the chapter are covered by this assignment</p>
+            </div>
+            <div class="help-text">Topics will appear in the unit outline checklist, helping track assignment coverage</div>
+            @error('covered_topics')
+                <div class="error">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="form-group" id="questionbank-group" style="display: none;">
+            <label class="form-label">Pick Questions from Question Bank</label>
+            <div id="questionbank-container" style="display: grid; grid-template-columns: 1fr; gap: 8px; padding: 8px; border-radius: 6px; border:1px solid #e5e7eb; background:#fff;">
+                <p style="color:#6b7280; margin:0;">Select questions from the question bank for this assignment (optional)</p>
+            </div>
+            <div class="help-text">You can choose existing questions from the bank to include in this assignment.</div>
+            @error('selected_questions')
+                <div class="error">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="form-group" id="questionbank-controls" style="display:none; margin-top:6px;">
+            <input type="search" id="qb-search" placeholder="Search questions..." class="form-input" style="width:48%; display:inline-block;">
+            <select id="qb-perpage" class="form-select" style="width:100px; display:inline-block; margin-left:8px;">
+                <option value="5">5 / page</option>
+                <option value="10" selected>10 / page</option>
+                <option value="25">25 / page</option>
+            </select>
+            <button type="button" id="qb-checkall" class="btn btn-secondary" style="margin-left:12px;">Check all</button>
+            <div id="qb-pagination" style="display:inline-block; margin-left:12px; color:#6b7280;"></div>
+        </div>
+
         <div class="form-group">
             <label class="form-label" for="title">Assignment Title *</label>
             <input type="text" class="form-input" id="title" name="title" value="{{ old('title') }}" required>
@@ -453,6 +486,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const moduleSelect = document.getElementById('module_id');
     const courseSelect = document.getElementById('course_id');
     const unitSelect = document.getElementById('unit_id');
+    const topicsGroup = document.getElementById('topics-group');
+    const topicsContainer = document.getElementById('topics-container');
     const selectedUnitId = {{ $selectedUnitId ?? 'null' }};
 
     // Set minimum date to today
@@ -474,6 +509,8 @@ document.addEventListener('DOMContentLoaded', function() {
     moduleSelect.addEventListener('change', function() {
         const selectedOption = this.options[this.selectedIndex];
         unitSelect.innerHTML = '<option value="">Select a chapter/unit</option>';
+        topicsContainer.innerHTML = '<p style="grid-column: 1/-1; color: #6b7280; font-size: 14px; margin: 0;">Select which topics from the chapter are covered by this assignment</p>';
+        topicsGroup.style.display = 'none';
 
         if (selectedOption.value) {
             courseSelect.value = selectedOption.dataset.courseId || courseSelect.value;
@@ -493,6 +530,77 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error parsing units:', error);
             }
         }
+    });
+
+    // Handle unit selection to populate topics
+    unitSelect.addEventListener('change', function() {
+        if (!this.value) {
+            topicsGroup.style.display = 'none';
+            topicsContainer.innerHTML = '<p style="grid-column: 1/-1; color: #6b7280; font-size: 14px; margin: 0;">Select which topics from the chapter are covered by this assignment</p>';
+            return;
+        }
+
+        // Fetch topics for this unit via AJAX (teacher routes are prefixed)
+        fetch(`/teacher/api/units/${this.value}/topics`, { credentials: 'same-origin' })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                topicsContainer.innerHTML = '';
+
+                if (!data.topics || data.topics.length === 0) {
+                    topicsContainer.innerHTML = '<p style="grid-column: 1/-1; color: #6b7280; font-size: 14px; margin: 0;">No topics defined for this chapter yet</p>';
+                    topicsGroup.style.display = 'block';
+                    return;
+                }
+
+                data.topics.forEach((topic, index) => {
+                    const checkbox = document.createElement('label');
+                    checkbox.style.cssText = `
+                        display: flex;
+                        align-items: center;
+                        padding: 8px 12px;
+                        background: white;
+                        border: 1px solid #e5e7eb;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                    `;
+
+                    const input = document.createElement('input');
+                    input.type = 'checkbox';
+                    input.name = 'covered_topics[]';
+                    input.value = topic.topic || topic;
+                    input.style.marginRight = '8px';
+                    input.style.cursor = 'pointer';
+
+                    const topicText = topic.topic || topic;
+                    const topicLabel = document.createTextNode(topicText);
+
+                    checkbox.appendChild(input);
+                    checkbox.appendChild(topicLabel);
+
+                    checkbox.addEventListener('mouseenter', function() {
+                        this.style.backgroundColor = '#f3f4f6';
+                        this.style.borderColor = '#d1d5db';
+                    });
+
+                    checkbox.addEventListener('mouseleave', function() {
+                        this.style.backgroundColor = 'white';
+                        this.style.borderColor = '#e5e7eb';
+                    });
+
+                    topicsContainer.appendChild(checkbox);
+                });
+
+                topicsGroup.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error fetching topics:', error);
+                topicsContainer.innerHTML = '<div style="grid-column: 1/-1; color: #dc2626; font-size: 14px; margin: 0; padding:10px; background:#fff1f2; border-radius:6px;">Error loading topics</div>';
+                topicsGroup.style.display = 'block';
+            });
     });
 
     if (moduleSelect.value) {
@@ -518,6 +626,146 @@ document.addEventListener('DOMContentLoaded', function() {
     instructionFileInput.addEventListener('change', function() {
         instructionFileName.textContent = this.files.length ? this.files[0].name : 'No file selected';
     });
+
+    // Question bank loading
+    const questionBankGroup = document.getElementById('questionbank-group');
+    const questionBankContainer = document.getElementById('questionbank-container');
+
+    function loadQuestionBankForUnit(unitId, page = 1) {
+        if (!unitId) {
+            questionBankGroup.style.display = 'none';
+            questionBankContainer.innerHTML = '<p style="color:#6b7280; margin:0;">Select questions from the question bank for this assignment (optional)</p>';
+            return;
+        }
+
+        const perPage = document.getElementById('qb-perpage') ? document.getElementById('qb-perpage').value : 10;
+        const search = document.getElementById('qb-search') ? encodeURIComponent(document.getElementById('qb-search').value.trim()) : '';
+
+        fetch(`/teacher/api/questions?unit_id=${unitId}&page=${page}&per_page=${perPage}&search=${search}`, { credentials: 'same-origin' })
+            .then(r => { if (!r.ok) throw new Error('Network response was not ok'); return r.json(); })
+            .then(data => {
+                questionBankContainer.innerHTML = '';
+                if (!data.questions || data.questions.length === 0) {
+                    questionBankContainer.innerHTML = '<p style="color:#6b7280; margin:0;">No questions found for this chapter/unit</p>';
+                    questionBankGroup.style.display = 'block';
+                    document.getElementById('questionbank-controls').style.display = 'block';
+                    return;
+                }
+
+                data.questions.forEach(q => {
+                    const label = document.createElement('label');
+                    label.style.cssText = 'display:flex; align-items:flex-start; gap:8px; padding:8px; border-radius:6px; border:1px solid #e5e7eb; background:#fff;';
+
+                    const input = document.createElement('input');
+                    input.type = 'checkbox';
+                    input.dataset.qid = q.id;
+
+                    // Hidden inputs for form submission as objects
+                    const hiddenId = document.createElement('input');
+                    hiddenId.type = 'hidden';
+                    hiddenId.name = 'selected_questions[][id]';
+                    hiddenId.value = q.id;
+
+                    const hiddenMarks = document.createElement('input');
+                    hiddenMarks.type = 'number';
+                    hiddenMarks.name = 'selected_questions[][marks]';
+                    hiddenMarks.value = q.marks ?? 0;
+                    hiddenMarks.min = 0;
+                    hiddenMarks.style.width = '80px';
+                    hiddenMarks.style.marginLeft = '8px';
+                    hiddenMarks.disabled = true;
+
+                    const text = document.createElement('div');
+                    text.innerHTML = `<strong style="display:block">${q.topic ? (q.topic + ' — ') : ''}${(q.question_text?.slice(0,200) ?? '').replace(/\n/g,' ')}...</strong><small style="color:#6b7280">Marks: ${q.marks ?? 0} | Type: ${q.question_type ?? ''}</small>`;
+
+                    const previewBtn = document.createElement('button');
+                    previewBtn.type = 'button';
+                    previewBtn.className = 'btn btn-sm';
+                    previewBtn.style.marginLeft = '8px';
+                    previewBtn.textContent = 'Preview';
+                    previewBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const modal = document.getElementById('qb-preview-modal');
+                        modal.querySelector('.modal-body').textContent = q.question_text || '';
+                        modal.querySelector('.modal-title').textContent = q.topic ? (q.topic + ' — Question') : 'Question Preview';
+                        modal.style.display = 'block';
+                    });
+
+                    label.appendChild(input);
+                    label.appendChild(hiddenId);
+                    label.appendChild(hiddenMarks);
+                    label.appendChild(text);
+                    label.appendChild(previewBtn);
+                    questionBankContainer.appendChild(label);
+
+                    // Toggle marks input when selected
+                    input.addEventListener('change', function() {
+                        hiddenMarks.disabled = !this.checked;
+                    });
+                });
+
+                questionBankGroup.style.display = 'block';
+                document.getElementById('questionbank-controls').style.display = 'block';
+
+                // Render pagination
+                const meta = data.meta || {};
+                const pagination = document.getElementById('qb-pagination');
+                if (pagination) {
+                    pagination.innerHTML = `Page ${meta.current_page || 1} / ${meta.last_page || 1}`;
+                    // next/prev buttons
+                    let controls = '';
+                    if ((meta.current_page || 1) > 1) controls += `<button type="button" id="qb-prev" class="btn btn-secondary" style="margin-left:8px;">Prev</button>`;
+                    if ((meta.current_page || 1) < (meta.last_page || 1)) controls += `<button type="button" id="qb-next" class="btn btn-secondary" style="margin-left:8px;">Next</button>`;
+                    pagination.insertAdjacentHTML('beforeend', controls);
+
+                    const prevBtn = document.getElementById('qb-prev');
+                    const nextBtn = document.getElementById('qb-next');
+                    if (prevBtn) prevBtn.addEventListener('click', () => loadQuestionBankForUnit(unitId, meta.current_page - 1));
+                    if (nextBtn) nextBtn.addEventListener('click', () => loadQuestionBankForUnit(unitId, meta.current_page + 1));
+                }
+            })
+            .catch(err => {
+                questionBankContainer.innerHTML = '<div style="color:#dc2626; padding:8px; background:#fff1f2; border-radius:6px">Error loading question bank</div>';
+                questionBankGroup.style.display = 'block';
+                document.getElementById('questionbank-controls').style.display = 'block';
+            });
+    }
+
+    unitSelect.addEventListener('change', function() {
+        loadQuestionBankForUnit(this.value);
+    });
+
+    if (unitSelect.value) loadQuestionBankForUnit(unitSelect.value);
+});
+</script>
+<!-- Preview modal -->
+<div id="qb-preview-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); align-items:center; justify-content:center; z-index:9999;">
+    <div style="background:white; max-width:800px; margin:40px auto; padding:20px; border-radius:8px; position:relative;">
+        <h3 class="modal-title" style="margin:0 0 8px 0; font-size:18px; font-weight:700">Preview</h3>
+        <div class="modal-body" style="max-height:60vh; overflow:auto; white-space:pre-wrap; color:#111"></div>
+        <button type="button" id="qb-preview-close" class="btn btn-secondary" style="position:absolute; right:12px; top:12px;">Close</button>
+    </div>
+</div>
+
+<script>
+document.addEventListener('click', function(e){
+    const modal = document.getElementById('qb-preview-modal');
+    if (!modal) return;
+    if (e.target && e.target.id === 'qb-preview-close') {
+        modal.style.display = 'none';
+    }
+});
+
+// Check all button
+document.addEventListener('DOMContentLoaded', function(){
+    const checkAll = document.getElementById('qb-checkall');
+    if (checkAll) {
+        checkAll.addEventListener('click', function(){
+            const checks = document.querySelectorAll('#questionbank-container input[type="checkbox"]');
+            const anyUnchecked = Array.from(checks).some(cb => !cb.checked);
+            checks.forEach(cb => { cb.checked = anyUnchecked; const ev = new Event('change'); cb.dispatchEvent(ev); });
+        });
+    }
 });
 </script>
 @endsection

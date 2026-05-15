@@ -88,7 +88,10 @@ class TeacherAssignmentController extends Controller
             'type' => 'required|in:essay,project,quiz,presentation,homework,lab,other',
             'due_date' => 'required|date',
             'max_score' => 'required|integer|min:1',
-            'weightage' => 'required|numeric|min:0|max:100'
+            'weightage' => 'required|numeric|min:0|max:100',
+            'covered_topics' => 'nullable|array',
+            'covered_topics.*' => 'string',
+            'selected_questions' => 'nullable|array',
         ]);
 
         // Verify teacher owns this module
@@ -112,6 +115,26 @@ class TeacherAssignmentController extends Controller
 
         $validated['teacher_id'] = $teacher->id;
         $validated['unit_id'] = $unit->id;
+
+        // Store covered_topics as JSON array
+        $validated['covered_topics'] = $validated['covered_topics'] ?? [];
+        // Normalize selected_questions to array of objects: [{id, marks}]
+        if (!empty($validated['selected_questions'])) {
+            $normalized = [];
+            foreach ($validated['selected_questions'] as $sq) {
+                if (is_array($sq)) {
+                    $id = isset($sq['id']) ? intval($sq['id']) : null;
+                    $marks = isset($sq['marks']) && $sq['marks'] !== '' ? floatval($sq['marks']) : null;
+                } else {
+                    $id = intval($sq);
+                    $marks = null;
+                }
+                if ($id) $normalized[] = ['id' => $id, 'marks' => $marks];
+            }
+            $validated['selected_questions'] = $normalized;
+        } else {
+            $validated['selected_questions'] = null;
+        }
 
         $assignment = Assignment::create($validated);
 
@@ -147,12 +170,21 @@ class TeacherAssignmentController extends Controller
         abort_unless(in_array($submission->assignment?->course_id, $this->assignedCourseIds(), true), 403);
 
         $validated = $request->validate([
-            'score' => 'required|integer|min:0'
+            'score' => 'required|integer|min:0',
+            'grade' => 'nullable|string|max:20',
+            'feedback' => 'nullable|string',
         ]);
+
+        $teacher = $request->user()->teacher;
+        $grade = $validated['grade'] ?: $this->deriveLetterGrade((float) $validated['score'], (float) $submission->assignment->max_score);
 
         $submission->update([
             'score' => $validated['score'],
-            'status' => 'graded'
+            'grade' => $grade,
+            'feedback' => $validated['feedback'] ?? $submission->feedback,
+            'status' => 'graded',
+            'graded_by' => $teacher?->id,
+            'graded_at' => now(),
         ]);
 
         return back()->with('success', 'Submission graded successfully!');
@@ -171,8 +203,11 @@ class TeacherAssignmentController extends Controller
 
         $submission->update([
             'score' => $result['score'],
+            'grade' => $this->deriveLetterGrade((float) $result['score'], (float) $assignment->max_score),
             'status' => 'graded',
-            'feedback' => $result['feedback'] ?? null
+            'feedback' => $result['feedback'] ?? null,
+            'graded_by' => auth()->user()->teacher?->id,
+            'graded_at' => now(),
         ]);
 
         return back()->with('success', 'Submission graded using ' . $result['method'] . ' approach!');
@@ -187,5 +222,27 @@ class TeacherAssignmentController extends Controller
         }
 
         return $teacher->courses()->pluck('courses.id')->all();
+    }
+
+    private function deriveLetterGrade(float $score, float $maxScore): string
+    {
+        if ($maxScore <= 0) {
+            return 'N/A';
+        }
+
+        $percent = ($score / $maxScore) * 100;
+
+        return match (true) {
+            $percent >= 90 => 'A+',
+            $percent >= 85 => 'A',
+            $percent >= 80 => 'A-',
+            $percent >= 75 => 'B+',
+            $percent >= 70 => 'B',
+            $percent >= 65 => 'B-',
+            $percent >= 60 => 'C+',
+            $percent >= 55 => 'C',
+            $percent >= 50 => 'D',
+            default => 'F',
+        };
     }
 }

@@ -121,7 +121,7 @@ class StudentModuleController extends Controller
 
         $modules = $course->modules()
             ->with('teacher')
-            ->when($moduleItemsEnabled, fn ($query) => $query->with('items'))
+            ->when($moduleItemsEnabled, fn ($query) => $query->with(['items', 'units']))
             ->get();
 
         $moduleCards = $modules->map(function ($module) use ($course, $teacherNames, $moduleItemsEnabled) {
@@ -143,7 +143,8 @@ class StudentModuleController extends Controller
                 'lesson_count' => (int) $module->lesson_count,
                 'assignment_count' => (int) $module->assignment_count,
                 'quiz_count' => (int) $module->quiz_count,
-                'item_count' => $moduleItemsEnabled ? $module->items->count() : 0,
+                // prefer counting actual units (chapters) if present, otherwise fall back to module items
+                'item_count' => $moduleItemsEnabled ? ($module->units && $module->units->count() > 0 ? $module->units->count() : $module->items->count()) : 0,
                 'is_active' => (bool) data_get($module, 'is_active', true),
                 'teachers' => $moduleTeacherNames,
             ];
@@ -201,7 +202,116 @@ class StudentModuleController extends Controller
             ])->latest('created_at'),
         ]);
 
-        return view('student.modules.unit-outline', compact('course', 'module', 'moduleItemsEnabled'));
+        // Compute topic coverage per unit using covered_topics and selected_questions -> question tags/topics
+        $coverage = [];
+        // Collect all question ids referenced to eager load
+        $questionIds = [];
+        foreach ($module->items as $item) {
+            $unit = $item->unit;
+            if (!$unit) continue;
+            $coverage[$unit->id] = [
+                'unit' => $unit,
+                'topics' => [],
+            ];
+
+            // gather topics from grading_criteria
+            $topics = [];
+            if ($unit->grading_criteria && is_array($unit->grading_criteria)) {
+                foreach ($unit->grading_criteria as $c) {
+                    if (is_array($c)) {
+                        $t = $c['topic'] ?? $c['name'] ?? $c['description'] ?? null;
+                        if ($t) $topics[] = $t;
+                    } else {
+                        $topics[] = $c;
+                    }
+                }
+            }
+
+            $topics = array_values(array_filter(array_map(fn($t) => is_string($t) ? trim($t) : null, $topics)));
+
+            // initialize topic entries
+            foreach ($topics as $t) {
+                $coverage[$unit->id]['topics'][strtolower($t)] = [
+                    'label' => $t,
+                    'covered' => false,
+                    'links' => [],
+                ];
+            }
+
+            // scan unit assignments and exams
+            $activities = collect();
+            if ($unit->assignments) $activities = $activities->merge($unit->assignments);
+            if ($unit->exams) $activities = $activities->merge($unit->exams);
+
+            foreach ($activities as $act) {
+                // covered_topics from assignment/exam
+                $actCovered = $act->covered_topics ?? [];
+                foreach ($actCovered as $ct) {
+                    $key = strtolower(trim($ct));
+                    if (isset($coverage[$unit->id]['topics'][$key])) {
+                        $coverage[$unit->id]['topics'][$key]['covered'] = true;
+                        $coverage[$unit->id]['topics'][$key]['links'][] = [
+                            'type' => $act instanceof \App\Models\Assignment ? 'assignment' : 'exam',
+                            'id' => $act->id,
+                            'title' => $act->title ?? ($act->description ?? ''),
+                        ];
+                    }
+                }
+
+                // selected_questions on activity -> collect question ids
+                if (!empty($act->selected_questions) && is_array($act->selected_questions)) {
+                    foreach ($act->selected_questions as $sq) {
+                        $qid = is_array($sq) && isset($sq['id']) ? $sq['id'] : $sq;
+                        if ($qid) $questionIds[] = $qid;
+                    }
+                }
+            }
+        }
+
+        $questionIds = array_values(array_unique($questionIds));
+        $questions = [];
+        if (!empty($questionIds)) {
+            $qs = \App\Models\Question::whereIn('id', $questionIds)->get();
+            foreach ($qs as $q) {
+                $questions[$q->id] = $q;
+            }
+        }
+
+        // second pass: match question topics/tags to unit topics and attach links
+        foreach ($module->items as $item) {
+            $unit = $item->unit;
+            if (!$unit) continue;
+            $activities = collect();
+            if ($unit->assignments) $activities = $activities->merge($unit->assignments);
+            if ($unit->exams) $activities = $activities->merge($unit->exams);
+
+            foreach ($activities as $act) {
+                if (!empty($act->selected_questions) && is_array($act->selected_questions)) {
+                    foreach ($act->selected_questions as $sq) {
+                        $qid = is_array($sq) && isset($sq['id']) ? $sq['id'] : $sq;
+                        if (!$qid || !isset($questions[$qid])) continue;
+                        $q = $questions[$qid];
+                        $candidates = [];
+                        if (!empty($q->topic)) $candidates[] = $q->topic;
+                        if (!empty($q->tags) && is_array($q->tags)) $candidates = array_merge($candidates, $q->tags);
+
+                        foreach ($candidates as $cand) {
+                            $key = strtolower(trim($cand));
+                            if (isset($coverage[$unit->id]['topics'][$key])) {
+                                $coverage[$unit->id]['topics'][$key]['covered'] = true;
+                                $coverage[$unit->id]['topics'][$key]['links'][] = [
+                                    'type' => $act instanceof \App\Models\Assignment ? 'assignment' : 'exam',
+                                    'id' => $act->id,
+                                    'title' => $act->title ?? ($act->description ?? ''),
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return view('student.modules.unit-outline', compact('course', 'module', 'moduleItemsEnabled', 'coverage'));
     }
 
     public function show(CourseModule $module)

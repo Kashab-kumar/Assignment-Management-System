@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Exam extends Model
 {
-    protected $fillable = ['course_id', 'module_id', 'unit_id', 'type', 'assessment_type', 'title', 'description', 'exam_date', 'exam_time', 'duration_minutes', 'max_score', 'weightage', 'secure_mode', 'secure_instructions', 'max_violations', 'max_warnings'];
+    protected $fillable = ['course_id', 'module_id', 'unit_id', 'type', 'assessment_type', 'title', 'description', 'exam_date', 'exam_time', 'duration_minutes', 'max_score', 'weightage', 'secure_mode', 'secure_instructions', 'max_violations', 'max_warnings', 'covered_topics', 'selected_questions'];
 
     protected $casts = [
         'exam_date' => 'date',
         'secure_mode' => 'boolean',
+        'covered_topics' => 'array',
+        'selected_questions' => 'array',
     ];
 
     public function results()

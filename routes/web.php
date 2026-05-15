@@ -17,10 +17,12 @@ use App\Http\Controllers\Teacher\TeacherSubmissionController;
 use App\Http\Controllers\Teacher\TeacherExamController;
 use App\Http\Controllers\Teacher\TeacherStudentController;
 use App\Http\Controllers\Teacher\TeacherGradeController;
+use App\Http\Controllers\Teacher\TeacherGradingController;
 use App\Http\Controllers\Teacher\TeacherReportController;
 use App\Http\Controllers\Teacher\TeacherCourseController;
 use App\Http\Controllers\Teacher\TeacherModuleController;
 use App\Http\Controllers\Teacher\UnitController;
+use App\Http\Controllers\Teacher\QuestionController;
 use App\Models\CourseModuleItem;
 use App\Http\Controllers\Student\StudentExamController;
 use App\Http\Controllers\Student\StudentGradeController;
@@ -148,11 +150,23 @@ Route::post('/submissions/{submission}/grade-ai', [TeacherAssignmentController::
     Route::delete('/units/{unit}/assessment-config/{configuration}', [UnitAssessmentConfigurationController::class, 'destroy'])->name('units.assessment-config.destroy');
     Route::post('/units/{unit}/assessment-config/bulk-update', [UnitAssessmentConfigurationController::class, 'bulkUpdate'])->name('units.assessment-config.bulk-update');
     Route::get('/api/units/{unit}/assessment-config/summary', [UnitAssessmentConfigurationController::class, 'getSummary'])->name('units.assessment-config.summary');
+    Route::get('/api/units/{unit}/topics', [UnitController::class, 'getTopics'])->name('units.topics');
+    Route::get('/api/questions', [QuestionController::class, 'index'])->name('api.questions');
+    // Teacher question bank management (CRUD)
+    Route::get('/questions', [QuestionController::class, 'manageIndex'])->name('questions.index');
+    Route::get('/questions/create', [QuestionController::class, 'create'])->name('questions.create');
+    Route::post('/questions', [QuestionController::class, 'store'])->name('questions.store');
+    Route::get('/questions/{question}/edit', [QuestionController::class, 'edit'])->name('questions.edit');
+    Route::put('/questions/{question}', [QuestionController::class, 'update'])->name('questions.update');
+    Route::delete('/questions/{question}', [QuestionController::class, 'destroy'])->name('questions.destroy');
 
     // Courses
     Route::get('/courses', [TeacherCourseController::class, 'index'])->name('courses.index');
     Route::get('/courses/{course}', [TeacherCourseController::class, 'show'])->name('courses.show');
+    Route::get('/courses/{course}/assignment-grading', [TeacherGradingController::class, 'assignmentIndex'])->name('courses.assignment-grading');
+    Route::get('/courses/{course}/exam-grading', [TeacherGradingController::class, 'examIndex'])->name('courses.exam-grading');
     Route::get('/courses/{course}/modules/{module}', [TeacherCourseController::class, 'showModule'])->name('courses.modules.show');
+    Route::get('/courses/{course}/modules/{module}/unit-outline', [TeacherCourseController::class, 'showModuleUnitOutline'])->name('courses.modules.unit-outline');
     Route::get('/courses/{course}/modules/{module}/items/create', [TeacherCourseController::class, 'createModuleItem'])->name('courses.modules.items.create');
     Route::post('/courses/{course}/modules/{module}/items', [TeacherCourseController::class, 'storeModuleItem'])->name('courses.modules.items.store');
     Route::get('/courses/{course}/modules/{module}/items/{item}', [TeacherCourseController::class, 'showModuleItem'])->name('courses.modules.items.show');
@@ -160,6 +174,14 @@ Route::post('/submissions/{submission}/grade-ai', [TeacherAssignmentController::
     Route::put('/courses/{course}/modules/{module}/items/{item}', [TeacherCourseController::class, 'updateModuleItem'])->name('courses.modules.items.update');
     Route::delete('/courses/{course}/modules/{module}/items/{item}', [TeacherCourseController::class, 'destroyModuleItem'])->name('courses.modules.items.destroy');
     Route::post('/api/generate-content', [TeacherCourseController::class, 'generateAIContent'])->name('api.generate-content');
+
+    // Grading
+    Route::get('/grading/assignments/{assignment}/submissions', [TeacherGradingController::class, 'assignmentSubmissions'])->name('grading.assignments.submissions');
+    Route::get('/grading/submissions/{submission}', [TeacherGradingController::class, 'showAssignmentSubmission'])->name('grading.submissions.show');
+    Route::post('/grading/submissions/{submission}', [TeacherGradingController::class, 'updateAssignmentSubmission'])->name('grading.submissions.update');
+    Route::get('/grading/exams/{exam}/submissions', [TeacherGradingController::class, 'examSubmissions'])->name('grading.exams.submissions');
+    Route::get('/grading/exams/{exam}/students/{student}', [TeacherGradingController::class, 'showExamStudent'])->name('grading.exam-students.show');
+    Route::post('/grading/exams/{exam}/students/{student}', [TeacherGradingController::class, 'updateExamStudent'])->name('grading.exam-students.update');
 
     // Students / Grades / Reports
     Route::get('/students', [TeacherStudentController::class, 'index'])->name('students.index');

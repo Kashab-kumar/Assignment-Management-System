@@ -12,6 +12,8 @@ use App\Models\ExamResult;
 use App\Models\Unit;
 use App\Models\UnitAssessmentConfiguration;
 use App\Models\Submission;
+use App\Models\Student;
+use App\Models\ExamAnswer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
@@ -70,6 +72,30 @@ class TeacherCourseController extends Controller
                     }
                 },
             ]);
+            // Attach per-module pending counts for assignments and exams
+            foreach ($course->modules as $module) {
+                $moduleAssignmentPending = Submission::query()
+                    ->whereHas('assignment', fn ($q) => $q->where('course_id', $course->id)->where('module_id', $module->id))
+                    ->where(function ($q) {
+                        $q->whereNull('status')->orWhere('status', '!=', 'graded');
+                    })
+                    ->count();
+
+                $moduleExamAttemptCount = ExamAnswer::query()
+                    ->whereHas('exam', fn ($q) => $q->where('course_id', $course->id)->where('module_id', $module->id))
+                    ->select('exam_id', 'student_id')
+                    ->distinct()
+                    ->count('student_id');
+
+                $moduleExamGradedCount = ExamResult::query()
+                    ->whereHas('exam', fn ($q) => $q->where('course_id', $course->id)->where('module_id', $module->id))
+                    ->count();
+
+                $moduleExamPending = max($moduleExamAttemptCount - $moduleExamGradedCount, 0);
+
+                $module->assignment_pending_count = $moduleAssignmentPending;
+                $module->exam_pending_count = $moduleExamPending;
+            }
         }
 
         $relatedCourses = collect();
@@ -134,7 +160,7 @@ class TeacherCourseController extends Controller
                 $description = $outlineData['description'] ?? null;
                 $chapterTotalWeight = isset($outlineData['chapter_total_weight']) ? (float) $outlineData['chapter_total_weight'] : 0;
 
-                $gradingCriteriaPayload = $outlineData['grading_criteria'] ?? null;
+                $gradingCriteriaPayload = $outlineData['grading_criteria'] ?? ($outlineData['criteria'] ?? null);
                 $gradingCriteria = [];
                 if (!empty($gradingCriteriaPayload)) {
                     $gradingCriteria = is_string($gradingCriteriaPayload)
@@ -147,6 +173,21 @@ class TeacherCourseController extends Controller
                         ]);
                     }
                 }
+
+                $gradingCriteria = collect($gradingCriteria)
+                    ->map(function ($criterion) {
+                        return [
+                            'assessment_type' => $criterion['assessment_type'] ?? $criterion['type'] ?? $criterion['name'] ?? '',
+                            'topic' => $criterion['topic'] ?? $criterion['description'] ?? $criterion['name'] ?? '',
+                            'marks' => $criterion['marks'] ?? 0,
+                            'weight' => $criterion['weight'] ?? 0,
+                            'name' => $criterion['name'] ?? $criterion['topic'] ?? '',
+                            'description' => $criterion['description'] ?? $criterion['topic'] ?? '',
+                        ];
+                    })
+                    ->filter(fn ($criterion) => trim((string) ($criterion['topic'] ?? '')) !== '' || trim((string) ($criterion['name'] ?? '')) !== '')
+                    ->values()
+                    ->all();
 
                 if (empty($outlineData['chapter_total_weight']) && !empty($gradingCriteria)) {
                     $chapterTotalWeight = collect($gradingCriteria)->sum(function ($criterion) {
@@ -278,6 +319,25 @@ class TeacherCourseController extends Controller
         return view('teacher.courses.module-item-show', compact('course', 'module', 'item'));
     }
 
+    public function showModuleUnitOutline(Course $course, CourseModule $module)
+    {
+        abort_unless(in_array($course->id, $this->assignedCourseIds(), true), 403);
+
+        if ($module->course_id !== $course->id) {
+            abort(404);
+        }
+
+        $moduleItemsEnabled = Schema::hasTable('course_module_items');
+
+        $module->load([
+            'course',
+            'teacher',
+            'items' => fn ($query) => $query->with(['creator', 'unit.assessmentConfigurations', 'unit.assignments', 'unit.tests', 'unit.exams'])->where('type', 'unit_outline')->latest('created_at'),
+        ]);
+
+        return view('teacher.courses.module-unit-outline', compact('course', 'module', 'moduleItemsEnabled'));
+    }
+
     public function editModuleItem(Course $course, CourseModule $module, CourseModuleItem $item)
     {
         abort_unless(in_array($course->id, $this->assignedCourseIds(), true), 403);
@@ -285,6 +345,8 @@ class TeacherCourseController extends Controller
         if ($module->course_id !== $course->id || $item->course_module_id !== $module->id) {
             abort(404);
         }
+
+        $item->load('unit.assessmentConfigurations');
 
         return view('teacher.courses.module-item-edit', compact('course', 'module', 'item'));
     }
@@ -302,6 +364,31 @@ class TeacherCourseController extends Controller
             'description' => 'nullable|string|max:5000',
             'file' => 'nullable|file|mimes:pdf,doc,docx,txt|max:10240',
         ]);
+
+        $gradingCriteriaPayload = $request->input('grading_criteria', $request->input('criteria', []));
+        if (!is_array($gradingCriteriaPayload)) {
+            $gradingCriteriaPayload = [];
+        }
+
+        $gradingCriteria = collect($gradingCriteriaPayload)
+            ->map(function ($criterion) {
+                return [
+                    'assessment_type' => $criterion['assessment_type'] ?? $criterion['type'] ?? $criterion['name'] ?? '',
+                    'topic' => $criterion['topic'] ?? $criterion['description'] ?? $criterion['name'] ?? '',
+                    'marks' => $criterion['marks'] ?? 0,
+                    'weight' => $criterion['weight'] ?? 0,
+                    'name' => $criterion['name'] ?? $criterion['topic'] ?? '',
+                    'description' => $criterion['description'] ?? $criterion['topic'] ?? '',
+                ];
+            })
+            ->filter(fn ($criterion) => trim((string) ($criterion['topic'] ?? '')) !== '' || trim((string) ($criterion['name'] ?? '')) !== '')
+            ->values()
+            ->all();
+
+        $chapterTotalWeight = (float) ($request->input('chapter_total_weight') ?? collect($gradingCriteria)->sum(fn ($criterion) => (float) ($criterion['weight'] ?? 0)));
+
+        $aiOptions = is_array($item->ai_options) ? $item->ai_options : [];
+        $aiOptions['chapter_total_weight'] = $chapterTotalWeight;
 
         $filePath = $item->file_path;
         $fileName = $item->file_name;
@@ -324,7 +411,56 @@ class TeacherCourseController extends Controller
             'file_path' => $filePath,
             'file_name' => $fileName,
             'file_type' => $fileType,
+            'grading_criteria' => !empty($gradingCriteria) ? $gradingCriteria : null,
+            'ai_options' => $aiOptions,
         ]);
+
+        if ($item->unit) {
+            $item->unit->update([
+                'title' => $validated['title'],
+                'description' => $validated['description'] ?? null,
+                'file_path' => $filePath,
+                'grading_criteria' => !empty($gradingCriteria) ? json_encode($gradingCriteria) : null,
+                'ai_options' => json_encode($aiOptions),
+                'weightage_percent' => $chapterTotalWeight,
+            ]);
+
+            $item->unit->assessmentConfigurations()->delete();
+
+            if (!empty($gradingCriteria)) {
+                $byType = [];
+                foreach ($gradingCriteria as $criterion) {
+                    $type = strtolower(trim($criterion['assessment_type'] ?? ($criterion['name'] ?? '')));
+                    if ($type === '') {
+                        continue;
+                    }
+
+                    $weight = (float) ($criterion['weight'] ?? 0);
+                    $topic = trim($criterion['topic'] ?? ($criterion['description'] ?? ''));
+
+                    if (!isset($byType[$type])) {
+                        $byType[$type] = ['weight' => 0, 'description' => ''];
+                    }
+
+                    $byType[$type]['weight'] += $weight;
+                    if ($topic !== '') {
+                        $byType[$type]['description'] = $byType[$type]['description']
+                            ? $byType[$type]['description'] . '; ' . $topic
+                            : $topic;
+                    }
+                }
+
+                foreach ($byType as $assessmentType => $data) {
+                    UnitAssessmentConfiguration::create([
+                        'unit_id' => $item->unit->id,
+                        'assessment_type' => $assessmentType,
+                        'weight_percent' => $data['weight'],
+                        'description' => $data['description'] ?: null,
+                        'is_active' => true,
+                    ]);
+                }
+            }
+        }
 
         return redirect()->route('teacher.courses.modules.show', [$course, $module])
             ->with('success', 'Unit outline updated successfully.');
@@ -399,6 +535,25 @@ class TeacherCourseController extends Controller
             ->take(10)
             ->get();
 
+        $assignmentPendingCount = Submission::query()
+            ->whereHas('assignment', fn ($query) => $query->where('course_id', $course->id))
+            ->where(function ($query) {
+                $query->whereNull('status')->orWhere('status', '!=', 'graded');
+            })
+            ->count();
+
+        $examAttemptCount = ExamAnswer::query()
+            ->whereHas('exam', fn ($query) => $query->where('course_id', $course->id))
+            ->select('exam_id', 'student_id')
+            ->distinct()
+            ->count('student_id');
+
+        $examGradedCount = ExamResult::query()
+            ->whereHas('exam', fn ($query) => $query->where('course_id', $course->id))
+            ->count();
+
+        $examPendingCount = max($examAttemptCount - $examGradedCount, 0);
+
         $recents = collect();
 
         if ($moduleItemsEnabled) {
@@ -444,7 +599,9 @@ class TeacherCourseController extends Controller
             'recentSubmissions',
             'recentResults',
             'recents',
-            'moduleItemsEnabled'
+            'moduleItemsEnabled',
+            'assignmentPendingCount',
+            'examPendingCount'
         ));
     }
 

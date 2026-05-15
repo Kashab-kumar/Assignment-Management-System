@@ -158,83 +158,38 @@
             <div id="unit-outline" class="tab-pane">
                 <h3 style="margin-top: 0;">Unit Outline Materials</h3>
                 @if($module->items && $module->items->count() > 0)
-                    <div style="display: grid; gap: 20px;">
-                        @foreach($module->items as $item)
-                            <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px;">
-                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                                    <div>
-                                        <h4 style="margin: 0 0 8px; font-size: 18px; color: #0f172a;">{{ $item->title }}</h4>
-                                        <span style="background: #dbeafe; color: #1e40af; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;">{{ ucfirst(str_replace('_', ' ', $item->type)) }}</span>
-                                        @if($item->creator)
-                                            <span style="color: #64748b; font-size: 13px; margin-left: 12px;">by {{ $item->creator->name }}</span>
-                                        @endif
-                                    </div>
-                                    @if($item->file_path)
-                                        <a href="{{ asset('storage/' . $item->file_path) }}" target="_blank" style="background: #3b82f6; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 500;">👁 View File</a>
-                                    @endif
-                                </div>
-
-                                @if($item->content)
-                                    <div style="background: white; border-radius: 8px; padding: 16px; margin-bottom: 16px; color: #374151; line-height: 1.6;">
-                                        {{ $item->content }}
-                                    </div>
-                                @endif
-
-                                @if($item->file_path)
-                                    <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <span style="font-size: 32px;">
-                                                @if($item->file_type == 'pdf') 📕
-                                                @elseif(in_array($item->file_type, ['doc', 'docx'])) 📘
-                                                @elseif($item->file_type == 'txt') 📝
-                                                @else 📄
-                                                @endif
-                                            </span>
-                                            <div style="flex: 1;">
-                                                <div style="font-weight: 600; color: #1f2937;">{{ $item->file_name }}</div>
-                                                <div style="font-size: 12px; color: #6b7280;">{{ strtoupper($item->file_type) }} file</div>
-                                            </div>
-                                            <a href="{{ asset('storage/' . $item->file_path) }}" download style="background: #10b981; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 500;">⬇ Download</a>
-                                        </div>
-                                    </div>
-                                @endif
-
-                                @if($item->grade_scale)
-                                    <div style="margin-bottom: 16px;">
-                                        <h5 style="font-size: 14px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 12px;">Grade Scale</h5>
-                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 8px;">
-                                            @foreach(['A', 'B', 'C', 'D', 'E', 'F'] as $grade)
-                                                @if(isset($item->grade_scale[strtolower($grade) . '_min']) && isset($item->grade_scale[strtolower($grade) . '_max']))
-                                                    <div style="background: white; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; text-align: center;">
-                                                        <div style="font-weight: 700; color: #1f2937; font-size: 18px;">{{ $grade }}</div>
-                                                        <div style="font-size: 12px; color: #6b7280;">{{ $item->grade_scale[strtolower($grade) . '_min'] }}-{{ $item->grade_scale[strtolower($grade) . '_max'] }}%</div>
-                                                    </div>
-                                                @endif
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endif
-
-                                @if($item->grading_criteria)
-                                    <div>
-                                        <h5 style="font-size: 14px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 12px;">Grading Criteria</h5>
-                                        <div style="display: grid; gap: 8px;">
-                                            @foreach($item->grading_criteria as $criterion)
-                                                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;">
-                                                    <div>
-                                                        <div style="font-weight: 600; color: #1f2937;">{{ $criterion['name'] ?? 'Criterion' }}</div>
-                                                        @if(isset($criterion['description']) && $criterion['description'])
-                                                            <div style="font-size: 13px; color: #6b7280;">{{ $criterion['description'] }}</div>
-                                                        @endif
-                                                    </div>
-                                                    <div style="background: #dbeafe; color: #1e40af; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;">{{ $criterion['weight'] ?? 0 }}%</div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-                        @endforeach
+                    <div style="overflow-x:auto;">
+                        <table class="student-outline-table" style="min-width:900px; margin-top:12px;">
+                            <thead>
+                                <tr>
+                                    <th>Chapter/unit</th>
+                                    <th>Tasks</th>
+                                    <th>Marks</th>
+                                    <th>Weightage</th>
+                                    <th>Check list</th>
+                                    <th>Total Weightage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($module->items as $item)
+                                    @php
+                                        $assignments = $item->unit?->assignments ?? collect();
+                                        $tests = $item->unit?->tests ?? collect();
+                                        $exams = $item->unit?->exams ?? collect();
+                                        $tasksCount = $assignments->count() + $tests->count() + $exams->count();
+                                        $totalWeight = ($assignments->sum('weightage') ?? 0) + ($tests->sum('weightage') ?? 0) + ($exams->sum('weightage') ?? 0);
+                                    @endphp
+                                    <tr>
+                                        <td style="background:#f8fafc; font-weight:700;">{{ $item->title }}</td>
+                                        <td>{{ $tasksCount > 0 ? $tasksCount . ' task(s)' : '-' }}</td>
+                                        <td>-</td>
+                                        <td>{{ $item->unit?->weightage ? $item->unit->weightage . '%' : '-' }}</td>
+                                        <td style="color:#ef4444; font-weight:700;">{{ $totalWeight < 100 ? 'Not Done' : 'Done' }}</td>
+                                        <td>{{ $totalWeight }}%</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 @else
                     <div class="empty-state">
