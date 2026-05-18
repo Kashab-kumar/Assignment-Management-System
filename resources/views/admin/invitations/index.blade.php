@@ -32,49 +32,48 @@
     <div class="alert-success">{{ session('success') }}</div>
     @endif
 
-    <table>
-        <thead>
+    <x-ui.table>
+        <x-slot name="head">
             <tr>
-                <th>Role</th>
-                <th>Created By</th>
-                <th>Status</th>
-                <th>Created</th>
-                <th>Expires</th>
-                <th>Action</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created By</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expires</th>
+                <th class="px-6 py-3"></th>
             </tr>
-        </thead>
-        <tbody>
-            @forelse($invitations as $invitation)
-            <tr>
-                <td><span class="badge badge-{{ $invitation->role }}">{{ ucfirst($invitation->role) }}</span></td>
-                <td>{{ $invitation->inviter->name }}</td>
-                <td>
-                    @if($invitation->used)
-                        <span class="badge badge-used">Used</span>
-                    @elseif($invitation->isExpired())
-                        <span class="badge badge-expired">Expired</span>
-                    @else
-                        <span class="badge badge-active">Active</span>
-                    @endif
-                </td>
-                <td>{{ $invitation->created_at->format('d/m/Y') }}</td>
-                <td>{{ $invitation->expires_at->format('d/m/Y') }}</td>
-                <td>
-                    @if(!$invitation->used && !$invitation->isExpired())
-                        <a href="{{ route('admin.invitations.show', $invitation) }}" class="btn" style="padding: 6px 12px; font-size: 13px; margin-right: 5px;">Share</a>
-                        <form action="{{ route('admin.invitations.destroy', $invitation) }}" method="POST" style="display: inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger" style="padding: 6px 12px; font-size: 13px;" onclick="return confirm('Are you sure?')">Delete</button>
-                        </form>
-                    @endif
-                </td>
-            </tr>
-            @empty
-            <tr><td colspan="6">No invitations yet</td></tr>
-            @endforelse
-        </tbody>
-    </table>
+        </x-slot>
+
+        @forelse($invitations as $invitation)
+        <tr>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><span class="badge badge-{{ $invitation->role }}">{{ ucfirst($invitation->role) }}</span></td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $invitation->inviter->name }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                @if($invitation->used)
+                    <span class="badge badge-used">Used</span>
+                @elseif($invitation->isExpired())
+                    <span class="badge badge-expired">Expired</span>
+                @else
+                    <span class="badge badge-active">Active</span>
+                @endif
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $invitation->created_at->format('d/m/Y') }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $invitation->expires_at->format('d/m/Y') }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                @if(!$invitation->used && !$invitation->isExpired())
+                    <a href="{{ route('admin.invitations.show', $invitation) }}" class="btn" style="padding: 6px 12px; font-size: 13px; margin-right: 5px;">Share</a>
+                    <form action="{{ route('admin.invitations.destroy', $invitation) }}" method="POST" style="display: inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger" style="padding: 6px 12px; font-size: 13px;" onclick="return confirm('Are you sure?')">Delete</button>
+                    </form>
+                @endif
+            </td>
+        </tr>
+        @empty
+        <tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No invitations yet</td></tr>
+        @endforelse
+    </x-ui.table>
 
     <div style="margin-top: 20px;">
         {{ $invitations->links() }}

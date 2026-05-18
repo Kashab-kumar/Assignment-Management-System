@@ -172,6 +172,7 @@ Route::post('/submissions/{submission}/grade-ai', [TeacherAssignmentController::
     Route::get('/courses/{course}/modules/{module}/items/{item}', [TeacherCourseController::class, 'showModuleItem'])->name('courses.modules.items.show');
     Route::get('/courses/{course}/modules/{module}/items/{item}/edit', [TeacherCourseController::class, 'editModuleItem'])->name('courses.modules.items.edit');
     Route::put('/courses/{course}/modules/{module}/items/{item}', [TeacherCourseController::class, 'updateModuleItem'])->name('courses.modules.items.update');
+    Route::post('/courses/{course}/modules/{module}/items/{item}/checklist', [TeacherCourseController::class, 'updateModuleItemChecklist'])->name('courses.modules.items.checklist');
     Route::delete('/courses/{course}/modules/{module}/items/{item}', [TeacherCourseController::class, 'destroyModuleItem'])->name('courses.modules.items.destroy');
     Route::post('/api/generate-content', [TeacherCourseController::class, 'generateAIContent'])->name('api.generate-content');
 

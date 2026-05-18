@@ -58,5 +58,67 @@
         <div class="value">{{ $totalStudents }}</div>
     </div>
 </div>
+<div class="section">
+    <h2>Grading Queue</h2>
+    @if($pendingSubmissions->isEmpty())
+        <div class="empty">No pending submissions to grade.</div>
+    @else
+        <x-ui.table>
+            <x-slot name="head">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assignment</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th>
+                    <th class="px-6 py-3"></th>
+                </tr>
+            </x-slot>
+
+            @foreach($pendingSubmissions as $sub)
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $sub->student->name ?? 'Student' }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $sub->assignment->title ?? 'Assignment' }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $sub->created_at->diffForHumans() }}</td>
+                <td class="px-6 py-4 whitespace-nowrap"><a href="{{ route('teacher.courses.assignment-grading', $sub->assignment->course) }}" class="inline-flex items-center px-3 py-1 rounded bg-yellow-100 text-yellow-800 text-sm font-semibold">Grade</a></td>
+            </tr>
+            @endforeach
+        </x-ui.table>
+    @endif
+</div>
+
+<div class="section">
+    <h2>Upcoming (14 days)</h2>
+    @if($upcomingAssignments->isEmpty() && $upcomingExams->isEmpty())
+        <div class="empty">No upcoming assignments or exams in the next 14 days.</div>
+    @else
+        <x-ui.table>
+            <x-slot name="head">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                </tr>
+            </x-slot>
+
+            @foreach($upcomingAssignments as $a)
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Assignment</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $a->title }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $a->course?->name ?? 'Course' }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ optional($a->due_date)->toFormattedDateString() ?: $a->due_date }}</td>
+            </tr>
+            @endforeach
+
+            @foreach($upcomingExams as $e)
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Exam</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $e->title }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $e->course?->name ?? 'Course' }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ optional($e->exam_date)->toFormattedDateString() ?: $e->exam_date }}</td>
+            </tr>
+            @endforeach
+        </x-ui.table>
+    @endif
+</div>
 
 @endsection

@@ -276,26 +276,8 @@
                                 <div class="module-desc">
                                     {{ $module->description ?: 'No description available for this module.' }}
                                 </div>
-                                <div class="module-stats">
-                                    <div class="stat-box">
-                                        <div class="stat-value">{{ $module->items?->count() ?? $module->lesson_count ?? 0 }}</div>
-                                        <div class="stat-label">Items</div>
-                                    </div>
-                                    <div class="stat-box">
-                                        <div class="stat-value">{{ $module->quiz_count ?? 0 }}</div>
-                                        <div class="stat-label">Quizzes</div>
-                                    </div>
-                                </div>
-                                <div class="module-stats" style="margin-top:8px;">
-                                    <div class="stat-box">
-                                        <div class="stat-value">{{ $module->assignment_pending_count ?? 0 }}</div>
-                                        <div class="stat-label">Assignments Pending</div>
-                                    </div>
-                                    <div class="stat-box">
-                                        <div class="stat-value">{{ $module->exam_pending_count ?? 0 }}</div>
-                                        <div class="stat-label">Exams Pending</div>
-                                    </div>
-                                </div>
+                                {{-- Items and Quizzes tiles removed per request --}}
+                                {{-- Pending counts removed from module card per UI request --}}
                             </div>
 
                             <div class="module-footer">

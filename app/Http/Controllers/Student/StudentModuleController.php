@@ -199,7 +199,7 @@ class StudentModuleController extends Controller
                 'unit.assignments',
                 'unit.tests',
                 'unit.exams',
-            ])->latest('created_at'),
+            ])->where('type', 'unit_outline')->latest('created_at'),
         ]);
 
         // Compute topic coverage per unit using covered_topics and selected_questions -> question tags/topics
@@ -355,7 +355,6 @@ class StudentModuleController extends Controller
             ->where('course_id', $module->course_id)
             ->where('module_id', $module->id)
             ->latest('due_date')
-            ->take(8)
             ->get();
 
         $exams = Exam::query()
@@ -369,7 +368,6 @@ class StudentModuleController extends Controller
                     ->orWhereNull('module_id');
             })
             ->orderByDesc('exam_date')
-            ->take(8)
             ->get();
 
         $gradedAssignments = $student->submissions()

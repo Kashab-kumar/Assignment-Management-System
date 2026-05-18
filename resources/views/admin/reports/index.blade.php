@@ -120,118 +120,74 @@
 <div class="reports-container">
     <h2 style="color: #333; margin-bottom: 20px;">System Overview</h2>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon stat-users">👥</div>
-            <div class="stat-value">{{ $totalUsers }}</div>
-            <div class="stat-label">Total Users</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon stat-teachers">👨‍🏫</div>
-            <div class="stat-value">{{ $totalTeachers }}</div>
-            <div class="stat-label">Teachers</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon stat-students">👨‍🎓</div>
-            <div class="stat-value">{{ $totalStudents }}</div>
-            <div class="stat-label">Students</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon stat-courses">📚</div>
-            <div class="stat-value">{{ $totalCourses }}</div>
-            <div class="stat-label">Courses</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon stat-assignments">📄</div>
-            <div class="stat-value">{{ $totalAssignments }}</div>
-            <div class="stat-label">Assignments</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon stat-submissions">📤</div>
-            <div class="stat-value">{{ $totalSubmissions }}</div>
-            <div class="stat-label">Submissions</div>
-        </div>
-    </div>
+    {{-- System Overview cards removed per request --}}
 
     <div class="reports-section">
         <h3>Recent User Activity</h3>
-        <table class="reports-table">
-            <thead>
+        <x-ui.table>
+            <x-slot name="head">
                 <tr>
-                    <th>User</th>
-                    <th>Role</th>
-                    <th>Email</th>
-                    <th>Joined</th>
-                    <th>Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach($recentUsers as $user)
-                <tr>
-                    <td>
-                        <strong>{{ $user->name }}</strong>
-                        @if($user->student)
-                            <div style="font-size: 12px; color: #666;">Student ID: {{ $user->student->student_id }}</div>
-                        @elseif($user->teacher)
-                            <div style="font-size: 12px; color: #666;">Teacher</div>
-                        @endif
-                    </td>
-                    <td>
-                        <span style="padding: 4px 8px; background: #f0f0f0; border-radius: 4px; font-size: 12px;">
-                            {{ ucfirst($user->role) }}
-                        </span>
-                    </td>
-                    <td>{{ $user->email }}</td>
-                    <td>{{ $user->created_at->format('d/m/Y') }}</td>
-                    <td><span style="color: #4CAF50;">● Active</span></td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+            </x-slot>
+
+            @foreach($recentUsers as $user)
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
+                    @if($user->student)
+                        <div class="text-xs text-gray-500">Student ID: {{ $user->student->student_id }}</div>
+                    @elseif($user->teacher)
+                        <div class="text-xs text-gray-500">Teacher</div>
+                    @endif
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">{{ ucfirst($user->role) }}</span></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->email }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->created_at->format('d/m/Y') }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">● Active</td>
+            </tr>
+            @endforeach
+        </x-ui.table>
     </div>
 
     <div class="reports-section">
         <h3>Recent Submissions</h3>
-        <table class="reports-table">
-            <thead>
+        <x-ui.table>
+            <x-slot name="head">
                 <tr>
-                    <th>Student</th>
-                    <th>Assignment</th>
-                    <th>Submitted</th>
-                    <th>Status</th>
-                    <th>Score</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assignment</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach($recentSubmissions as $submission)
-                <tr>
-                    <td>
-                        <strong>{{ $submission->student->user->name ?? 'Unknown' }}</strong>
-                        <div style="font-size: 12px; color: #666;">{{ $submission->student->student_id ?? 'N/A' }}</div>
-                    </td>
-                    <td>{{ $submission->assignment->title }}</td>
-                    <td>{{ $submission->submitted_at->format('M d, Y h:i A') }}</td>
-                    <td>
-                        <span style="padding: 4px 8px; background: {{ $submission->status == 'graded' ? '#4CAF50' : '#FFC107' }}; color: white; border-radius: 4px; font-size: 12px;">
-                            {{ ucfirst($submission->status) }}
-                        </span>
-                    </td>
-                    <td>
-                        @if($submission->score)
-                            {{ $submission->score }}/{{ $submission->assignment->max_score }}
-                        @else
-                            <span style="color: #999;">-</span>
-                        @endif
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+            </x-slot>
+
+            @foreach($recentSubmissions as $submission)
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">{{ $submission->student->user->name ?? 'Unknown' }}</div>
+                    <div class="text-xs text-gray-500">{{ $submission->student->student_id ?? 'N/A' }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $submission->assignment->title }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $submission->submitted_at->format('M d, Y h:i A') }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $submission->status == 'graded' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">{{ ucfirst($submission->status) }}</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    @if($submission->score)
+                        {{ $submission->score }}/{{ $submission->assignment->max_score }}
+                    @else
+                        <span class="text-gray-400">-</span>
+                    @endif
+                </td>
+            </tr>
+            @endforeach
+        </x-ui.table>
     </div>
 
     <div class="export-options">

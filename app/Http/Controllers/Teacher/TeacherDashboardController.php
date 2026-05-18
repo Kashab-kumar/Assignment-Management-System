@@ -20,19 +20,41 @@ class TeacherDashboardController extends Controller
             ->whereHas('assignment', fn ($q) => $q->whereIn('course_id', $assignedCourseIds))
             ->count();
         $totalStudents = Student::whereIn('course_id', $assignedCourseIds)->count();
-        
+
         $recentSubmissions = Submission::with(['student', 'assignment'])
             ->whereHas('assignment', fn ($q) => $q->whereIn('course_id', $assignedCourseIds))
             ->latest()
             ->take(10)
             ->get();
-        
+
+        $pendingSubmissions = Submission::with(['student', 'assignment'])
+            ->where('status', 'pending')
+            ->whereHas('assignment', fn ($q) => $q->whereIn('course_id', $assignedCourseIds))
+            ->latest()
+            ->take(10)
+            ->get();
+
+        $upcomingAssignments = Assignment::whereIn('course_id', $assignedCourseIds)
+            ->whereBetween('due_date', [now()->toDateString(), now()->addDays(14)->toDateString()])
+            ->orderBy('due_date')
+            ->take(8)
+            ->get();
+
+        $upcomingExams = \App\Models\Exam::whereIn('course_id', $assignedCourseIds)
+            ->whereBetween('exam_date', [now()->toDateString(), now()->addDays(14)->toDateString()])
+            ->orderBy('exam_date')
+            ->take(8)
+            ->get();
+
         return view('teacher.dashboard', compact(
             'totalAssignments',
-            'totalSubmissions', 
+            'totalSubmissions',
             'pendingGrading',
             'totalStudents',
-            'recentSubmissions'
+            'recentSubmissions',
+            'pendingSubmissions',
+            'upcomingAssignments',
+            'upcomingExams'
         ));
     }
 

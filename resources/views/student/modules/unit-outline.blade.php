@@ -46,21 +46,6 @@
         font-size: 16px;
     }
 
-    .header-meta {
-        display: flex;
-        gap: 20px;
-        margin-top: 20px;
-        flex-wrap: wrap;
-    }
-
-    .meta-item {
-        background: rgba(255,255,255,0.2);
-        padding: 10px 18px;
-        border-radius: 24px;
-        font-size: 14px;
-        font-weight: 500;
-    }
-
     .outline-card {
         background: white;
         border: 1px solid #e5e7eb;
@@ -438,6 +423,7 @@
         background: #f8fafc;
         font-weight: 700;
     }
+    .status-completed { color: #16a34a; font-weight: 700; }
     .status-not-done { color: #ef4444; font-weight: 700; }
 </style>
 
@@ -449,14 +435,11 @@
     <div class="header">
         <h1>{{ $module->title }}</h1>
         <p>{{ $module->description ?: 'Unit Outline Details' }}</p>
-        <div class="header-meta">
-            <span class="meta-item">📚 {{ $module->items->count() }} Materials</span>
-            <span class="meta-item">👨‍🏫 {{ $module->teacher?->name ?? 'Course Instructor' }}</span>
-        </div>
     </div>
 
     @if($module->items && $module->items->count() > 0)
         <div class="outline-card">
+            @php $overallChapterWeight = 0; @endphp
             <table class="student-outline-table">
                 <thead>
                     <tr>
@@ -472,50 +455,107 @@
                     @foreach($module->items as $item)
                         @php
                             $unit = $item->unit;
-                            $assignments = $unit?->assignments ?? collect();
-                            $tests = $unit?->tests ?? collect();
-                            $exams = $unit?->exams ?? collect();
-                            $tasksCount = $assignments->count() + $tests->count() + $exams->count();
-                            $totalWeight = ($assignments->sum('weightage') ?? 0) + ($tests->sum('weightage') ?? 0) + ($exams->sum('weightage') ?? 0);
-                            $unitCoverage = $coverage[$unit->id]['topics'] ?? null;
-                            $hasTopics = $unitCoverage && count($unitCoverage) > 0;
-                            $allCovered = $hasTopics ? collect($unitCoverage)->every(fn($t) => $t['covered']) : ($totalWeight >= 100);
+                            $criteria = collect($item->grading_criteria ?? [])->values();
+
+                            if ($criteria->isEmpty() && $unit && is_array($unit->grading_criteria)) {
+                                $criteria = collect($unit->grading_criteria)->values();
+                            }
+
+                            if ($criteria->isEmpty()) {
+                                $criteria = collect([[ 'topic' => '-', 'marks' => '-', 'weight' => 0 ]]);
+                            }
+
+                            $criteriaCount = max($criteria->count(), 1);
+                            $criteriaWeightTotal = $criteria->sum(fn ($criterion) => (float) ($criterion['weight'] ?? 0));
+                            $chapterWeight = (float) data_get($item->ai_options, 'chapter_total_weight', $criteriaWeightTotal);
+                            $overallChapterWeight += $chapterWeight;
                         @endphp
+
+                        @foreach($criteria as $rowIndex => $criterion)
+                            @php
+                                $topic = trim((string) ($criterion['topic'] ?? $criterion['name'] ?? $criterion['description'] ?? '-'));
+                                $marks = $criterion['marks'] ?? '-';
+                                $weight = (float) ($criterion['weight'] ?? 0);
+                                $criteriaKey = sha1($item->id . '|' . strtolower(trim($topic)) . '|' . $marks . '|' . $weight);
+                                $checklistStatus = data_get($item->ai_options, 'checklist_status', []);
+                                $manualStatus = is_array($checklistStatus) ? ($checklistStatus[$criteriaKey] ?? null) : null;
+
+                                $topicLower = strtolower(trim($topic));
+                                $unitAssignments = $unit?->assignments ?? collect();
+                                $unitExams = $unit?->exams ?? collect();
+
+                                $matchingAssignments = $unitAssignments->filter(function ($assignment) use ($topicLower) {
+                                    if (empty($assignment->covered_topics) || !is_array($assignment->covered_topics)) {
+                                        return false;
+                                    }
+
+                                    foreach ($assignment->covered_topics as $coveredTopic) {
+                                        if (strtolower(trim($coveredTopic)) === $topicLower) {
+                                            return true;
+                                        }
+                                    }
+
+                                    return false;
+                                });
+
+                                $matchingExams = $unitExams->filter(function ($exam) use ($topicLower) {
+                                    if (empty($exam->covered_topics) || !is_array($exam->covered_topics)) {
+                                        return false;
+                                    }
+
+                                    foreach ($exam->covered_topics as $coveredTopic) {
+                                        if (strtolower(trim($coveredTopic)) === $topicLower) {
+                                            return true;
+                                        }
+                                    }
+
+                                    return false;
+                                });
+
+                                $matchingAssignments->loadMissing('submissions');
+                                $matchingExams->loadMissing('results');
+
+                                $assignmentDone = $matchingAssignments->contains(function ($assignment) {
+                                    return $assignment->submissions->isNotEmpty() && $assignment->submissions->every(fn ($submission) => $submission->status === 'graded');
+                                });
+
+                                $examDone = $matchingExams->contains(fn ($exam) => $exam->results->isNotEmpty());
+                                $autoDone = $assignmentDone || $examDone;
+
+                                if ($manualStatus === 'done') {
+                                    $isDone = true;
+                                } elseif ($manualStatus === 'pending') {
+                                    $isDone = false;
+                                } else {
+                                    $isDone = $autoDone;
+                                }
+                            @endphp
+
                             <tr>
-                                <td class="chapter-cell">{{ $item->title }}</td>
-                                <td>{{ $tasksCount > 0 ? $tasksCount . ' task(s)' : '-' }}</td>
-                                <td>-</td>
-                                <td>{{ $item->unit?->weightage ? $item->unit->weightage . '%' : '-' }}</td>
-                                <td class="{{ $allCovered ? 'status-completed' : 'status-not-done' }}">
-                                    {{ $allCovered ? 'Done' : 'Not Done' }}
-                                    @if($hasTopics)
-                                        <div style="margin-top:6px; font-size:13px; color:#6b7280;">
-                                            <strong>Topics:</strong>
-                                            <ul style="margin:6px 0 0 16px; padding:0; list-style: disc;">
-                                            @foreach($unitCoverage as $key => $topic)
-                                                <li style="margin-bottom:4px;">
-                                                    {{ $topic['label'] }} — @if($topic['covered']) <span style="color:#16a34a; font-weight:700;">Done</span>
-                                                        @if(!empty($topic['links']))
-                                                            <div style="margin-top:4px;">
-                                                                @foreach(array_slice($topic['links'],0,3) as $link)
-                                                                    @if($link['type'] === 'assignment')
-                                                                        <a href="{{ route('student.assignments.show', $link['id']) }}" style="margin-right:8px; color:#2563eb;">{{ $link['title'] ?: 'Assignment #' . $link['id'] }}</a>
-                                                                    @else
-                                                                        <a href="{{ route('student.exams.show', $link['id']) }}" style="margin-right:8px; color:#2563eb;">{{ $link['title'] ?: 'Exam #' . $link['id'] }}</a>
-                                                                    @endif
-                                                                @endforeach
-                                                            </div>
-                                                        @endif
-                                                    @else <span style="color:#ef4444; font-weight:700;">Not Done</span> @endif
-                                                </li>
-                                            @endforeach
-                                            </ul>
-                                        </div>
-                                    @endif
-                                </td>
-                                <td>{{ $totalWeight }}%</td>
+                                @if($rowIndex === 0)
+                                    <td class="chapter-cell" rowspan="{{ $criteriaCount }}">{{ $item->title }}</td>
+                                @endif
+
+                                <td>{{ $topic }}</td>
+                                <td style="text-align:right;">{{ $marks }}</td>
+                                <td style="text-align:right;">{{ rtrim(rtrim(number_format($weight, 2, '.', ''), '0'), '.') }}%</td>
+                                <td class="{{ $isDone ? 'status-completed' : 'status-not-done' }}" style="text-align:center;">{{ $isDone ? '✓ Done' : 'Not Done' }}</td>
+
+                                @if($rowIndex === 0)
+                                    <td style="text-align:center; font-weight:700;" rowspan="{{ $criteriaCount }}">{{ rtrim(rtrim(number_format($chapterWeight, 2, '.', ''), '0'), '.') }}%</td>
+                                @endif
                             </tr>
+                        @endforeach
                     @endforeach
+
+                    <tr style="background:#f8fafc; font-weight:700;">
+                        <td>Total</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td style="text-align:right;">{{ rtrim(rtrim(number_format($overallChapterWeight, 2, '.', ''), '0'), '.') }}%</td>
+                    </tr>
                 </tbody>
             </table>
         </div>

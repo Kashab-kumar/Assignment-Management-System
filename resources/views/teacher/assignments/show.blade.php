@@ -58,89 +58,87 @@
 
     @if($submissions->count() > 0)
     <h3 style="margin-top: 20px; margin-bottom: 15px; color: #1f2937; font-size: 16px;">Submitted</h3>
-    <table>
-        <thead>
+    <x-ui.table>
+        <x-slot name="head">
             <tr>
-                <th>Student Name</th>
-                <th>Enrollment No.</th>
-                <th>Submitted At</th>
-                <th>Status</th>
-                <th>Score</th>
-                <th>Content</th>
-                <th>File</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Name</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enrollment No.</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted At</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Content</th>
+                <th class="px-6 py-3"></th>
             </tr>
-        </thead>
-        <tbody>
-            @foreach($submissions as $submission)
-            <tr>
-                <td><strong>{{ $submission->student->user->name }}</strong></td>
-                <td>{{ $submission->student->student_id }}</td>
-                <td>{{ $submission->submitted_at->format('M d, Y h:i A') }}</td>
-                <td><span class="badge badge-{{ $submission->status }}">{{ ucfirst($submission->status) }}</span></td>
-                <td>
-                    @if($submission->status === 'graded')
-                        <span class="score-display">{{ $submission->score }}/{{ $assignment->max_score }}</span>
-                    @else
-                        <form action="{{ route('teacher.submissions.grade', $submission) }}" method="POST" class="grade-form">
-                            @csrf
-                            <input type="number" name="score" class="grade-input" min="0" max="{{ $assignment->max_score }}" placeholder="0" required>
-                            <button type="submit" class="btn">Grade</button>
-                        </form>
-                    @endif
-                </td>
-                <td>
-                    @if($submission->content)
-                        <details>
-                            <summary style="cursor: pointer; color: #2196F3;">View Content</summary>
-                            <div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px; max-width: 300px; word-wrap: break-word;">
-                                {{ Str::limit($submission->content, 200) }}
-                            </div>
-                        </details>
-                    @else
-                        <span style="color: #999;">No text content</span>
-                    @endif
-                </td>
-                <td>
-                    @if($submission->file_path)
-                        <a href="{{ asset('storage/' . $submission->file_path) }}" target="_blank" class="file-link">📎 Download</a>
-                    @else
-                        <span style="color: #999;">No file</span>
-                    @endif
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+        </x-slot>
+
+        @foreach($submissions as $submission)
+        <tr>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $submission->student->user->name }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $submission->student->student_id }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $submission->submitted_at->format('M d, Y h:i A') }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium {{ $submission->status == 'graded' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">{{ ucfirst($submission->status) }}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                @if($submission->status === 'graded')
+                    <span class="score-display">{{ $submission->score }}/{{ $assignment->max_score }}</span>
+                @else
+                    <form action="{{ route('teacher.submissions.grade', $submission) }}" method="POST" class="grade-form">
+                        @csrf
+                        <input type="number" name="score" class="grade-input" min="0" max="{{ $assignment->max_score }}" placeholder="0" required>
+                        <button type="submit" class="btn">Grade</button>
+                    </form>
+                @endif
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                @if($submission->content)
+                    <details>
+                        <summary class="text-sm text-blue-600" style="cursor:pointer">View Content</summary>
+                        <div class="mt-2 p-2 bg-gray-50 rounded text-sm text-gray-700">{{ Str::limit($submission->content, 200) }}</div>
+                    </details>
+                @else
+                    <span class="text-sm text-gray-400">No text content</span>
+                @endif
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                @if($submission->file_path)
+                    <a href="{{ asset('storage/' . $submission->file_path) }}" target="_blank" class="file-link">📎 Download</a>
+                @else
+                    <span class="text-sm text-gray-400">No file</span>
+                @endif
+            </td>
+        </tr>
+        @endforeach
+    </x-ui.table>
     @endif
 
     @if($nonSubmittedStudents->count() > 0)
     <h3 style="margin-top: 30px; margin-bottom: 15px; color: #d32f2f; font-size: 16px;">Not Submitted ({{ $nonSubmittedStudents->count() }})</h3>
-    <table>
-        <thead>
+    <x-ui.table>
+        <x-slot name="head">
             <tr>
-                <th>Student Name</th>
-                <th>Enrollment No.</th>
-                <th>Status</th>
-                <th>Notes</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Name</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enrollment No.</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
             </tr>
-        </thead>
-        <tbody>
-            @foreach($nonSubmittedStudents as $student)
-            <tr style="background: #fff5f5;">
-                <td><strong>{{ $student->user->name }}</strong></td>
-                <td>{{ $student->student_id }}</td>
-                <td><span class="badge" style="background: #f44336; color: white;">Not Submitted</span></td>
-                <td style="color: #999; font-size: 13px;">
-                    @if(\Carbon\Carbon::now()->isAfter($assignment->due_date))
-                        <strong style="color: #d32f2f;">Overdue</strong>
-                    @else
-                        Pending
-                    @endif
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+        </x-slot>
+
+        @foreach($nonSubmittedStudents as $student)
+        <tr class="bg-red-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $student->user->name }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $student->student_id }}</td>
+            <td class="px-6 py-4 whitespace-nowrap"><span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-600 text-white">Not Submitted</span></td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                @if(\Carbon\Carbon::now()->isAfter($assignment->due_date))
+                    <strong class="text-red-600">Overdue</strong>
+                @else
+                    Pending
+                @endif
+            </td>
+        </tr>
+        @endforeach
+    </x-ui.table>
     @endif
 
     @if($submissions->count() === 0 && $nonSubmittedStudents->count() === 0)

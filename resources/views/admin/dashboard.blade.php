@@ -288,38 +288,9 @@
             <div class="stat-value">{{ $totalCourses }}</div>
         </article>
 
-        <article class="stat-card">
-            <div class="stat-meta">
-                <span class="stat-icon tone-amber">
-                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                </span>
-                <span class="stat-trend">&nbsp;</span>
-            </div>
-            <div class="stat-label">Total Assignments</div>
-            <div class="stat-value">{{ $totalAssignments }}</div>
-        </article>
+        <!-- Total Assignments tile removed -->
 
-        <article class="stat-card">
-            <div class="stat-meta">
-                <span class="stat-icon tone-orange">
-                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                </span>
-                <span class="stat-trend trend-down">-{{ $overdueAssignments }}</span>
-            </div>
-            <div class="stat-label">Pending Submissions</div>
-            <div class="stat-value">{{ $overdueAssignments * 3 }}</div>
-        </article>
-
-        <article class="stat-card">
-            <div class="stat-meta">
-                <span class="stat-icon tone-indigo">
-                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.73 5.82 22 7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
-                </span>
-                <span class="stat-trend trend-up">+{{ max(1, (int) round($completionRate / 10)) }}%</span>
-            </div>
-            <div class="stat-label">Average Grade</div>
-            <div class="stat-value">{{ max(70, min(99, $completionRate)) }}%</div>
-        </article>
+        <!-- Top stat tiles for Assignments, Pending Submissions, Average Grade removed -->
     </div>
 
     <div class="section-grid">
@@ -354,41 +325,7 @@
             </div>
         </section>
 
-        <section class="panel">
-            <header class="panel-head">
-                <h2>Quick Stats</h2>
-                <p>Key performance indicators</p>
-            </header>
-
-            <div class="quick-stats">
-                <article class="quick-item">
-                    <span class="mini-icon tone-green">UP</span>
-                    <div>
-                        <div class="quick-title">Completion Rate</div>
-                        <div class="quick-sub">This semester</div>
-                    </div>
-                    <div class="quick-value">{{ $completionRate }}%</div>
-                </article>
-
-                <article class="quick-item">
-                    <span class="mini-icon tone-blue">US</span>
-                    <div>
-                        <div class="quick-title">Active Today</div>
-                        <div class="quick-sub">Currently online</div>
-                    </div>
-                    <div class="quick-value">{{ $activeToday }}</div>
-                </article>
-
-                <article class="quick-item">
-                    <span class="mini-icon tone-amber">!</span>
-                    <div>
-                        <div class="quick-title">Overdue</div>
-                        <div class="quick-sub">Assignments</div>
-                    </div>
-                    <div class="quick-value">{{ $overdueAssignments }}</div>
-                </article>
-            </div>
-        </section>
+        <!-- Quick Stats panel removed per request -->
     </div>
 </div>
 

@@ -6,9 +6,12 @@ use App\Models\Course;
 use App\Models\Student;
 use App\Models\Unit;
 use App\Models\StudentUnitGrade;
+use App\Models\Assignment;
+use App\Models\Submission;
 use App\Services\UnitGradingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Carbon;
 
 class AnalyticsController extends Controller
 {
@@ -120,6 +123,27 @@ class AnalyticsController extends Controller
             ->distinct('student_id')
             ->count('student_id');
 
+        // Upcoming assignments (next 5)
+        $teacher = $user->teacher;
+        $upcomingAssignments = Assignment::where('course_id', $course->id)
+            ->when($teacher, fn($q) => $q->where('teacher_id', $teacher->id))
+            ->whereDate('due_date', '>=', now())
+            ->orderBy('due_date')
+            ->take(5)
+            ->get();
+
+        // Pending grading: recent submissions for this course not graded yet
+        $pendingSubmissions = Submission::whereHas('assignment', function ($q) use ($course, $teacher) {
+                $q->where('course_id', $course->id)
+                    ->when($teacher, fn($q2) => $q2->where('teacher_id', $teacher->id));
+            })
+            ->where(function ($q) {
+                $q->whereNull('status')->orWhere('status', '!=', 'graded');
+            })
+            ->orderBy('submitted_at', 'desc')
+            ->take(5)
+            ->get();
+
         return view('analytics.teacher-dashboard', [
             'courses' => $courses,
             'course' => $course,
@@ -128,6 +152,8 @@ class AnalyticsController extends Controller
             'classAverage' => round($classAverage, 2),
             'studentCount' => $studentCount,
             'failingCount' => $failingCount,
+            'upcomingAssignments' => $upcomingAssignments ?? collect(),
+            'pendingSubmissions' => $pendingSubmissions ?? collect(),
         ]);
     }
 

@@ -91,6 +91,55 @@
             </div>
         </div>
 
+        <!-- Upcoming Deadlines & Pending Grading -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Upcoming Deadlines -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Upcoming Deadlines</h2>
+                @if($upcomingAssignments->isEmpty())
+                    <p class="text-gray-600">No upcoming assignments.</p>
+                @else
+                    <ul class="divide-y divide-gray-100">
+                        @foreach($upcomingAssignments as $a)
+                            <li class="py-3 flex justify-between items-start">
+                                <div>
+                                    <a href="{{ url('/teacher/assignments/'.$a->id) }}" class="text-sm font-medium text-blue-600">{{ $a->title }}</a>
+                                    <p class="text-xs text-gray-500">Module: {{ optional($a->module)->title ?? '—' }}</p>
+                                </div>
+                                <div class="text-right text-sm text-gray-600">
+                                    <div>Due {{
+                                        \Carbon\Carbon::parse($a->due_date)->diffForHumans() }}</div>
+                                    <div class="text-xs text-gray-400">{{ date('Y-m-d H:i', strtotime($a->due_date)) }}</div>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
+
+            <!-- Pending Grading -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Pending Grading</h2>
+                @if($pendingSubmissions->isEmpty())
+                    <p class="text-gray-600">No pending submissions.</p>
+                @else
+                    <ul class="divide-y divide-gray-100">
+                        @foreach($pendingSubmissions as $s)
+                            <li class="py-3 flex justify-between items-start">
+                                <div>
+                                    <a href="{{ url('/teacher/submissions/'.$s->id) }}" class="text-sm font-medium text-blue-600">{{ optional($s->student)->name ?? 'Student' }}</a>
+                                    <p class="text-xs text-gray-500">Assignment: {{ optional($s->assignment)->title ?? '—' }}</p>
+                                </div>
+                                <div class="text-right text-sm text-gray-600">
+                                    <div>{{ $s->submitted_at ? \Carbon\Carbon::parse($s->submitted_at)->diffForHumans() : 'Recently' }}</div>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
+        </div>
+
         <!-- Class Performance Distribution -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             <!-- Average Scores by Unit -->

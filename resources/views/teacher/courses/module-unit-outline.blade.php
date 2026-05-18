@@ -19,6 +19,16 @@
     .btn-edit { background: #3b82f6; color: white; }
     .btn-delete { background: #ef4444; color: white; }
     .outline-total-value { font-weight: 700; color: #111827; }
+    .checklist-state { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; }
+    .checklist-state.done { color: #16a34a; }
+    .checklist-state.pending { color: #dc2626; }
+    .checklist-source { display: inline-block; margin-top: 6px; font-size: 12px; color: #6b7280; }
+    .checklist-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 8px; }
+    .checklist-actions form { display: inline; }
+    .checklist-btn { padding: 4px 8px; border-radius: 6px; border: none; cursor: pointer; font-size: 12px; font-weight: 600; }
+    .checklist-btn.done { background: #16a34a; color: white; }
+    .checklist-btn.pending { background: #dc2626; color: white; }
+    .checklist-btn.auto { background: #e5e7eb; color: #111827; }
 </style>
 
 <div class="panel">
@@ -62,7 +72,70 @@
                                 $topic = trim((string) ($criterion['topic'] ?? $criterion['name'] ?? '-'));
                                 $marks = $criterion['marks'] ?? '-';
                                 $weight = (float) ($criterion['weight'] ?? 0);
-                                $isDone = $topic !== '' && $topic !== '-' && is_numeric($marks) && (float) $marks > 0 && $weight > 0;
+                                $topicKey = sha1($item->id . '|' . strtolower(trim($topic)) . '|' . $marks . '|' . $weight);
+                                $checklistStatus = data_get($item->ai_options, 'checklist_status', []);
+                                $manualStatus = is_array($checklistStatus) ? ($checklistStatus[$topicKey] ?? null) : null;
+
+                                $assignments = collect();
+                                $exams = collect();
+
+                                if ($item->unit_id) {
+                                    $assignments = \App\Models\Assignment::where('unit_id', $item->unit_id)
+                                        ->with(['submissions'])
+                                        ->get()
+                                        ->filter(function ($assignment) use ($topic) {
+                                            if (empty($assignment->covered_topics) || !is_array($assignment->covered_topics)) {
+                                                return false;
+                                            }
+
+                                            $topicLower = strtolower(trim($topic));
+
+                                            foreach ($assignment->covered_topics as $coveredTopic) {
+                                                if (strtolower(trim($coveredTopic)) === $topicLower) {
+                                                    return true;
+                                                }
+                                            }
+
+                                            return false;
+                                        });
+
+                                    $exams = \App\Models\Exam::where('unit_id', $item->unit_id)
+                                        ->with(['results'])
+                                        ->get()
+                                        ->filter(function ($exam) use ($topic) {
+                                            if (empty($exam->covered_topics) || !is_array($exam->covered_topics)) {
+                                                return false;
+                                            }
+
+                                            $topicLower = strtolower(trim($topic));
+
+                                            foreach ($exam->covered_topics as $coveredTopic) {
+                                                if (strtolower(trim($coveredTopic)) === $topicLower) {
+                                                    return true;
+                                                }
+                                            }
+
+                                            return false;
+                                        });
+                                }
+
+                                $assignmentDone = $assignments->contains(function ($assignment) {
+                                    return $assignment->submissions->isNotEmpty() && $assignment->submissions->every(fn ($submission) => $submission->status === 'graded');
+                                });
+
+                                $examDone = $exams->contains(fn ($exam) => $exam->results->isNotEmpty());
+                                $autoDone = $assignmentDone || $examDone;
+
+                                if ($manualStatus === 'done') {
+                                    $isDone = true;
+                                    $statusSource = 'Manual';
+                                } elseif ($manualStatus === 'pending') {
+                                    $isDone = false;
+                                    $statusSource = 'Manual';
+                                } else {
+                                    $isDone = $autoDone;
+                                    $statusSource = $autoDone ? 'Auto' : 'Auto';
+                                }
                             @endphp
                             <tr>
                                 @if($rowIndex === 0)
@@ -84,47 +157,11 @@
                                 <td style="text-align:right;">{{ $marks }}</td>
                                 <td style="text-align:right;">{{ rtrim(rtrim(number_format($weight, 2, '.', ''), '0'), '.') }}%</td>
                                 <td style="text-align:center;">
-                                    @php
-                                        // Get assignments and exams for this unit that cover this topic (case-insensitive)
-                                        $topicLower = strtolower(trim($topic));
-
-                                        // Filter assignments for this topic
-                                        $assignments = \App\Models\Assignment::where('unit_id', $item->unit_id)->get()
-                                            ->filter(function($a) use ($topicLower) {
-                                                if (empty($a->covered_topics) || !is_array($a->covered_topics)) return false;
-                                                foreach ($a->covered_topics as $coveredTopic) {
-                                                    if (strtolower(trim($coveredTopic)) === $topicLower) {
-                                                        return true;
-                                                    }
-                                                }
-                                                return false;
-                                            });
-
-                                        // Filter exams for this topic
-                                        $exams = \App\Models\Exam::where('unit_id', $item->unit_id)->get()
-                                            ->filter(function($e) use ($topicLower) {
-                                                if (empty($e->covered_topics) || !is_array($e->covered_topics)) return false;
-                                                foreach ($e->covered_topics as $coveredTopic) {
-                                                    if (strtolower(trim($coveredTopic)) === $topicLower) {
-                                                        return true;
-                                                    }
-                                                }
-                                                return false;
-                                            });
-
-                                        // Recompute isDone: true if any linked assignment/exam covers it; otherwise fallback to criteria checks
-                                        if ($assignments->count() > 0 || $exams->count() > 0) {
-                                            $isDone = true;
-                                        } else {
-                                            $isDone = $topic !== '' && $topic !== '-' && is_numeric($marks) && (float) $marks > 0 && $weight > 0;
-                                        }
-                                    @endphp
-                                    <div style="display: flex; flex-direction: column; gap: 6px;">
-                                        @if($isDone)
-                                            <span style="font-weight:700; color:#16a34a;">✓ Done</span>
-                                        @else
-                                            <span style="font-weight:700; color:#dc2626;">Not Done</span>
-                                        @endif
+                                    <div style="display: flex; flex-direction: column; gap: 6px; align-items:center;">
+                                        <span class="checklist-state {{ $isDone ? 'done' : 'pending' }}">
+                                            {{ $isDone ? '✓ Done' : 'Not Done' }}
+                                        </span>
+                                        <span class="checklist-source">{{ $statusSource }}{{ $manualStatus ? ' override' : ' check' }}</span>
 
                                         @if($assignments->count() > 0 || $exams->count() > 0)
                                             <div style="font-size: 12px; margin-top: 4px;">
@@ -140,17 +177,29 @@
                                                 @endforeach
                                             </div>
                                         @endif
-                                        {{-- Quick links to open the first matched assignment or exam --}}
-                                        @if($assignments->count() > 0 || $exams->count() > 0)
-                                            <div style="margin-top:6px;">
-                                                @if($assignments->count() > 0)
-                                                    <a href="{{ route('teacher.assignments.show', $assignments->first()) }}" style="font-size:12px; color:#1e40af; text-decoration:underline; display:inline-block; margin-right:8px;">Open assignment</a>
-                                                @endif
-                                                @if($exams->count() > 0)
-                                                    <a href="{{ route('teacher.exams.show', $exams->first()) }}" style="font-size:12px; color:#92400e; text-decoration:underline; display:inline-block;">Open exam</a>
-                                                @endif
-                                            </div>
-                                        @endif
+
+                                        <div class="checklist-actions">
+                                            <form method="POST" action="{{ route('teacher.courses.modules.items.checklist', [$course, $module, $item]) }}">
+                                                @csrf
+                                                <input type="hidden" name="criteria_key" value="{{ $topicKey }}">
+                                                <input type="hidden" name="status" value="done">
+                                                <button type="submit" class="checklist-btn done">Mark Done</button>
+                                            </form>
+                                            <form method="POST" action="{{ route('teacher.courses.modules.items.checklist', [$course, $module, $item]) }}">
+                                                @csrf
+                                                <input type="hidden" name="criteria_key" value="{{ $topicKey }}">
+                                                <input type="hidden" name="status" value="pending">
+                                                <button type="submit" class="checklist-btn pending">Mark Pending</button>
+                                            </form>
+                                            @if($manualStatus)
+                                                <form method="POST" action="{{ route('teacher.courses.modules.items.checklist', [$course, $module, $item]) }}">
+                                                    @csrf
+                                                    <input type="hidden" name="criteria_key" value="{{ $topicKey }}">
+                                                    <input type="hidden" name="status" value="auto">
+                                                    <button type="submit" class="checklist-btn auto">Use Auto</button>
+                                                </form>
+                                            @endif
+                                        </div>
                                     </div>
                                 </td>
 

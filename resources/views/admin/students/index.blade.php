@@ -133,49 +133,48 @@
     </div>
 
     @if($students->count() > 0)
-        <table class="students-table">
-            <thead>
+        <x-ui.table>
+            <x-slot name="head">
                 <tr>
-                    <th>Student ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Course</th>
-                    <th>Joined</th>
-                    <th>Actions</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+                    <th class="px-6 py-3"></th>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach($students as $student)
-                <tr>
-                    <td><span class="student-id">{{ $student->student_id }}</span></td>
-                    <td>
-                        <strong>{{ $student->name }}</strong>
-                        @if($student->user)
-                            <div style="font-size: 12px; color: #666;">User ID: {{ $student->user->id }}</div>
-                        @endif
-                    </td>
-                    <td>{{ $student->email }}</td>
-                    <td>
-                        @if($student->course)
-                            <span class="course-badge">{{ $student->course->name }}</span>
-                        @else
-                            <span style="color: #999; font-size: 12px;">Not Assigned</span>
-                        @endif
-                    </td>
-                    <td>{{ $student->created_at->format('d/m/Y') }}</td>
-                    <td>
-                        <a href="{{ route('admin.students.show', $student) }}" class="btn btn-view">View</a>
-                        <a href="{{ route('admin.students.edit', $student) }}" class="btn btn-edit">Edit</a>
-                        <form action="{{ route('admin.students.destroy', $student) }}" method="POST" style="display: inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-delete" onclick="return confirm('Delete this student?')">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+            </x-slot>
+
+            @foreach($students as $student)
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><span class="student-id">{{ $student->student_id }}</span></td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">{{ $student->name }}</div>
+                    @if($student->user)
+                        <div class="text-xs text-gray-500">User ID: {{ $student->user->id }}</div>
+                    @endif
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $student->email }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    @if($student->course)
+                        <span class="course-badge">{{ $student->course->name }}</span>
+                    @else
+                        <span class="text-sm text-gray-400">Not Assigned</span>
+                    @endif
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $student->created_at->format('d/m/Y') }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                    <a href="{{ route('admin.students.show', $student) }}" class="btn btn-view">View</a>
+                    <a href="{{ route('admin.students.edit', $student) }}" class="btn btn-edit">Edit</a>
+                    <form action="{{ route('admin.students.destroy', $student) }}" method="POST" style="display: inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-delete" onclick="return confirm('Delete this student?')">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            @endforeach
+        </x-ui.table>
 
         <div style="margin-top: 20px;">
             {{ $students->links() }}

@@ -96,58 +96,57 @@
     @endif
 
     @if($teachers->count() > 0)
-        <table class="teachers-table">
-            <thead>
+        <x-ui.table>
+            <x-slot name="head">
                 <tr>
-                    <th>Teacher ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Subject</th>
-                    <th>Joined</th>
-                    <th>Actions</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teacher ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+                    <th class="px-6 py-3"></th>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach($teachers as $teacher)
-                <tr>
-                    <td><span class="teacher-id">{{ $teacher->teacher_id }}</span></td>
-                    <td>
-                        <strong>{{ $teacher->name }}</strong>
-                        @if($teacher->user)
-                            <div style="font-size: 12px; color: #666;">User ID: {{ $teacher->user->id }}</div>
-                        @endif
-                    </td>
-                    <td>{{ $teacher->email }}</td>
-                    <td>
-                        @php
-                            $assignedModules = $teacher->modules->pluck('title')->filter()->values();
-                            $subjectText = trim((string) ($teacher->subject ?? ''));
-                        @endphp
+            </x-slot>
 
-                        @if($subjectText !== '')
-                            <span class="subject-badge">{{ $subjectText }}</span>
-                        @elseif($assignedModules->isNotEmpty())
-                            <span class="subject-badge" title="{{ $assignedModules->implode(', ') }}">
-                                {{ $assignedModules->take(2)->implode(', ') }}{{ $assignedModules->count() > 2 ? ' +' . ($assignedModules->count() - 2) . ' more' : '' }}
-                            </span>
-                        @else
-                            <span class="subject-badge">Not set</span>
-                        @endif
-                    </td>
-                    <td>{{ $teacher->created_at->format('d/m/Y') }}</td>
-                    <td>
-                        <a href="{{ route('admin.teachers.show', $teacher) }}" class="btn btn-view">View</a>
-                        <a href="{{ route('admin.teachers.edit', $teacher) }}" class="btn btn-edit">Edit</a>
-                        <form action="{{ route('admin.teachers.destroy', $teacher) }}" method="POST" style="display: inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-delete" onclick="return confirm('Delete this teacher?')">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+            @foreach($teachers as $teacher)
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><span class="teacher-id">{{ $teacher->teacher_id }}</span></td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">{{ $teacher->name }}</div>
+                    @if($teacher->user)
+                        <div class="text-xs text-gray-500">User ID: {{ $teacher->user->id }}</div>
+                    @endif
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $teacher->email }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    @php
+                        $assignedModules = $teacher->modules->pluck('title')->filter()->values();
+                        $subjectText = trim((string) ($teacher->subject ?? ''));
+                    @endphp
+
+                    @if($subjectText !== '')
+                        <span class="subject-badge">{{ $subjectText }}</span>
+                    @elseif($assignedModules->isNotEmpty())
+                        <span class="subject-badge" title="{{ $assignedModules->implode(', ') }}">
+                            {{ $assignedModules->take(2)->implode(', ') }}{{ $assignedModules->count() > 2 ? ' +' . ($assignedModules->count() - 2) . ' more' : '' }}
+                        </span>
+                    @else
+                        <span class="subject-badge">Not set</span>
+                    @endif
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $teacher->created_at->format('d/m/Y') }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                    <a href="{{ route('admin.teachers.show', $teacher) }}" class="btn btn-view">View</a>
+                    <a href="{{ route('admin.teachers.edit', $teacher) }}" class="btn btn-edit">Edit</a>
+                    <form action="{{ route('admin.teachers.destroy', $teacher) }}" method="POST" style="display: inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-delete" onclick="return confirm('Delete this teacher?')">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            @endforeach
+        </x-ui.table>
 
         <div style="margin-top: 20px;">
             {{ $teachers->links() }}

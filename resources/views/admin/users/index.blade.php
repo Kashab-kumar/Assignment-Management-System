@@ -88,51 +88,46 @@
     @endif
 
     @if($users->count() > 0)
-        <table class="users-table">
-            <thead>
+        <x-ui.table>
+            <x-slot name="head">
                 <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th>Joined</th>
-                    <th>Actions</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+                    <th class="px-6 py-3"></th>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach($users as $user)
-                <tr>
-                    <td>{{ $user->id }}</td>
-                    <td>
-                        <strong>{{ $user->name }}</strong>
-                        @if($user->student)
-                            <div style="font-size: 12px; color: #666;">Student ID: {{ $user->student->student_id ?? 'N/A' }}</div>
-                        @elseif($user->teacher)
-                            <div style="font-size: 12px; color: #666;">Teacher</div>
-                        @endif
-                    </td>
-                    <td>{{ $user->email }}</td>
-                    <td>
-                        <span class="role-badge role-{{ $user->role }}">{{ ucfirst($user->role) }}</span>
-                    </td>
-                    <td>
-                        <span class="status-active">● Active</span>
-                    </td>
-                    <td>{{ $user->created_at->format('d/m/Y') }}</td>
-                    <td>
-                        <a href="{{ route('admin.users.show', $user) }}" class="btn btn-view">View</a>
-                        <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-edit">Edit</a>
-                        <form action="{{ route('admin.users.destroy', $user) }}" method="POST" style="display: inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-delete" onclick="return confirm('Delete this user?')">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+            </x-slot>
+
+            @foreach($users as $user)
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $user->id }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
+                    @if($user->student)
+                        <div class="text-xs text-gray-500">Student ID: {{ $user->student->student_id ?? 'N/A' }}</div>
+                    @elseif($user->teacher)
+                        <div class="text-xs text-gray-500">Teacher</div>
+                    @endif
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->email }}</td>
+                <td class="px-6 py-4 whitespace-nowrap"><span class="role-badge role-{{ $user->role }}">{{ ucfirst($user->role) }}</span></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">● Active</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->created_at->format('d/m/Y') }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                    <a href="{{ route('admin.users.show', $user) }}" class="btn btn-view">View</a>
+                    <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-edit">Edit</a>
+                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST" style="display: inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-delete" onclick="return confirm('Delete this user?')">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            @endforeach
+        </x-ui.table>
 
         <div style="margin-top: 20px;">
             {{ $users->links() }}

@@ -338,6 +338,50 @@ class TeacherCourseController extends Controller
         return view('teacher.courses.module-unit-outline', compact('course', 'module', 'moduleItemsEnabled'));
     }
 
+    public function updateModuleItemChecklist(Request $request, Course $course, CourseModule $module, CourseModuleItem $item)
+    {
+        abort_unless(in_array($course->id, $this->assignedCourseIds(), true), 403);
+
+        if ($module->course_id !== $course->id || $item->course_module_id !== $module->id) {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'criteria_key' => ['required', 'string', 'max:128'],
+            'status' => ['required', 'in:done,pending,auto'],
+        ]);
+
+        $aiOptions = is_array($item->ai_options) ? $item->ai_options : [];
+        $checklistStatus = data_get($aiOptions, 'checklist_status', []);
+
+        if (!is_array($checklistStatus)) {
+            $checklistStatus = [];
+        }
+
+        if ($validated['status'] === 'auto') {
+            unset($checklistStatus[$validated['criteria_key']]);
+        } else {
+            $checklistStatus[$validated['criteria_key']] = $validated['status'];
+        }
+
+        data_set($aiOptions, 'checklist_status', $checklistStatus);
+
+        $item->update([
+            'ai_options' => $aiOptions,
+        ]);
+
+        if ($item->unit) {
+            $unitOptions = is_array($item->unit->ai_options) ? $item->unit->ai_options : [];
+            data_set($unitOptions, 'checklist_status', $checklistStatus);
+
+            $item->unit->update([
+                'ai_options' => json_encode($unitOptions),
+            ]);
+        }
+
+        return back()->with('success', 'Checklist status updated successfully.');
+    }
+
     public function editModuleItem(Course $course, CourseModule $module, CourseModuleItem $item)
     {
         abort_unless(in_array($course->id, $this->assignedCourseIds(), true), 403);

@@ -11,8 +11,6 @@
     .module-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 16px; padding: 40px; margin-bottom: 32px; }
     .module-header h1 { margin: 0 0 12px; font-size: 42px; font-weight: 700; line-height: 1.2; }
     .module-header p { margin: 6px 0; opacity: 0.95; font-size: 17px; line-height: 1.5; }
-    .module-meta { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px; }
-    .meta-item { background: rgba(255,255,255,0.2); padding: 10px 18px; border-radius: 24px; font-size: 15px; font-weight: 500; }
 
     .tabs-container { background: white; border: 1px solid #dbe2ec; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.07); }
     .tabs-header { display: flex; border-bottom: 3px solid #e5e7eb; background: #f8f9fb; }
@@ -63,24 +61,22 @@
 </style>
 
 <div class="module-container">
+    @php
+        $outlineItems = $module->items ? $module->items->where('type', 'unit_outline')->values() : collect();
+    @endphp
+
     <a href="{{ route('student.courses.show', $module->course_id) }}" class="back-link">← Back to Course</a>
 
     <div class="module-header">
         <h1>{{ $module->title }}</h1>
         <p>{{ $module->course->name }} ({{ $module->course->code }})</p>
         <p>{{ $module->description ?: 'No module description provided.' }}</p>
-        <div class="module-meta">
-            <span class="meta-item">📚 {{ $module->lesson_count }} items</span>
-            <span class="meta-item">📝 {{ $module->assignment_count }} assignments</span>
-            <span class="meta-item">🧪 {{ $module->quiz_count }} quizzes</span>
-            <span class="meta-item">👨‍🏫 {{ $module->teacher?->name ?? 'Course teacher' }}</span>
-        </div>
     </div>
 
     <div class="tabs-container">
         <div class="tabs-header">
             <button class="tab-btn active" onclick="switchTab(event, 'overview')">Overview</button>
-            <button class="tab-btn" onclick="switchTab(event, 'unit-outline')">Unit Outline @if($module->items && $module->items->count() > 0)<span style="background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 6px;">{{ $module->items->count() }}</span>@endif</button>
+            <button class="tab-btn" onclick="switchTab(event, 'unit-outline')">Unit Outline @if($outlineItems->count() > 0)<span style="background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 6px;">{{ $outlineItems->count() }}</span>@endif</button>
             <button class="tab-btn" onclick="switchTab(event, 'assignments')">Assignments ({{ $assignments->count() }})</button>
             <button class="tab-btn" onclick="switchTab(event, 'exams')">Exams ({{ $exams->count() }})</button>
             <button class="tab-btn" onclick="switchTab(event, 'activity')">Recent Activity</button>
@@ -157,7 +153,8 @@
             <!-- Unit Outline Tab -->
             <div id="unit-outline" class="tab-pane">
                 <h3 style="margin-top: 0;">Unit Outline Materials</h3>
-                @if($module->items && $module->items->count() > 0)
+                @if($outlineItems->count() > 0)
+                    @php $overallChapterWeight = 0; @endphp
                     <div style="overflow-x:auto;">
                         <table class="student-outline-table" style="min-width:900px; margin-top:12px;">
                             <thead>
@@ -171,23 +168,110 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($module->items as $item)
+                                @foreach($outlineItems as $item)
                                     @php
-                                        $assignments = $item->unit?->assignments ?? collect();
-                                        $tests = $item->unit?->tests ?? collect();
-                                        $exams = $item->unit?->exams ?? collect();
-                                        $tasksCount = $assignments->count() + $tests->count() + $exams->count();
-                                        $totalWeight = ($assignments->sum('weightage') ?? 0) + ($tests->sum('weightage') ?? 0) + ($exams->sum('weightage') ?? 0);
+                                        $unit = $item->unit;
+                                        $outlineCriteria = collect($item->grading_criteria ?? [])->values();
+
+                                        if ($outlineCriteria->isEmpty() && $unit && is_array($unit->grading_criteria)) {
+                                            $outlineCriteria = collect($unit->grading_criteria)->values();
+                                        }
+
+                                        if ($outlineCriteria->isEmpty()) {
+                                            $outlineCriteria = collect([[ 'topic' => '-', 'marks' => '-', 'weight' => 0 ]]);
+                                        }
+
+                                        $criteriaCount = max($outlineCriteria->count(), 1);
+                                        $criteriaWeightTotal = $outlineCriteria->sum(fn ($criterion) => (float) ($criterion['weight'] ?? 0));
+                                        $chapterWeight = (float) data_get($item->ai_options, 'chapter_total_weight', $criteriaWeightTotal);
+                                        $overallChapterWeight += $chapterWeight;
                                     @endphp
-                                    <tr>
-                                        <td style="background:#f8fafc; font-weight:700;">{{ $item->title }}</td>
-                                        <td>{{ $tasksCount > 0 ? $tasksCount . ' task(s)' : '-' }}</td>
-                                        <td>-</td>
-                                        <td>{{ $item->unit?->weightage ? $item->unit->weightage . '%' : '-' }}</td>
-                                        <td style="color:#ef4444; font-weight:700;">{{ $totalWeight < 100 ? 'Not Done' : 'Done' }}</td>
-                                        <td>{{ $totalWeight }}%</td>
-                                    </tr>
+
+                                    @foreach($outlineCriteria as $rowIndex => $criterion)
+                                        @php
+                                            $topic = trim((string) ($criterion['topic'] ?? $criterion['name'] ?? $criterion['description'] ?? '-'));
+                                            $marks = $criterion['marks'] ?? '-';
+                                            $weight = (float) ($criterion['weight'] ?? 0);
+                                            $criteriaKey = sha1($item->id . '|' . strtolower(trim($topic)) . '|' . $marks . '|' . $weight);
+                                            $checklistStatus = data_get($item->ai_options, 'checklist_status', []);
+                                            $manualStatus = is_array($checklistStatus) ? ($checklistStatus[$criteriaKey] ?? null) : null;
+
+                                            $topicLower = strtolower(trim($topic));
+                                            $unitAssignments = $unit?->assignments ?? collect();
+                                            $unitExams = $unit?->exams ?? collect();
+
+                                            $matchingAssignments = $unitAssignments->filter(function ($assignment) use ($topicLower) {
+                                                if (empty($assignment->covered_topics) || !is_array($assignment->covered_topics)) {
+                                                    return false;
+                                                }
+
+                                                foreach ($assignment->covered_topics as $coveredTopic) {
+                                                    if (strtolower(trim($coveredTopic)) === $topicLower) {
+                                                        return true;
+                                                    }
+                                                }
+
+                                                return false;
+                                            });
+
+                                            $matchingExams = $unitExams->filter(function ($exam) use ($topicLower) {
+                                                if (empty($exam->covered_topics) || !is_array($exam->covered_topics)) {
+                                                    return false;
+                                                }
+
+                                                foreach ($exam->covered_topics as $coveredTopic) {
+                                                    if (strtolower(trim($coveredTopic)) === $topicLower) {
+                                                        return true;
+                                                    }
+                                                }
+
+                                                return false;
+                                            });
+
+                                            $matchingAssignments->loadMissing('submissions');
+                                            $matchingExams->loadMissing('results');
+
+                                            $assignmentDone = $matchingAssignments->contains(function ($assignment) {
+                                                return $assignment->submissions->isNotEmpty() && $assignment->submissions->every(fn ($submission) => $submission->status === 'graded');
+                                            });
+
+                                            $examDone = $matchingExams->contains(fn ($exam) => $exam->results->isNotEmpty());
+                                            $autoDone = $assignmentDone || $examDone;
+
+                                            if ($manualStatus === 'done') {
+                                                $isDone = true;
+                                            } elseif ($manualStatus === 'pending') {
+                                                $isDone = false;
+                                            } else {
+                                                $isDone = $autoDone;
+                                            }
+                                        @endphp
+
+                                        <tr>
+                                            @if($rowIndex === 0)
+                                                <td style="background:#f8fafc; font-weight:700;" rowspan="{{ $criteriaCount }}">{{ $item->title }}</td>
+                                            @endif
+
+                                            <td>{{ $topic }}</td>
+                                            <td style="text-align:right;">{{ $marks }}</td>
+                                            <td style="text-align:right;">{{ rtrim(rtrim(number_format($weight, 2, '.', ''), '0'), '.') }}%</td>
+                                            <td style="text-align:center; color: {{ $isDone ? '#16a34a' : '#ef4444' }}; font-weight:700;">{{ $isDone ? '✓ Done' : 'Not Done' }}</td>
+
+                                            @if($rowIndex === 0)
+                                                <td style="text-align:center; font-weight:700;" rowspan="{{ $criteriaCount }}">{{ rtrim(rtrim(number_format($chapterWeight, 2, '.', ''), '0'), '.') }}%</td>
+                                            @endif
+                                        </tr>
+                                    @endforeach
                                 @endforeach
+
+                                <tr style="background:#f8fafc; font-weight:700;">
+                                    <td>Total</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td style="text-align:right;">{{ rtrim(rtrim(number_format($overallChapterWeight, 2, '.', ''), '0'), '.') }}%</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
