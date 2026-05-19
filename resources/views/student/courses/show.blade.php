@@ -170,33 +170,7 @@
         background: #f9fafb;
     }
 
-    .module-progress {
-        margin-bottom: 16px;
-    }
 
-    .progress-label {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-        font-size: 12px;
-        color: #6b7280;
-        font-weight: 600;
-    }
-
-    .progress-bar {
-        height: 8px;
-        background: #e5e7eb;
-        border-radius: 4px;
-        overflow: hidden;
-    }
-
-    .progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #667eea, #764ba2);
-        border-radius: 4px;
-        transition: width 0.3s ease;
-    }
 
     .module-actions {
         display: flex;
@@ -323,29 +297,10 @@
                             {{ $module['description'] ?: 'No description available for this module.' }}
                         </div>
 
-                        <div class="module-stats">
-                            <div class="stat-item">
-                                <div class="stat-value">{{ $module['item_count'] ?? $module['lesson_count'] ?? 0 }}</div>
-                                <div class="stat-label">Items</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value">{{ $module['quiz_count'] ?? 0 }}</div>
-                                <div class="stat-label">Quizzes</div>
-                            </div>
-                        </div>
+
                     </div>
 
                     <div class="module-footer">
-                        <div class="module-progress">
-                            <div class="progress-label">
-                                <span>Progress</span>
-                                <span>{{ $module['completion_percentage'] ?? 0 }}%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: {{ $module['completion_percentage'] ?? 0 }}%"></div>
-                            </div>
-                        </div>
-
                         <div class="module-actions">
                             <a href="{{ route('student.modules.show', $module['id']) }}" class="btn btn-primary">Continue</a>
                             <a href="{{ route('student.courses.modules.unit-outline', [$course->id, $module['id']]) }}" class="btn btn-secondary">Details</a>

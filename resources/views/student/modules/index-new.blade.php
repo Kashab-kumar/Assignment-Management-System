@@ -102,33 +102,6 @@
         min-height: 60px;
     }
 
-    .module-stats {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-        margin-bottom: 20px;
-    }
-
-    .stat-item {
-        background: #f9fafb;
-        padding: 12px;
-        border-radius: 8px;
-        text-align: center;
-    }
-
-    .stat-value {
-        font-size: 20px;
-        font-weight: 700;
-        color: #667eea;
-        margin-bottom: 4px;
-    }
-
-    .stat-label {
-        font-size: 12px;
-        color: #6b7280;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
 
     .module-footer {
         padding: 20px;
@@ -136,32 +109,8 @@
         background: #f9fafb;
     }
 
-    .module-progress {
-        margin-bottom: 12px;
-    }
 
-    .progress-label {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 6px;
-        font-size: 12px;
-        color: #6b7280;
-    }
 
-    .progress-bar {
-        height: 8px;
-        background: #e5e7eb;
-        border-radius: 4px;
-        overflow: hidden;
-    }
-
-    .progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #667eea, #764ba2);
-        border-radius: 4px;
-        transition: width 0.3s ease;
-    }
 
     .module-actions {
         display: flex;
@@ -230,11 +179,11 @@
         .modules-grid {
             grid-template-columns: 1fr;
         }
-        
+
         .modules-header {
             padding: 24px;
         }
-        
+
         .modules-header h1 {
             font-size: 24px;
         }
@@ -256,35 +205,17 @@
                         <div class="module-title">{{ $module->title }}</div>
                         <div class="module-course">{{ $module->course?->name ?? 'General Course' }}</div>
                     </div>
-                    
-                    <div class="module-body">
-                        <div class="module-description">
-                            {{ $module->description ?: 'No description available for this module.' }}
-                        </div>
-                        
-                        <div class="module-stats">
-                            <div class="stat-item">
-                                <div class="stat-value">{{ $module->items_count ?? 0 }}</div>
-                                <div class="stat-label">Items</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value">{{ $module->estimated_hours ?? 'N/A' }}</div>
-                                <div class="stat-label">Hours</div>
+
+                        <div class="module-footer">
+                            <div class="module-actions">
+                                <a href="{{ route('student.modules.show', $module) }}" class="btn btn-primary">Continue</a>
+                                <a href="{{ route('student.modules.show', $module) }}" class="btn btn-secondary">View Details</a>
                             </div>
                         </div>
-                    </div>
-                    
+
                     <div class="module-footer">
-                        <div class="module-progress">
-                            <div class="progress-label">
-                                <span>Progress</span>
-                                <span>{{ $module->completion_percentage ?? 0 }}%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: {{ $module->completion_percentage ?? 0 }}%"></div>
-                            </div>
-                        </div>
-                        
+
+
                         <div class="module-actions">
                             <a href="{{ route('student.modules.show', $module) }}" class="btn btn-primary">Continue</a>
                             <a href="{{ route('student.modules.show', $module) }}" class="btn btn-secondary">View Details</a>

@@ -6,8 +6,8 @@
     <title>Admin Registration</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: Arial, sans-serif; 
+        body {
+            font-family: Arial, sans-serif;
             background-image: url('/images/rim.jpg');
             background-size: cover;
             background-position: center;
@@ -28,8 +28,8 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
             padding: 28px 30px 24px;
         }
-        h1 { 
-            color: #333; 
+        h1 {
+            color: #333;
             margin-bottom: 10px;
             text-align: center;
         }
@@ -193,14 +193,15 @@
     <script>
         function togglePassword(fieldId) {
             const passwordInput = document.getElementById(fieldId);
-            const toggle = passwordInput.parentElement.querySelector('.password-toggle svg');
-            
+            const svg = passwordInput.parentElement.querySelector('.password-toggle svg');
+            if (!passwordInput || !svg) return;
+
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
-                toggle.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle><line x1="1" y1="1" x2="23" y2="23" stroke-width="2"></line>';
+                svg.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="1.25" fill="none" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.25" fill="none"></circle><line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></line>';
             } else {
                 passwordInput.type = 'password';
-                toggle.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+                svg.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="1.25" fill="none" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.25" fill="none"></circle>';
             }
         }
     </script>

@@ -5,229 +5,191 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Complete Registration</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --bg: #f7f4f0; --card-bg: #ffffff; --muted: #6b7280; --accent: #111827; }
+        * { box-sizing: border-box; }
+        html,body { height: 100%; }
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
             min-height: 100vh;
+            color: var(--accent);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            padding: 48px 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            background-image: url('/images/rim.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
         }
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+
+        .card {
             width: 100%;
-            max-width: 450px;
+            max-width: 900px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(16,24,40,0.06);
+            padding: 40px 48px;
         }
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            text-align: center;
+
+        .step { font-size: 12px; color: var(--muted); letter-spacing: 2px; margin-bottom: 18px; }
+        .heading { font-size: 40px; line-height: 1.05; margin: 0 0 8px; font-weight: 700; }
+        .heading em { font-style: italic; color: var(--accent); font-weight: 700; }
+        .lead { color: var(--muted); margin-bottom: 22px; }
+
+        .note { background: #fffaf0; border-left: 4px solid #f59e0b; padding: 14px 16px; border-radius: 6px; color: #92400e; margin-bottom: 22px; }
+
+        form { display: grid; gap: 16px; }
+        .field { display: flex; flex-direction: column; gap: 8px; }
+        label { font-size: 13px; color: var(--muted); font-weight: 600; }
+        input[type="text"], input[type="email"], input[type="password"] {
+            padding: 12px 14px; border-radius: 6px; border: 1px solid #e6e6e6; font-size: 15px;
+            background: #fff;
         }
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
-            font-weight: bold;
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        input:disabled {
-            background: #f3f4f6;
-            cursor: not-allowed;
-        }
-        .password-wrapper {
-            position: relative;
-        }
-        .password-toggle {
+        input:focus { outline: none; box-shadow: 0 0 0 4px rgba(99,102,241,0.06); border-color: #6b6ef6; }
+
+        .assigned-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 6px 0 0 0; }
+        .assigned-item { background: #fafafa; border: 1px solid #eee; padding: 10px 12px; border-radius: 6px; font-size: 13px; color: #374151; }
+        .assigned-item b { display:block; font-weight:700; margin-bottom:6px; color:#111827 }
+
+        .password-row { position: relative; }
+        input[type="password"] { padding-right: 44px; }
+        .toggle-eye {
             position: absolute;
             right: 12px;
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
-            color: #666;
-            user-select: none;
-            width: 20px;
-            height: 20px;
+            color: #8d93a5;
+            width: 18px;
+            height: 18px;
+            display: inline-grid;
+            place-items: center;
         }
-        .password-toggle svg {
-            width: 100%;
-            height: 100%;
-        }
-        .btn {
-            width: 100%;
-            padding: 12px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        .btn:hover {
-            background: #5568d3;
-        }
-        .alert {
-            padding: 12px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        .alert-error {
-            background: #fee;
-            color: #c33;
-            border: 1px solid #fcc;
-        }
-        .info-box {
-            background: #f0f7ff;
-            padding: 15px;
-            border-radius: 5px;
-            border-left: 4px solid #667eea;
-            margin-bottom: 20px;
-            font-size: 13px;
-            color: #555;
-        }
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-            color: white;
-            background: #667eea;
+        .toggle-eye svg { width: 18px; height: 18px; }
+
+        .btn-primary { margin-top: 12px; background: #0b0b0b; color: #fff; border: none; padding: 14px 18px; border-radius: 8px; font-weight:700; cursor:pointer; }
+
+        .muted-small { font-size: 13px; color: var(--muted); margin-top: 10px; }
+
+        @media (max-width: 720px) {
+            .card { padding: 28px; }
+            .heading { font-size: 28px; }
+            .assigned-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Complete Your Registration</h1>
-        <p class="subtitle">You've been invited as a <span class="badge">{{ ucfirst($invitation->role) }}</span></p>
+    <div class="card">
+        <div class="step">STEP 02 — PROFILE</div>
+        <h1 class="heading">Complete your <em>registration</em>.</h1>
+        <p class="lead">You've been invited as a <strong>{{ strtoupper($invitation->role) }}</strong>. A few details and you're in.</p>
 
-        <div class="info-box">
-            ℹ️ Please complete your profile to access the system.
-        </div>
+        <div class="note">Please complete your profile to access the system.</div>
 
         @if($errors->any())
-        <div class="alert alert-error">
-            <ul style="margin-left: 20px;">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
+            <div style="background:#fff1f2;border:1px solid #fecaca;padding:12px;border-radius:6px;margin-bottom:12px;color:#991b1b;">
+                <ul style="margin:0 0 0 18px;padding:0;">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
         @endif
 
         <form method="POST" action="{{ route('register.invitation.post', $invitation->token) }}">
             @csrf
 
-            <div class="form-group">
-                <label for="email">Email</label>
+            <div class="field">
+                <label for="email">EMAIL</label>
                 <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus>
             </div>
 
-            <div class="form-group">
-                <label for="name">Full Name</label>
+            <div class="field">
+                <label for="name">FULL NAME</label>
                 <input type="text" id="name" name="name" value="{{ old('name') }}" required>
             </div>
 
             @if($invitation->role === 'student')
                 @if($invitation->course)
-                <div class="info-box">
-                    <strong>Assigned Category:</strong> {{ $invitation->course->category_name ?: 'Uncategorized' }}<br>
-                    <strong>Assigned Class:</strong> {{ $invitation->course->class_name ?: 'Unassigned' }}<br>
-                    <strong>Assigned Course:</strong> {{ $invitation->course->name }}
-                </div>
+                    <div>
+                        <div style="font-size:13px;color:#6b7280;margin-bottom:8px;font-weight:600;">Assigned</div>
+                        <div class="assigned-grid">
+                            <div class="assigned-item"><b>Category</b>{{ $invitation->course->category_name ?: 'Uncategorized' }}</div>
+                            <div class="assigned-item"><b>Class</b>{{ $invitation->course->class_name ?: 'Unassigned' }}</div>
+                            <div class="assigned-item"><b>Course</b>{{ $invitation->course->name }}</div>
+                        </div>
+                    </div>
                 @endif
 
-            <div class="form-group">
-                <label for="student_id">Student ID</label>
-                <input type="text" id="student_id" name="student_id" value="{{ old('student_id') }}" required>
-            </div>
+                <div class="field">
+                    <label for="student_id">STUDENT ID</label>
+                    <input type="text" id="student_id" name="student_id" value="{{ old('student_id') }}" required>
+                </div>
 
                 @if(!$invitation->course)
-            <div class="form-group">
-                <label for="class">Class</label>
-                <input type="text" id="class" name="class" value="{{ old('class') }}" placeholder="e.g., Class A" required>
-            </div>
+                    <div class="field">
+                        <label for="class">CLASS</label>
+                        <input type="text" id="class" name="class" value="{{ old('class') }}" placeholder="e.g., Class A" required>
+                    </div>
                 @endif
             @endif
 
             @if($invitation->role === 'teacher')
-            <div class="form-group">
-                <label for="teacher_id">Teacher ID</label>
-                <input type="text" id="teacher_id" name="teacher_id" value="{{ old('teacher_id') }}" required>
-            </div>
+                <div class="field">
+                    <label for="teacher_id">TEACHER ID</label>
+                    <input type="text" id="teacher_id" name="teacher_id" value="{{ old('teacher_id') }}" required>
+                </div>
 
-            <div class="form-group">
-                <label for="subject">Subject</label>
-                <input type="text" id="subject" name="subject" value="{{ old('subject') }}" placeholder="e.g., Mathematics" required>
-            </div>
+                <div class="field">
+                    <label for="subject">SUBJECT</label>
+                    <input type="text" id="subject" name="subject" value="{{ old('subject') }}" placeholder="e.g., Mathematics" required>
+                </div>
             @endif
 
-            <div class="form-group">
-                <label for="password">Password</label>
-                <div class="password-wrapper">
-                    <input type="password" id="password" name="password" required>
-                    <span class="password-toggle" onclick="togglePassword('password')">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                            <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                    </span>
-                </div>
+            <div class="field password-row">
+                <label for="password">PASSWORD</label>
+                <input type="password" id="password" name="password" required>
+                <span class="toggle-eye" onclick="togglePassword('password')" role="button" aria-label="Toggle password visibility">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="#374151" stroke-width="1.25" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="12" r="3" stroke="#374151" stroke-width="1.25" fill="none"/>
+                    </svg>
+                </span>
             </div>
 
-            <div class="form-group">
-                <label for="password_confirmation">Confirm Password</label>
-                <div class="password-wrapper">
-                    <input type="password" id="password_confirmation" name="password_confirmation" required>
-                    <span class="password-toggle" onclick="togglePassword('password_confirmation')">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                            <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                    </span>
-                </div>
+            <div class="field password-row">
+                <label for="password_confirmation">CONFIRM PASSWORD</label>
+                <input type="password" id="password_confirmation" name="password_confirmation" required>
+                <span class="toggle-eye" onclick="togglePassword('password_confirmation')" role="button" aria-label="Toggle password visibility">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="#374151" stroke-width="1.25" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="12" r="3" stroke="#374151" stroke-width="1.25" fill="none"/>
+                    </svg>
+                </span>
             </div>
 
-            <button type="submit" class="btn">Complete Registration</button>
+            <button type="submit" class="btn-primary">Complete registration</button>
+            <div class="muted-small">By continuing you agree to the academic honor code.</div>
         </form>
     </div>
 
     <script>
         function togglePassword(fieldId) {
-            const passwordInput = document.getElementById(fieldId);
-            const toggle = passwordInput.parentElement.querySelector('.password-toggle svg');
+            const input = document.getElementById(fieldId);
+            if (!input) return;
+            const svg = input.parentElement.querySelector('.toggle-eye svg');
+            if (!svg) { input.type = input.type === 'password' ? 'text' : 'password'; return; }
 
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggle.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle><line x1="1" y1="1" x2="23" y2="23" stroke-width="2"></line>';
+            if (input.type === 'password') {
+                input.type = 'text';
+                svg.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="#374151" stroke-width="1.25" fill="none" stroke-linecap="round" stroke-linejoin="round"/> <circle cx="12" cy="12" r="3" stroke="#374151" stroke-width="1.25" fill="none"/> <line x1="1" y1="1" x2="23" y2="23" stroke="#374151" stroke-width="1.25" stroke-linecap="round"/>';
             } else {
-                passwordInput.type = 'password';
-                toggle.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+                input.type = 'password';
+                svg.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="#374151" stroke-width="1.25" fill="none" stroke-linecap="round" stroke-linejoin="round"/> <circle cx="12" cy="12" r="3" stroke="#374151" stroke-width="1.25" fill="none"/>';
             }
         }
     </script>
