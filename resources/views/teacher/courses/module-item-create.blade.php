@@ -607,12 +607,9 @@
                                 </div>
                             </td>
                             <td>
-                                <input type="text" name="outlines[0][criteria][0][topic]" class="criterion-topic sheet-input sheet-topic" placeholder="e.g., Assignment on Network" value="{{ old('outlines.0.criteria.0.topic', '') }}">
+                                <input type="text" name="outlines[0][criteria][0][topic]" class="criterion-topic sheet-input sheet-topic" placeholder="Task title" value="{{ old('outlines.0.criteria.0.topic', '') }}">
                                 <div class="task-actions">
-                                    <button type="button" class="task-action-btn task-add-btn" data-type="assignment" data-topic="Assignment on Network" data-weight="10">+ Assignment</button>
-                                    <button type="button" class="task-action-btn task-add-btn" data-type="test" data-topic="Test" data-weight="15">+ Test</button>
-                                    <button type="button" class="task-action-btn task-add-btn" data-type="quiz" data-topic="quiz" data-weight="5">+ Quiz</button>
-                                    <button type="button" class="task-action-btn task-add-btn" data-type="exam" data-topic="exam" data-weight="20">+ Exam</button>
+                                    <button type="button" class="task-action-btn task-add-btn" data-type="task" data-topic="Task" data-weight="10">+ Add Task</button>
                                 </div>
                             </td>
                             <td>
@@ -744,12 +741,9 @@ function buildChapterSection(index, values = {}) {
                     </div>
                 </td>
                 <td>
-                    <input type="text" name="outlines[${index}][criteria][0][topic]" class="criterion-topic sheet-input sheet-topic" placeholder="e.g., Assignment on Network" value="${String(topic0).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/'/g, '&#039;')}">
+                    <input type="text" name="outlines[${index}][criteria][0][topic]" class="criterion-topic sheet-input sheet-topic" placeholder="Task title" value="${String(topic0).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/'/g, '&#039;')}">
                     <div class="task-actions">
-                        <button type="button" class="task-action-btn task-add-btn" data-type="assignment" data-topic="Assignment on Network" data-weight="10">+ Assignment</button>
-                        <button type="button" class="task-action-btn task-add-btn" data-type="test" data-topic="Test" data-weight="15">+ Test</button>
-                        <button type="button" class="task-action-btn task-add-btn" data-type="quiz" data-topic="quiz" data-weight="5">+ Quiz</button>
-                        <button type="button" class="task-action-btn task-add-btn" data-type="exam" data-topic="exam" data-weight="20">+ Exam</button>
+                        <button type="button" class="task-action-btn task-add-btn" data-type="task" data-topic="Task" data-weight="10">+ Add Task</button>
                     </div>
                 </td>
                 <td>
@@ -809,34 +803,9 @@ function renderDefaultCriteriaRows(index) {
                     <input type="text" name="outlines[${index}][criteria][1][topic]" class="criterion-topic sheet-input sheet-topic" placeholder="Add a task title" value="">
                     <button type="button" class="criterion-remove-btn remove-criterion" aria-label="Remove task">×</button>
                 </div>
-                <div class="task-actions">
-                    <button type="button" class="task-action-btn task-add-btn" data-type="assignment" data-topic="Homework, classwork, or submissions" data-weight="10">+ Assignment</button>
-                    <button type="button" class="task-action-btn task-add-btn" data-type="test" data-topic="Unit test or quiz" data-weight="15">+ Test</button>
-                    <button type="button" class="task-action-btn task-add-btn" data-type="exam" data-topic="Midterm or final exam" data-weight="5">+ Exam</button>
-                </div>
             </td>
             <td><input type="number" name="outlines[${index}][criteria][1][marks]" class="criterion-marks sheet-input sheet-number" value="" min="0" step="0.01" placeholder="Marks"></td>
             <td><input type="number" name="outlines[${index}][criteria][1][weight]" class="criterion-weight sheet-input sheet-number" value="" min="0" step="0.01" placeholder="Weight"></td>
-        </tr>
-        <tr class="criterion-row sheet-row" data-index="2">
-            <td>
-                <div class="criterion-task-box">
-                    <input type="text" name="outlines[${index}][criteria][2][topic]" class="criterion-topic sheet-input sheet-topic" placeholder="Add a task title" value="">
-                    <button type="button" class="criterion-remove-btn remove-criterion" aria-label="Remove task">×</button>
-                </div>
-            </td>
-            <td><input type="number" name="outlines[${index}][criteria][2][marks]" class="criterion-marks sheet-input sheet-number" value="" min="0" step="0.01" placeholder="Marks"></td>
-            <td><input type="number" name="outlines[${index}][criteria][2][weight]" class="criterion-weight sheet-input sheet-number" value="" min="0" step="0.01" placeholder="Weight"></td>
-        </tr>
-        <tr class="criterion-row sheet-row" data-index="3">
-            <td>
-                <div class="criterion-task-box">
-                    <input type="text" name="outlines[${index}][criteria][3][topic]" class="criterion-topic sheet-input sheet-topic" placeholder="Add a task title" value="">
-                    <button type="button" class="criterion-remove-btn remove-criterion" aria-label="Remove task">×</button>
-                </div>
-            </td>
-            <td><input type="number" name="outlines[${index}][criteria][3][marks]" class="criterion-marks sheet-input sheet-number" value="" min="0" step="0.01" placeholder="Marks"></td>
-            <td><input type="number" name="outlines[${index}][criteria][3][weight]" class="criterion-weight sheet-input sheet-number" value="" min="0" step="0.01" placeholder="Weight"></td>
         </tr>`;
 }
 
@@ -989,6 +958,9 @@ function handleFileUpload(input, index) {
         if (previewBtn) previewBtn.href = uploadedFileUrls[index];
         if (downloadBtn) downloadBtn.href = uploadedFileUrls[index];
 
+        if (uploadBox) {
+            uploadBox.style.display = 'none';
+        }
         previewSection.style.display = 'block';
     } else {
         removeFile(index);
@@ -1012,6 +984,9 @@ function removeFile(index) {
     const uploadBox = block.querySelector('#upload-box-' + index);
 
     previewSection.style.display = 'none';
+    if (uploadBox) {
+        uploadBox.style.display = 'flex';
+    }
     uploadBox.style.borderColor = '#e5e7eb';
     uploadBox.style.background = 'transparent';
     block.querySelector('#upload-icon-' + index).textContent = '📁';
