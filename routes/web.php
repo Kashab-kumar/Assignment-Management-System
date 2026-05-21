@@ -186,6 +186,8 @@ Route::post('/submissions/{submission}/grade-ai', [TeacherAssignmentController::
 
     // Students / Grades / Reports
     Route::get('/students', [TeacherStudentController::class, 'index'])->name('students.index');
+    Route::get('/students/create', [TeacherStudentController::class, 'create'])->name('students.create');
+    Route::post('/students', [TeacherStudentController::class, 'store'])->name('students.store');
     Route::post('/students/invitations', [TeacherStudentController::class, 'storeInvitation'])->name('students.invitations.store');
     Route::get('/students/invitations/{invitation}', [TeacherStudentController::class, 'showInvitation'])->name('students.invitations.show');
     Route::get('/grades', [TeacherGradeController::class, 'index'])->name('grades.index');

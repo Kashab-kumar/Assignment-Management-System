@@ -15,7 +15,7 @@ class UserController extends Controller
         $users = User::with(['student', 'teacher'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
-        
+
         return view('admin.users.index', compact('users'));
     }
 
@@ -30,29 +30,23 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
-            'role' => 'required|in:admin,teacher,student',
+            // Admin may only create teacher accounts now
         ]);
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
-            'role' => $validated['role'],
+            'role' => 'teacher',
             'email_verified_at' => now(),
         ]);
-
-        // Create role-specific records
-        if ($validated['role'] === 'student') {
-            Student::create([
-                'user_id' => $user->id,
-                'student_id' => 'STU' . str_pad($user->id, 5, '0', STR_PAD_LEFT),
-            ]);
-        } elseif ($validated['role'] === 'teacher') {
-            Teacher::create([
-                'user_id' => $user->id,
-                'teacher_id' => 'TCH' . str_pad($user->id, 5, '0', STR_PAD_LEFT),
-            ]);
-        }
+        // Create teacher record for admin-created users
+        Teacher::create([
+            'user_id' => $user->id,
+            'teacher_id' => 'TCH' . str_pad($user->id, 5, '0', STR_PAD_LEFT),
+            'name' => $user->name,
+            'email' => $user->email,
+        ]);
 
         return redirect()->route('admin.users.show', $user)
             ->with('success', 'User created successfully!');
@@ -75,10 +69,13 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'role' => 'required|in:admin,teacher,student',
+            // Role cannot be changed via this form; admin-created users are teachers
         ]);
 
-        $user->update($validated);
+        $user->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+        ]);
 
         return redirect()->route('admin.users.show', $user)
             ->with('success', 'User updated successfully!');

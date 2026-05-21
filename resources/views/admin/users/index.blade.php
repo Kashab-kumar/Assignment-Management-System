@@ -91,13 +91,13 @@
         <x-ui.table>
             <x-slot name="head">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
-                    <th class="px-6 py-3"></th>
+                    <th style="width:6%;" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th style="width:25%;" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                    <th style="width:28%;" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th style="width:8%;" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                    <th style="width:8%;" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th style="width:10%;" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+                    <th style="width:15%;" class="px-6 py-3"></th>
                 </tr>
             </x-slot>
 
@@ -113,7 +113,7 @@
                     @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->email }}</td>
-                <td class="px-6 py-4 whitespace-nowrap"><span class="role-badge role-{{ $user->role }}">{{ ucfirst($user->role) }}</span></td>
+                <td class="px-6 py-4 whitespace-nowrap"><span class="role-badge ui-role-badge role-{{ $user->role }}">{{ ucfirst($user->role) }}</span></td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">● Active</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->created_at->format('d/m/Y') }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm">

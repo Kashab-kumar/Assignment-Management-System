@@ -57,16 +57,9 @@
 
         <div class="form-group">
             <label for="role">User Role <span class="required">*</span></label>
-            <select id="role" name="role" class="form-control" required>
-                <option value="">Select Role</option>
-                <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Administrator</option>
-                <option value="teacher" {{ old('role') == 'teacher' ? 'selected' : '' }}>Teacher</option>
-                <option value="student" {{ old('role') == 'student' ? 'selected' : '' }}>Student</option>
-            </select>
-            <div class="help-text">Student/Teacher ID will be auto-generated</div>
-            @error('role')
-                <div class="error-message">{{ $message }}</div>
-            @enderror
+            <input type="hidden" id="role" name="role" value="teacher">
+            <div style="padding:10px 12px; border:1px solid #eee; border-radius:4px; background:#fafafa;">Teacher (only teacher accounts can be created here)</div>
+            <div class="help-text">Teacher ID will be auto-generated</div>
         </div>
 
         <div class="form-group">

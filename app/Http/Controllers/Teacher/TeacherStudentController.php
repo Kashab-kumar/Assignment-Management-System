@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Invitation;
 use App\Models\Student;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
@@ -38,6 +39,20 @@ class TeacherStudentController extends Controller
             ->get();
 
         return view('teacher.students.index', compact('students', 'courses', 'studentInvitations'));
+    }
+
+    public function create()
+    {
+        $assignedCourseIds = $this->assignedCourseIds();
+
+        $courses = Course::query()
+            ->whereIn('id', $assignedCourseIds)
+            ->orderBy('category_name')
+            ->orderBy('class_name')
+            ->orderBy('name')
+            ->get();
+
+        return view('teacher.students.create', compact('courses'));
     }
 
     public function storeInvitation(Request $request)
@@ -74,6 +89,40 @@ class TeacherStudentController extends Controller
         $inviteLink = request()->getSchemeAndHttpHost() . $invitePath;
 
         return view('teacher.students.invitation-show', compact('invitation', 'inviteLink'));
+    }
+
+    public function store(Request $request)
+    {
+        $assignedCourseIds = $this->assignedCourseIds();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8|confirmed',
+            'student_id' => 'required|string|unique:students,student_id',
+            'course_id' => ['required', Rule::in($assignedCourseIds)],
+        ]);
+
+        // Create user
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => bcrypt($validated['password']),
+            'role' => 'student',
+            'email_verified_at' => now(),
+        ]);
+
+        // Create student record
+        Student::create([
+            'user_id' => $user->id,
+            'student_id' => $validated['student_id'],
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'course_id' => $validated['course_id'],
+        ]);
+
+        return redirect()->route('teacher.students.index')
+            ->with('success', 'Student created successfully!');
     }
 
     private function assignedCourseIds(): array
